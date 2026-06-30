@@ -1,0 +1,144 @@
+* {
+    font-family: "Arial", sans-serif;
+    font-size: 11px;
+}
+
+window {
+    background-color: #c0c0c0;
+}
+
+menubar {
+    background-color: #c0c0c0;
+    border-bottom: 1px solid #808080;
+    padding: 1px;
+}
+
+menubar > item {
+    padding: 2px 6px;
+    color: #000000;
+}
+
+menubar > item:hover {
+    background-color: #000080;
+    color: #ffffff;
+}
+
+popover contents {
+    background-color: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    padding: 2px;
+}
+
+popover modelbutton {
+    padding: 2px 16px;
+    color: #000000;
+    border-radius: 0;
+}
+
+popover modelbutton:hover {
+    background-color: #000080;
+    color: #ffffff;
+}
+
+button {
+    background-image: none;
+    background-color: #c0c0c0;
+    border-radius: 0;
+    border: 2px solid;
+    border-color: #ffffff #808080 #808080 #ffffff;
+    box-shadow: 1px 1px 0 #000000;
+    padding: 2px 8px;
+    color: #000000;
+}
+
+button:hover {
+    background-color: #c0c0c0;
+}
+
+button:active {
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: none;
+    padding: 3px 7px 1px 9px;
+}
+
+.calendar-navbar {
+    background: linear-gradient(to right, #000080, #1084d0);
+    padding: 4px;
+    border-bottom: 2px solid #808080;
+}
+
+.calendar-navbar label {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.calendar-navbar button {
+    background-color: #c0c0c0;
+    min-width: 28px;
+    min-height: 20px;
+}
+
+.calendar-header-cell {
+    background-color: #000080;
+    font-weight: bold;
+    border: 1px solid #808080;
+}
+
+.calendar-header-cell label {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+frame {
+    background-color: #c0c0c0;
+    border: 1px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+}
+
+frame > border {
+    border: none;
+}
+
+.today {
+    background-color: #000080;
+}
+
+.today label {
+    color: #ffffff;
+}
+
+.calendar-entry-label {
+    color: #000000;
+    padding: 1px 2px;
+}
+
+.calendar-entry-label:hover {
+    background-color: #000080;
+    color: #ffffff;
+}
+
+.calendar-entry-delete {
+    color: #000000;
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    font-size: 9px;
+}
+
+dialog {
+    background-color: #c0c0c0;
+}
+
+dialog .dialog-vbox {
+    background-color: #c0c0c0;
+}
+
+entry {
+    background-color: #ffffff;
+    border: 2px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    border-radius: 0;
+    padding: 2px 4px;
+    color: #000000;
+}

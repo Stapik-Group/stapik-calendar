@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Stapik Calendar
+Comment=Oldschool calendar
+Exec=%INSTALL_DIR%/bin/stapikcalendar
+Icon=%INSTALL_DIR%/icon.png
+Terminal=false
+Categories=Office;Calendar;
+StartupWMClass=stapikcalendar
