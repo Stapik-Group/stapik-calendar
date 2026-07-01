@@ -1,8 +1,8 @@
 #include <gtkmm.h>
 
-#include "AppPaths.hpp"
-#include "AppStyleProvider.hpp"
-#include "MainWindow.hpp"
+#include "infrastructure/storage/AppPaths.hpp"
+#include "ui/style/AppStyleProvider.hpp"
+#include "ui/window/MainWindow.hpp"
 
 int main(const int argc, char *argv[])
 {

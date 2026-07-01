@@ -2,7 +2,7 @@
 
 A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Styled after the retro old-school aesthetic.
 
-![Alt text](./screenshots/screenshot_1.png?raw=true "Title")
+![Alt text](https://github.com/Stapik-Group/stapik-calendar/blob/master/screenshots/screenshot_1.png?raw=true "Stapik Calendar interface")
 
 ## Features
 
