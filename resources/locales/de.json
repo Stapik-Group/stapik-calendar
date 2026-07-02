@@ -1,6 +1,7 @@
 {
   "menu.file": "Datei",
   "menu.file.connect": "Verbinden",
+  "menu.file.sync": "Synchronisieren",
   "menu.file.quit": "Beenden",
   "menu.edit": "Bearbeiten",
   "menu.edit.undo": "Rückgängig",
@@ -58,6 +59,7 @@
 
   "entry.default_name": "Ohne Namen",
 
+  "cloud.connected": "Verbunden",
   "cloud.connected.header": "Verbunden",
   "cloud.connected.secondary": "Die Synchronisierung funktioniert einwandfrei.",
   "cloud.failed.header": "Verbindungsfehler"

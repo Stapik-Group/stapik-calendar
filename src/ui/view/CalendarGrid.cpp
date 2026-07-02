@@ -20,7 +20,10 @@
 CalendarGrid::CalendarGrid()
 {
     m_currentYearMonth = DateUtils::todayYearMonth();
-    m_entries = CalendarStorage::load();
+
+    const auto [entries, lastUpdate] = CalendarStorage::load();
+    m_entries = entries;
+    m_lastUpdate = lastUpdate;
 
     initLayout();
     connectCellSignals();
@@ -133,6 +136,7 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
         return;
 
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex)));
+    touchLastUpdate();
     saveEntries();
     populateCells();
 }
@@ -164,6 +168,7 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
                 else
                     m_history.execute(std::make_unique<AddEntryCommand>(m_entries, date, std::move(result.value())));
 
+                touchLastUpdate();
                 saveEntries();
                 populateCells();
             }
@@ -229,6 +234,7 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
                 Glib::signal_idle().connect_once([this, date, entry]
                 {
                     m_history.execute(std::make_unique<AddEntryCommand>(m_entries, date, entry));
+                    touchLastUpdate();
                     saveEntries();
                     populateCells();
                 });
@@ -240,13 +246,15 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
 
 void CalendarGrid::saveEntries() const
 {
-    CalendarStorage::save(m_entries);
+    const CalendarSnapshot snapshot{ m_entries, m_lastUpdate };
+    CalendarStorage::save(snapshot);
+
     if (m_cloudClient != nullptr)
     {
         g_message("[Cloud] Saving in cloud...");
         try
         {
-            m_cloudClient->saveJson(CalendarStorage::toJson(m_entries));
+            m_cloudClient->saveJson(CalendarStorage::toJson(snapshot));
             g_message("[Cloud] Saved in cloud.");
         }
         catch (const CloudStorageException& e)
@@ -259,6 +267,7 @@ void CalendarGrid::saveEntries() const
 void CalendarGrid::undo()
 {
     m_history.undo();
+    touchLastUpdate();
     saveEntries();
     populateCells();
 }
@@ -266,6 +275,7 @@ void CalendarGrid::undo()
 void CalendarGrid::redo()
 {
     m_history.redo();
+    touchLastUpdate();
     saveEntries();
     populateCells();
 }
@@ -281,23 +291,20 @@ void CalendarGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    g_message("[Cloud] Reading from cloud...");
+    const CalendarSnapshot local{ m_entries, m_lastUpdate };
+    const auto resolved = CalendarSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
 
-    try
-    {
-        const auto json = m_cloudClient->loadJson();
-        if (json.empty())
-        {
-            g_message("[Cloud] No data in cloud.");
-            return;
-        }
+    m_entries = resolved.entries;
+    m_lastUpdate = resolved.lastUpdate;
+    populateCells();
+}
 
-        m_entries = CalendarStorage::fromJson(json);
-        g_message("[Cloud] Read from cloud with success.");
-        populateCells();
-    }
-    catch (const CloudStorageException& e)
-    {
-        g_warning("[Cloud] Cloud reading error: %s", e.what());
-    }
+void CalendarGrid::retrySync()
+{
+    syncFromCloud();
+}
+
+void CalendarGrid::touchLastUpdate()
+{
+    m_lastUpdate = std::chrono::system_clock::now();
 }

@@ -1,6 +1,7 @@
 {
   "menu.file": "File",
   "menu.file.connect": "Connect",
+  "menu.file.sync": "Sync",
   "menu.file.quit": "Exit",
   "menu.edit": "Edit",
   "menu.edit.undo": "Undo",
@@ -58,6 +59,7 @@
 
   "entry.default_name": "No name",
 
+  "cloud.connected": "Connected",
   "cloud.connected.header": "Connected",
   "cloud.connected.secondary": "Synchronization is working properly",
   "cloud.failed.header": "Connection error"

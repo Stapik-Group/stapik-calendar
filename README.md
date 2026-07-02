@@ -10,7 +10,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sty
 - **Calendar entries** - add, edit and delete entries with a name and optional link
 - **Quick add from clipboard** - right-clicking a cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
 - **Undo/Redo** - full operation history for adding, editing and deleting entries
-- **Cloud sync** - save and load data via an external API (compatible with a self-hosted server)
+- **Cloud sync** - save and load data via an external API (compatible with a self-hosted server), with automatic conflict resolution based on timestamps
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Auto-save** - calendar data saved locally after every change
 - **Retro aesthetic** — classic look with raised buttons, blue navigation bar and grey cells
@@ -19,6 +19,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sty
 
 - `gtkmm-4.0`
 - `libcurl`
+- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) (fetched automatically via CMake FetchContent)
 - `nlohmann/json` (fetched automatically via CMake FetchContent)
 
 On Ubuntu/Debian:
@@ -54,7 +55,13 @@ rm ~/.local/share/applications/stapikcalendar.desktop
 
 ## Cloud Sync
 
-The app supports synchronization via a self-hosted API server. Go to **File → Connect**, enter the server URL and API key. Data is automatically synced after every change.
+The app supports synchronization via a self-hosted API server. Go to **File → Connect**, enter the server URL and API key.
+
+Once connected, the app compares the local file and the cloud copy using a `lastUpdate` timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the older one is fully replaced.
+
+Data is saved locally after every change, and the app also attempts to push it to the cloud right away. If the cloud is unreachable at that moment, the change stays saved locally and the app quietly retries on the next save — no data is lost, but the cloud copy will lag behind until the next successful write. You can also trigger a sync manually from **File → Sync**.
+
+**Caution for multi-device use:** since conflict resolution is whole-document and last-write-wins, editing the calendar offline on two different machines before either one reconnects can cause one set of changes to be silently discarded. If you use the app on more than one device, make sure to sync (or at least go online) after each editing session to avoid overwriting your own changes.
 
 The API must expose two endpoints:
 - `GET /read?filename=calendar.json` — returns `{ "content": "..." }`
@@ -67,10 +74,8 @@ Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`
 ## TODO
 
 - [x] General refactor
-- [ ] System notifications for upcoming entries
-- [ ] Week and day view
+- [x] Cloud sync with conflict resolution
 - [ ] Export to iCal format (.ics)
 - [ ] Entry colors — assign a color to each entry
 - [ ] Drag and drop entries between cells
-- [ ] Entry search
 - [ ] Flatpak / .deb package for easier distribution

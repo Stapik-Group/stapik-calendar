@@ -23,6 +23,7 @@ void MenuActionHandler::registerActions()
     m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
     m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
     m_window.add_action("about", sigc::mem_fun(*this, &MenuActionHandler::onActionAbout));
+    m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
 }
 
 void MenuActionHandler::onActionConnect() const
@@ -91,4 +92,9 @@ void MenuActionHandler::onActionRedo() const
 void MenuActionHandler::onActionAbout() const
 {
     showAutoDeletingDialog<AboutDialog>(m_window);
+}
+
+void MenuActionHandler::onActionSync() const
+{
+    m_calendarGrid.retrySync();
 }

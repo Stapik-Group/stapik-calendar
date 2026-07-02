@@ -24,6 +24,7 @@ void MainMenu::buildModel()
 
     const auto menuFile = Gio::Menu::create();
     menuFile->append(loc.translate("menu.file.connect"), "win.connect");
+    menuFile->append(loc.translate("menu.file.sync"), "win.sync");
     menuFile->append(loc.translate("menu.file.quit"), "win.quit");
     m_menuModel->append_submenu(loc.translate("menu.file"), menuFile);
 

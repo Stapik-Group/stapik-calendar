@@ -21,6 +21,7 @@ private:
     void onActionUndo() const;
     void onActionRedo() const;
     void onActionAbout() const;
+    void onActionSync() const;
 
     void handleConnectResult(const CloudStorageConfig& config) const;
     void applyCloudConfig(const CloudStorageConfig& config) const;

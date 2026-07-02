@@ -1,18 +1,20 @@
 #include "CalendarStorage.hpp"
 
+#include "stapik/sync/SyncEnvelope.hpp"
+
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-void CalendarStorage::save(const CalendarEntries &entries)
+void CalendarStorage::save(const CalendarSnapshot& snapshot)
 {
     const auto path = storagePath();
     std::filesystem::create_directories(path.parent_path());
 
     std::ofstream file(path);
-    file << toJson(entries).dump(2);
+    file << toJson(snapshot).dump(2);
 }
 
-CalendarEntries CalendarStorage::load()
+CalendarSnapshot CalendarStorage::load()
 {
     const auto path = storagePath();
     if (!std::filesystem::exists(path))
@@ -62,7 +64,7 @@ std::chrono::year_month_day CalendarStorage::deserializeDate(const std::string &
     };
 }
 
-nlohmann::json CalendarStorage::toJson(const CalendarEntries& entries)
+nlohmann::json CalendarStorage::entriesToJson(const CalendarEntries& entries)
 {
     nlohmann::json json = nlohmann::json::array();
 
@@ -77,25 +79,41 @@ nlohmann::json CalendarStorage::toJson(const CalendarEntries& entries)
     return json;
 }
 
-CalendarEntries CalendarStorage::fromJson(const nlohmann::json& json)
+CalendarEntries CalendarStorage::entriesFromJson(const nlohmann::json& json)
 {
     CalendarEntries entries;
 
+    for (const auto& item : json)
+    {
+        const auto date = deserializeDate(item.at("date").get<std::string>());
+        entries[date].emplace_back(
+            item.at("name").get<std::string>(),
+            item.at("link").get<std::string>()
+        );
+    }
+
+    return entries;
+}
+
+nlohmann::json CalendarStorage::toJson(const CalendarSnapshot& snapshot)
+{
+    const stapik::sync::SyncEnvelope envelope{ snapshot.lastUpdate, entriesToJson(snapshot.entries) };
+    return envelope.toJson();
+}
+
+CalendarSnapshot CalendarStorage::fromJson(const nlohmann::json& json)
+{
     try
     {
-        for (const auto& item : json)
-        {
-            const auto date = deserializeDate(item.at("date").get<std::string>());
-            entries[date].emplace_back(
-                item.at("name").get<std::string>(),
-                item.at("link").get<std::string>()
-            );
-        }
+        // Legacy pre-sync files: bare array, no envelope/timestamp.
+        if (json.is_array())
+            return CalendarSnapshot{ entriesFromJson(json), std::chrono::system_clock::time_point{} };
+
+        const auto envelope = stapik::sync::SyncEnvelope::fromJson(json);
+        return CalendarSnapshot{ entriesFromJson(envelope.payload), envelope.lastUpdate };
     }
     catch (const nlohmann::json::exception&)
     {
         return {};
     }
-
-    return entries;
 }

@@ -3,6 +3,7 @@
 #include "CalendarCell.hpp"
 #include "../../core/command/CalendarCommandHistory.hpp"
 #include "../../core/model/CalendarEntries.hpp"
+#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
 
@@ -18,6 +19,7 @@ public:
     void undo();
     void redo();
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
+    void retrySync();
 private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;
@@ -26,6 +28,7 @@ private:
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
     CalendarEntries m_entries;
+    std::chrono::system_clock::time_point m_lastUpdate{};
     CalendarCommandHistory m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
@@ -34,6 +37,7 @@ private:
     void connectCellSignals();
     void saveEntries() const;
     void syncFromCloud();
+    void touchLastUpdate();
 
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);
