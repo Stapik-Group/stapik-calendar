@@ -1,5 +1,5 @@
 #include "CloudStorageConfigStorage.hpp"
-#include "CloudStorageConfig.hpp"
+#include "stapik/cloud/CloudStorageException.hpp"
 
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -47,7 +47,7 @@ std::filesystem::path CloudStorageConfigStorage::configPath()
 {
     const auto* home = std::getenv("HOME");
     if (home == nullptr)
-        throw CloudStorageConfigException("No HOME in PATH");
+        throw CloudStorageException("No HOME in PATH");
 
     return std::filesystem::path(home) / ".local" / "share" / "stapikcalendar" / "config.json";
 }

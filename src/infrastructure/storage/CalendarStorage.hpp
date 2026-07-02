@@ -1,11 +1,11 @@
 #pragma once
 
+#include "../../core/model/CalendarEntries.hpp"
+
 #include <chrono>
 #include <filesystem>
-#include <map>
 #include <nlohmann/json.hpp>
-
-#include "../../core/model/CalendarEntry.hpp"
+#include <stdexcept>
 
 class CalendarStorageException : public std::runtime_error
 {
@@ -16,11 +16,10 @@ public:
 class CalendarStorage
 {
 public:
-    using Entries = std::map<std::chrono::year_month_day, std::vector<CalendarEntry>>;
-    static void save(const Entries& entries);
-    static Entries load();
-    static nlohmann::json toJson(const Entries& entries);
-    static Entries fromJson(const nlohmann::json& json);
+    static void save(const CalendarEntries& entries);
+    [[nodiscard]] static CalendarEntries load();
+    [[nodiscard]] static nlohmann::json toJson(const CalendarEntries& entries);
+    [[nodiscard]] static CalendarEntries fromJson(const nlohmann::json& json);
 private:
     static std::filesystem::path storagePath();
     static std::string serializeDate(std::chrono::year_month_day date);

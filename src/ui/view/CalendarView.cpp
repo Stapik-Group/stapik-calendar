@@ -1,6 +1,8 @@
 #include "CalendarView.hpp"
 
-CalendarView::CalendarView() : Box(Gtk::Orientation::VERTICAL, 0), m_currentYearMonth(currentYearMonth())
+#include "../../core/util/DateUtils.hpp"
+
+CalendarView::CalendarView() : Box(Gtk::Orientation::VERTICAL, 0), m_currentYearMonth(DateUtils::todayYearMonth())
 {
     initLayout();
     initNavigation();
@@ -53,13 +55,6 @@ void CalendarView::refreshView()
 {
     m_navBar.updateDisplay(m_currentYearMonth);
     m_grid.displayMonth(m_currentYearMonth);
-}
-
-std::chrono::year_month CalendarView::currentYearMonth()
-{
-    using namespace std::chrono;
-    const auto today = year_month_day{floor<days>(system_clock::now())};
-    return year_month{today.year(), today.month()};
 }
 
 CalendarGrid& CalendarView::getCalendarGrid()

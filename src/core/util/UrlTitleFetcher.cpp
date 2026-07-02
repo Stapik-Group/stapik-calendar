@@ -1,16 +1,20 @@
 #include "UrlTitleFetcher.hpp"
 
 #include <curl/curl.h>
-#include <thread>
+#include <glibmm/main.h>
 #include <regex>
+#include <thread>
 
 void UrlTitleFetcher::fetchAsync(const std::string& url, const Callback& onComplete)
 {
     std::jthread([url, onComplete]
     {
         const auto title = fetchTitle(url);
-        onComplete(title);
-    });
+        Glib::signal_idle().connect_once([onComplete, title]
+        {
+            onComplete(title);
+        });
+    }).detach();
 }
 
 std::string UrlTitleFetcher::fetchTitle(const std::string& url)
@@ -25,8 +29,8 @@ std::string UrlTitleFetcher::fetchTitle(const std::string& url)
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &html);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
-    curl_easy_setopt(curl, CURLOPT_MAXFILESIZE, 512000L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, kTimeoutSeconds);
+    curl_easy_setopt(curl, CURLOPT_MAXFILESIZE, kMaxHtmlSizeBytes);
     curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
     curl_easy_perform(curl);
@@ -37,20 +41,20 @@ std::string UrlTitleFetcher::fetchTitle(const std::string& url)
 
 std::string UrlTitleFetcher::parseTitle(const std::string &html)
 {
-    const std::regex titleRegex(R"(<title[^>]*>([\s\S]*?)<\/title>)", std::regex::icase);
+    static const std::regex titleRegex(R"(<title[^>]*>([\s\S]*?)<\/title>)", std::regex::icase);
     std::smatch match;
     if (!std::regex_search(html, match, titleRegex))
         return {};
     return match[1].str();
 }
 
-size_t UrlTitleFetcher::writeCallback(const char* ptr, size_t size, const size_t nmemb, std::string* html)
+size_t UrlTitleFetcher::writeCallback(const char* ptr, const size_t size, const size_t nmemb, std::string* html)
 {
     const size_t totalSize = size * nmemb;
 
-    if (constexpr size_t MAX_SIZE = 512000; html->size() + totalSize > MAX_SIZE)
+    if (constexpr auto maxSize = static_cast<size_t>(kMaxHtmlSizeBytes); html->size() + totalSize > maxSize)
     {
-        const size_t remaining = MAX_SIZE - html->size();
+        const size_t remaining = maxSize - html->size();
         html->append(ptr, remaining);
         return 0;
     }

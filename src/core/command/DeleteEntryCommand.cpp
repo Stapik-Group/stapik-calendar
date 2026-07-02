@@ -1,22 +1,22 @@
 #include "DeleteEntryCommand.hpp"
 
-DeleteEntryCommand::DeleteEntryCommand(Entries& entries, const std::chrono::year_month_day date, const int entryIndex) :
-    m_entries(entries),
-    m_date(date),
-    m_entryIndex(entryIndex),
-    m_deletedEntry(m_entries.at(date)[entryIndex]) {}
+DeleteEntryCommand::DeleteEntryCommand(CalendarEntries& entries,
+    const std::chrono::year_month_day date,
+    const std::size_t entryIndex) :
+    IndexedEntryCommand(entries, date, entryIndex),
+    m_deletedEntry(dayEntries().at(entryIndex)) {}
 
 void DeleteEntryCommand::execute()
 {
-    auto& dayEntries = m_entries[m_date];
-    dayEntries.erase(dayEntries.begin() + m_entryIndex);
+    auto& entries = dayEntries();
+    entries.erase(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_entryIndex));
 
-    if (dayEntries.empty())
+    if (entries.empty())
         m_entries.erase(m_date);
 }
 
 void DeleteEntryCommand::undo()
 {
-    auto& dayEntries = m_entries[m_date];
-    dayEntries.insert(dayEntries.begin() + m_entryIndex, m_deletedEntry);
+    auto& entries = m_entries[m_date];
+    entries.insert(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_entryIndex), m_deletedEntry);
 }

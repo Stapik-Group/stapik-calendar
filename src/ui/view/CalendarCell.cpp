@@ -4,7 +4,7 @@
 
 CalendarCell::CalendarCell() :
     m_outerBox(Gtk::Orientation::VERTICAL, 0),
-    m_entriesBox(Gtk::Orientation::VERTICAL, 2)
+    m_entriesBox(Gtk::Orientation::VERTICAL, ENTRIES_SPACING)
 {
     initLayout();
     initGesture();
@@ -14,16 +14,16 @@ void CalendarCell::initLayout()
 {
     m_dayLabel.set_halign(Gtk::Align::END);
     m_dayLabel.set_valign(Gtk::Align::START);
-    m_dayLabel.set_margin(4);
+    m_dayLabel.set_margin(CELL_MARGIN);
 
     m_scrolledWindow.set_child(m_entriesBox);
     m_scrolledWindow.set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
     m_scrolledWindow.set_vexpand(true);
     m_scrolledWindow.set_overlay_scrolling(false);
 
-    m_entriesBox.set_margin_start(4);
-    m_entriesBox.set_margin_end(4);
-    m_entriesBox.set_margin_bottom(4);
+    m_entriesBox.set_margin_start(CELL_MARGIN);
+    m_entriesBox.set_margin_end(CELL_MARGIN);
+    m_entriesBox.set_margin_bottom(CELL_MARGIN);
 
     m_outerBox.append(m_dayLabel);
     m_outerBox.append(m_scrolledWindow);
@@ -34,16 +34,16 @@ void CalendarCell::initLayout()
 void CalendarCell::initGesture()
 {
     m_gestureClick = Gtk::GestureClick::create();
-    m_gestureClick->set_button(1);
+    m_gestureClick->set_button(LEFT_MOUSE_BUTTON);
     m_gestureClick->signal_pressed().connect(
         [this](const int nPress, double, double) {
-            if (nPress == 2) m_signalDoubleClicked.emit();
+            if (nPress == DOUBLE_CLICK_COUNT) m_signalDoubleClicked.emit();
         });
 
     add_controller(m_gestureClick);
 
     m_gestureRightClick = Gtk::GestureClick::create();
-    m_gestureRightClick->set_button(3);
+    m_gestureRightClick->set_button(RIGHT_MOUSE_BUTTON);
     m_gestureRightClick->signal_pressed().connect(
         [this](int, double, double)
         {
@@ -112,5 +112,3 @@ sigc::signal<void()> &CalendarCell::signalRightClicked()
 {
     return m_signalRightClicked;
 }
-
-

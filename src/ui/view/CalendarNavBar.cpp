@@ -10,7 +10,7 @@ namespace
     };
 }
 
-CalendarNavBar::CalendarNavBar() : Box(Gtk::Orientation::HORIZONTAL, 4)
+CalendarNavBar::CalendarNavBar() : Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING)
 {
     initButtons();
     initLayout();
@@ -35,7 +35,7 @@ void CalendarNavBar::initLayout()
 {
     add_css_class("calendar-navbar");
     set_halign(Gtk::Align::CENTER);
-    set_margin(4);
+    set_margin(BOX_MARGIN);
 
     append(m_btnPrevYear);
     append(m_btnPrevMonth);
@@ -43,7 +43,7 @@ void CalendarNavBar::initLayout()
     append(m_btnNextMonth);
     append(m_btnNextYear);
 
-    m_currentLabel.set_width_chars(20);
+    m_currentLabel.set_width_chars(LABEL_WIDTH_CHARS);
     m_currentLabel.set_halign(Gtk::Align::CENTER);
 }
 
@@ -55,6 +55,9 @@ void CalendarNavBar::updateDisplay(const std::chrono::year_month yearMonth)
 
 std::string CalendarNavBar::formatYearMonth(const std::chrono::year_month yearMonth)
 {
+    if (!yearMonth.ok())
+        return {};
+
     const auto monthIndex = static_cast<unsigned>(yearMonth.month()) - 1;
     const auto year = static_cast<int>(yearMonth.year());
 

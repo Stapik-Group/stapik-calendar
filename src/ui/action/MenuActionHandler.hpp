@@ -11,6 +11,8 @@ public:
 
     void registerActions();
 private:
+    static constexpr auto CALENDAR_FILENAME = "calendar.json";
+
     Gtk::ApplicationWindow& m_window;
     CalendarGrid& m_calendarGrid;
 
@@ -19,4 +21,7 @@ private:
     void onActionUndo() const;
     void onActionRedo() const;
     void onActionAbout() const;
+
+    void handleConnectResult(const CloudStorageConfig& config) const;
+    void applyCloudConfig(const CloudStorageConfig& config) const;
 };

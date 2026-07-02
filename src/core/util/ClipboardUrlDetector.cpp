@@ -24,6 +24,6 @@ void ClipboardUrlDetector::detectAsync(const Glib::RefPtr<Gdk::Clipboard>& clipb
 
 bool ClipboardUrlDetector::isValidUrl(const std::string &text)
 {
-    const std::regex urlRegex(R"(^https?://[^\s/$.?#].[^\s]*$)", std::regex_constants::icase);
+    static const std::regex urlRegex(R"(^https?://[^\s/$.?#].[^\s]*$)", std::regex_constants::icase);
     return std::regex_match(text, urlRegex);
 }

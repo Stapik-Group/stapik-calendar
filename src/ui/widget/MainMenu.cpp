@@ -2,7 +2,8 @@
 
 #include "../../core/locale/LocaleManager.hpp"
 
-MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) : m_window(window), m_actionHandler(window, calendarGrid)
+MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) : m_window(window),
+    m_actionHandler(window, calendarGrid)
 {
     m_actionHandler.registerActions();
     initLanguageAction();
@@ -56,15 +57,16 @@ void MainMenu::initLanguageAction() const
 
     auto action = Gio::SimpleAction::create_radio_string("setLanguage", initialValue);
 
-    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
+    action->signal_activate().connect([action](const Glib::VariantBase &parameter)
     {
-        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
+        using enum Locale;
+        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring> >(parameter).get();
 
         action->change_state(value);
 
-        if (value == "pl") LocaleManager::instance().setLocale(Locale::PL);
-        else if (value == "en") LocaleManager::instance().setLocale(Locale::EN);
-        else if (value == "de") LocaleManager::instance().setLocale(Locale::DE);
+        if (value == "pl") LocaleManager::instance().setLocale(PL);
+        else if (value == "en") LocaleManager::instance().setLocale(EN);
+        else if (value == "de") LocaleManager::instance().setLocale(DE);
     });
 
     m_window.add_action(action);

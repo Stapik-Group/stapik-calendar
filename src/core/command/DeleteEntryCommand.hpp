@@ -1,22 +1,13 @@
 #pragma once
 
-#include "CalendarCommand.hpp"
-#include "../model/CalendarEntry.hpp"
+#include "IndexedEntryCommand.hpp"
 
-#include <chrono>
-#include <map>
-#include <vector>
-
-class DeleteEntryCommand : public CalendarCommand
+class DeleteEntryCommand : public IndexedEntryCommand
 {
 public:
-    using Entries = std::map<std::chrono::year_month_day, std::vector<CalendarEntry>>;
-    DeleteEntryCommand(Entries& entries, std::chrono::year_month_day date, int entryIndex);
+    DeleteEntryCommand(CalendarEntries& entries, std::chrono::year_month_day date, std::size_t entryIndex);
     void execute() override;
     void undo() override;
 private:
-    Entries& m_entries;
-    std::chrono::year_month_day m_date;
-    int m_entryIndex;
     CalendarEntry m_deletedEntry;
 };

@@ -50,6 +50,7 @@
   "dialog.connect.success.title": "Mit der Cloud verbunden",
   "dialog.connect.success.text": "Die Synchronisierung funktioniert einwandfrei.",
   "dialog.connect.error.title": "Verbindungsfehler",
+  "dialog.connect.key.placeholder": "API-Schlüssel eingeben...",
 
   "dialog.about.title": "Über",
   "dialog.about.version": "Version:",
@@ -57,5 +58,7 @@
 
   "entry.default_name": "Ohne Namen",
 
-  "dialog.connect.key.placeholder": "API-Schlüssel eingeben..."
+  "cloud.connected.header": "Verbunden",
+  "cloud.connected.secondary": "Die Synchronisierung funktioniert einwandfrei.",
+  "cloud.failed.header": "Verbindungsfehler"
 }

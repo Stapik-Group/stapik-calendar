@@ -2,7 +2,7 @@
 
 A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Styled after the retro old-school aesthetic.
 
-![Alt text](https://github.com/Stapik-Group/stapik-calendar/blob/master/screenshots/screenshot_1.png?raw=true "Stapik Calendar interface")
+![Screenshot](screenshots/screenshot_1.png)
 
 ## Features
 
@@ -29,7 +29,7 @@ sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev
 ## Building
 
 ```bash
-git clone https://github.com/stapik/calendar
+git clone https://github.com/Stapik-Group/stapik-calendar
 cd stapikcalendar
 cmake -B cmake-build-release -DCMAKE_BUILD_TYPE=Release
 cmake --build cmake-build-release
@@ -66,7 +66,7 @@ Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`
 
 ## TODO
 
-- [ ] General refactor
+- [x] General refactor
 - [ ] System notifications for upcoming entries
 - [ ] Week and day view
 - [ ] Export to iCal format (.ics)

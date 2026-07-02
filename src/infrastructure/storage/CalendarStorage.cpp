@@ -3,29 +3,16 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-void CalendarStorage::save(const Entries &entries)
+void CalendarStorage::save(const CalendarEntries &entries)
 {
     const auto path = storagePath();
     std::filesystem::create_directories(path.parent_path());
 
-    nlohmann::json json = nlohmann::json::array();
-    for (const auto &[date, dayEntries]: entries)
-    {
-        for (const auto &[name, link]: dayEntries)
-        {
-            json.push_back({
-                {"date", serializeDate(date)},
-                {"name", name},
-                {"link", link}
-            });
-        }
-    }
-
     std::ofstream file(path);
-    file << json.dump(2);
+    file << toJson(entries).dump(2);
 }
 
-CalendarStorage::Entries CalendarStorage::load()
+CalendarEntries CalendarStorage::load()
 {
     const auto path = storagePath();
     if (!std::filesystem::exists(path))
@@ -35,20 +22,14 @@ CalendarStorage::Entries CalendarStorage::load()
     if (!file.is_open())
         return {};
 
-    Entries entries;
     try
     {
-        for (const auto json = nlohmann::json::parse(file); const auto &item: json)
-        {
-            const auto date = deserializeDate(item.at("date").get<std::string>());
-            entries[date].emplace_back(item.at("name").get<std::string>(), item.at("link").get<std::string>());
-        }
-    } catch (const nlohmann::json::exception &)
+        return fromJson(nlohmann::json::parse(file));
+    }
+    catch (const nlohmann::json::exception &)
     {
         return {};
     }
-
-    return entries;
 }
 
 std::filesystem::path CalendarStorage::storagePath()
@@ -81,7 +62,7 @@ std::chrono::year_month_day CalendarStorage::deserializeDate(const std::string &
     };
 }
 
-nlohmann::json CalendarStorage::toJson(const Entries& entries)
+nlohmann::json CalendarStorage::toJson(const CalendarEntries& entries)
 {
     nlohmann::json json = nlohmann::json::array();
 
@@ -89,16 +70,16 @@ nlohmann::json CalendarStorage::toJson(const Entries& entries)
         for (const auto& [name, link] : dayEntries)
             json.push_back({
                 { "date", serializeDate(date) },
-                { "name", name                },
-                { "link", link                }
+                { "name", name },
+                { "link", link }
             });
 
     return json;
 }
 
-CalendarStorage::Entries CalendarStorage::fromJson(const nlohmann::json& json)
+CalendarEntries CalendarStorage::fromJson(const nlohmann::json& json)
 {
-    Entries entries;
+    CalendarEntries entries;
 
     try
     {

@@ -28,6 +28,4 @@ private:
     void navigateNextYear();
 
     void refreshView();
-
-    static std::chrono::year_month currentYearMonth();
 };

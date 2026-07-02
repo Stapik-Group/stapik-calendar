@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <gtkmm/box.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/label.h>
@@ -11,10 +12,14 @@ class CalendarEntryDialog : public Gtk::Dialog
 {
 public:
     explicit CalendarEntryDialog(Window& parent);
-    explicit CalendarEntryDialog(Gtk::Window& parent, const CalendarEntry& existing);
-    std::optional<CalendarEntry> getResult() const;
+    explicit CalendarEntryDialog(Window& parent, const CalendarEntry& existing);
+    [[nodiscard]] std::optional<CalendarEntry> getResult() const;
 private:
-    Gtk::Box   m_contentBox;
+    static constexpr int CONTENT_SPACING = 8;
+    static constexpr int CONTENT_MARGIN = 16;
+    static constexpr int DEFAULT_WIDTH = 400;
+
+    Gtk::Box m_contentBox;
     Gtk::Label m_nameLabel;
     Gtk::Entry m_nameEntry;
     Gtk::Label m_linkLabel;

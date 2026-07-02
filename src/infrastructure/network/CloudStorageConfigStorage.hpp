@@ -1,15 +1,9 @@
 #pragma once
 
-#include "CloudStorageConfig.hpp"
+#include "stapik/cloud/CloudStorageConfig.hpp"
+
 #include <filesystem>
 #include <optional>
-#include <stdexcept>
-
-class CloudStorageConfigException : public std::runtime_error
-{
-public:
-    using std::runtime_error::runtime_error;
-};
 
 class CloudStorageConfigStorage
 {

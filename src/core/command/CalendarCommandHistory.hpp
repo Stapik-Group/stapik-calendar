@@ -12,8 +12,8 @@ public:
     void undo();
     void redo();
 
-    bool canUndo() const;
-    bool canRedo() const;
+    [[nodiscard]] bool canUndo() const;
+    [[nodiscard]] bool canRedo() const;
 private:
     std::vector<std::unique_ptr<CalendarCommand>> m_undoStack;
     std::vector<std::unique_ptr<CalendarCommand>> m_redoStack;

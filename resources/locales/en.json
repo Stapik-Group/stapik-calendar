@@ -50,6 +50,7 @@
   "dialog.connect.success.title": "Connected to cloud",
   "dialog.connect.success.text": "Synchronization is working correctly.",
   "dialog.connect.error.title": "Connection error",
+  "dialog.connect.key.placeholder": "Enter API key...",
 
   "dialog.about.title": "About",
   "dialog.about.version": "Version:",
@@ -57,5 +58,7 @@
 
   "entry.default_name": "No name",
 
-  "dialog.connect.key.placeholder": "Enter API key..."
+  "cloud.connected.header": "Connected",
+  "cloud.connected.secondary": "Synchronization is working properly",
+  "cloud.failed.header": "Connection error"
 }

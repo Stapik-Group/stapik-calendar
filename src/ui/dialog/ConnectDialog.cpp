@@ -4,7 +4,7 @@
 
 ConnectDialog::ConnectDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.connect.title"), parent, true),
-    m_contentBox(Gtk::Orientation::VERTICAL, 8)
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
     initLayout();
 }
@@ -22,7 +22,7 @@ void ConnectDialog::initLayout()
     m_apiKeyEntry.set_placeholder_text(loc.translate("dialog.connect.key.placeholder"));
     m_apiKeyEntry.set_visibility(false);
 
-    m_contentBox.set_margin(16);
+    m_contentBox.set_margin(CONTENT_MARGIN);
     m_contentBox.append(m_apiUrlLabel);
     m_contentBox.append(m_apiUrlEntry);
     m_contentBox.append(m_apiKeyLabel);
@@ -36,7 +36,7 @@ void ConnectDialog::initLayout()
     set_default_response(Gtk::ResponseType::OK);
     m_apiUrlEntry.set_activates_default(true);
     m_apiKeyEntry.set_activates_default(true);
-    set_default_size(400, -1);
+    set_default_size(DEFAULT_WIDTH, -1);
 }
 
 std::optional<CloudStorageConfig> ConnectDialog::getResult() const

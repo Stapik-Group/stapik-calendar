@@ -1,12 +1,14 @@
 #pragma once
 
+#include "CalendarCell.hpp"
+#include "../../core/command/CalendarCommandHistory.hpp"
+#include "../../core/model/CalendarEntries.hpp"
+
+#include "stapik/cloud/CloudStorageClient.hpp"
+
 #include <gtkmm/grid.h>
 #include <array>
 #include <chrono>
-#include "CalendarCell.hpp"
-#include "../../infrastructure/network/CloudStorageClient.hpp"
-#include "../../core/command/CalendarCommandHistory.hpp"
-#include "../../infrastructure/storage/CalendarStorage.hpp"
 
 class CalendarGrid : public Gtk::Grid
 {
@@ -23,7 +25,7 @@ private:
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
-    CalendarStorage::Entries m_entries;
+    CalendarEntries m_entries;
     CalendarCommandHistory m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
@@ -39,6 +41,8 @@ private:
     void onEntryDeleteRequested(int cellIndex, int entryIndex);
 
     void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, std::optional<int> editIndex);
+    [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);
+    [[nodiscard]] bool isValidEntryIndex(std::chrono::year_month_day date, int entryIndex) const;
 
     int firstWeekdayOffset() const;
     int daysInMonth() const;

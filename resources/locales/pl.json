@@ -50,6 +50,7 @@
   "dialog.connect.success.title": "Połączono z chmurą",
   "dialog.connect.success.text": "Synchronizacja działa poprawnie.",
   "dialog.connect.error.title": "Błąd połączenia",
+  "dialog.connect.key.placeholder": "Wpisz klucz API...",
 
   "dialog.about.title": "O programie",
   "dialog.about.version": "Wersja:",
@@ -57,5 +58,7 @@
 
   "entry.default_name": "Bez nazwy",
 
-  "dialog.connect.key.placeholder": "Wpisz klucz API..."
+  "cloud.connected.header": "Połączono z chmurą",
+  "cloud.connected.secondary": "Synchronizacja działa poprawnie",
+  "cloud.failed.header": "Błąd połączenia"
 }

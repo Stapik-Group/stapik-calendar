@@ -1,8 +1,7 @@
 #include "AddEntryCommand.hpp"
 
-AddEntryCommand::AddEntryCommand(Entries &entries, const std::chrono::year_month_day date, CalendarEntry entry) :
-    m_entries(entries),
-    m_date(date),
+AddEntryCommand::AddEntryCommand(CalendarEntries& entries, const std::chrono::year_month_day date, CalendarEntry entry) :
+    EntryCommandBase(entries, date),
     m_entry(std::move(entry)) {}
 
 void AddEntryCommand::execute()
@@ -12,11 +11,5 @@ void AddEntryCommand::execute()
 
 void AddEntryCommand::undo()
 {
-    if (auto& dayEntries = m_entries[m_date]; !dayEntries.empty())
-    {
-        dayEntries.pop_back();
-    } else
-    {
-        m_entries.erase(m_date);
-    }
+    m_entries[m_date].pop_back();
 }

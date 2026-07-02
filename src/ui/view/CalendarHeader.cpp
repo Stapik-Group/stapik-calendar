@@ -1,4 +1,5 @@
 #include "CalendarHeader.hpp"
+#include "../../core/locale/LocaleManager.hpp"
 
 CalendarHeader::CalendarHeader()
 {
@@ -21,7 +22,7 @@ void CalendarHeader::initLayout()
         m_labels[i].set_halign(CENTER);
         m_labels[i].set_valign(CENTER);
         m_labels[i].set_hexpand(true);
-        m_labels[i].set_margin(8);
+        m_labels[i].set_margin(LABEL_MARGIN);
 
         m_cells[i].set_halign(FILL);
         m_cells[i].set_valign(FILL);

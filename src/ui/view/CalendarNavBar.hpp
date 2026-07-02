@@ -17,6 +17,10 @@ public:
     sigc::signal<void()>& signalNextMonth();
     sigc::signal<void()>& signalNextYear();
 private:
+    static constexpr int BOX_SPACING = 4;
+    static constexpr int BOX_MARGIN = 4;
+    static constexpr int LABEL_WIDTH_CHARS = 20;
+
     Gtk::Button m_btnPrevYear;
     Gtk::Button m_btnPrevMonth;
     Gtk::Button m_btnNextMonth;

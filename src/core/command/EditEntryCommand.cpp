@@ -1,22 +1,19 @@
 #include "EditEntryCommand.hpp"
 
-EditEntryCommand::EditEntryCommand(Entries& entries,
+EditEntryCommand::EditEntryCommand(CalendarEntries& entries,
     const std::chrono::year_month_day date,
-    const int entryIndex,
-    CalendarEntry newEntry):
-    m_entries(entries),
-    m_date(date),
-    m_entryIndex(entryIndex),
+    const std::size_t entryIndex,
+    CalendarEntry newEntry) :
+    IndexedEntryCommand(entries, date, entryIndex),
     m_newEntry(std::move(newEntry)),
-    m_oldEntry(m_entries.at(date)[entryIndex])
-{}
+    m_oldEntry(dayEntries().at(entryIndex)) {}
 
 void EditEntryCommand::execute()
 {
-    m_entries[m_date][m_entryIndex] = m_newEntry;
+    dayEntries().at(m_entryIndex) = m_newEntry;
 }
 
 void EditEntryCommand::undo()
 {
-    m_entries[m_date][m_entryIndex] = m_oldEntry;
+    dayEntries().at(m_entryIndex) = m_oldEntry;
 }

@@ -2,9 +2,8 @@
 
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
-#include <array>
 #include <gtkmm/box.h>
-#include "../../core/locale/LocaleManager.hpp"
+#include <array>
 
 class CalendarHeader : public Gtk::Grid
 {
@@ -13,6 +12,7 @@ public:
 
 private:
     static constexpr int COLUMNS = 7;
+    static constexpr int LABEL_MARGIN = 8;
     static constexpr std::array<const char*, COLUMNS> DAY_KEYS = {
         "day.mon", "day.tue", "day.wed", "day.thu", "day.fri", "day.sat", "day.sun"
     };

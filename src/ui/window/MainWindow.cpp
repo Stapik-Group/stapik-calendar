@@ -31,5 +31,5 @@ void MainWindow::initCloud()
         return;
 
     m_calendarView.getCalendarGrid().setCloudClient(
-        std::make_unique<CloudStorageClient>(config.value()));
+        std::make_unique<CloudStorageClient>(config.value(), "calendar.json"));
 }

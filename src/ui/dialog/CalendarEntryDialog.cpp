@@ -4,14 +4,14 @@
 
 CalendarEntryDialog::CalendarEntryDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
-    m_contentBox(Gtk::Orientation::VERTICAL, 8)
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
     initLayout();
 }
 
 CalendarEntryDialog::CalendarEntryDialog(Window& parent, const CalendarEntry& existing) :
     Dialog(LocaleManager::instance().translate("dialog.entry.edit.title"), parent, true),
-    m_contentBox(Gtk::Orientation::VERTICAL, 8)
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
     initLayout();
     m_nameEntry.set_text(existing.name);
@@ -30,7 +30,7 @@ void CalendarEntryDialog::initLayout()
     m_linkLabel.set_halign(Gtk::Align::START);
     m_linkEntry.set_placeholder_text(loc.translate("dialog.entry.link.placeholder"));
 
-    m_contentBox.set_margin(16);
+    m_contentBox.set_margin(CONTENT_MARGIN);
     m_contentBox.append(m_nameLabel);
     m_contentBox.append(m_nameEntry);
     m_contentBox.append(m_linkLabel);
@@ -44,7 +44,7 @@ void CalendarEntryDialog::initLayout()
     set_default_response(Gtk::ResponseType::OK);
     m_nameEntry.set_activates_default(true);
     m_linkEntry.set_activates_default(true);
-    set_default_size(400, -1);
+    set_default_size(DEFAULT_WIDTH, -1);
 }
 
 std::optional<CalendarEntry> CalendarEntryDialog::getResult() const

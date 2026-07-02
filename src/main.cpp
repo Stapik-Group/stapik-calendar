@@ -1,6 +1,6 @@
 #include <gtkmm.h>
 
-#include "infrastructure/storage/AppPaths.hpp"
+#include "stapik/storage/AppPaths.hpp"
 #include "ui/style/AppStyleProvider.hpp"
 #include "ui/window/MainWindow.hpp"
 

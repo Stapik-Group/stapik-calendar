@@ -1,26 +1,25 @@
 #include "CalendarGrid.hpp"
 
-#include <glibmm/main.h>
-#include <gtkmm/window.h>
+#include "stapik/cloud/CloudStorageException.hpp"
 
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/command/AddEntryCommand.hpp"
 #include "../../core/command/DeleteEntryCommand.hpp"
+#include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
+#include "../../core/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 #include "../../infrastructure/storage/CalendarStorage.hpp"
+
+#include <glibmm/main.h>
+#include <gtkmm/window.h>
 #include <nlohmann/json.hpp>
 
-#include "../../core/command/EditEntryCommand.hpp"
-#include "../../core/locale/LocaleManager.hpp"
+#include "../../core/util/DateUtils.hpp"
 
 CalendarGrid::CalendarGrid()
 {
-    const auto today = std::chrono::year_month_day{
-        std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())
-    };
-
-    m_currentYearMonth = std::chrono::year_month{today.year(), today.month()};
+    m_currentYearMonth = DateUtils::todayYearMonth();
     m_entries = CalendarStorage::load();
 
     initLayout();
@@ -81,30 +80,46 @@ void CalendarGrid::populateCells()
     }
 }
 
+Gtk::Window* CalendarGrid::validatedWindowForCell(const int cellIndex, int& outDay)
+{
+    outDay = cellDay(cellIndex);
+    if (outDay < 1 || outDay > daysInMonth())
+        return nullptr;
+
+    return dynamic_cast<Gtk::Window*>(get_root());
+}
+
+bool CalendarGrid::isValidEntryIndex(const std::chrono::year_month_day date, const int entryIndex) const
+{
+    if (!m_entries.contains(date))
+        return false;
+
+    const auto& entries = m_entries.at(date);
+    return entryIndex >= 0 && entryIndex < static_cast<int>(entries.size());
+}
+
 void CalendarGrid::onCellDoubleClicked(const int cellIndex)
 {
-    const int day = cellDay(cellIndex);
-    if (day < 1 || day > daysInMonth())
-        return;
-
-    auto* window = dynamic_cast<Gtk::Window*>(get_root());
+    int day = 0;
+    auto* window = validatedWindowForCell(cellIndex, day);
     if (window == nullptr)
         return;
 
     showEntryDialog(*window, cellDate(day), std::nullopt);
 }
 
-void CalendarGrid::onEntryEditRequested(const int cellIndex, int entryIndex)
+void CalendarGrid::onEntryEditRequested(const int cellIndex, const int entryIndex)
 {
-    const int day = cellDay(cellIndex);
-    if (day < 1 || day > daysInMonth())
-        return;
-
-    auto* window = dynamic_cast<Gtk::Window*>(get_root());
+    int day = 0;
+    auto* window = validatedWindowForCell(cellIndex, day);
     if (window == nullptr)
         return;
 
-    showEntryDialog(*window, cellDate(day), entryIndex);
+    const auto date = cellDate(day);
+    if (!isValidEntryIndex(date, entryIndex))
+        return;
+
+    showEntryDialog(*window, date, entryIndex);
 }
 
 void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIndex)
@@ -114,13 +129,10 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
         return;
 
     const auto date = cellDate(day);
-    if (!m_entries.contains(date))
+    if (!isValidEntryIndex(date, entryIndex))
         return;
 
-    if (const auto& entries = m_entries[date]; entryIndex < 0 || entryIndex >= static_cast<int>(entries.size()))
-        return;
-
-    m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, entryIndex));
+    m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex)));
     saveEntries();
     populateCells();
 }
@@ -133,7 +145,7 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
 
     if (editIndex.has_value() && m_entries.contains(date))
     {
-        const auto& existing = m_entries.at(date)[editIndex.value()];
+        const auto& existing = m_entries.at(date).at(static_cast<std::size_t>(editIndex.value()));
         dialog = new CalendarEntryDialog(window, existing);
     }
     else
@@ -148,7 +160,7 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
             if (auto result = dialog->getResult(); result.has_value())
             {
                 if (editIndex.has_value())
-                    m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, editIndex.value(), std::move(result.value())));
+                    m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, static_cast<std::size_t>(editIndex.value()), std::move(result.value())));
                 else
                     m_history.execute(std::make_unique<AddEntryCommand>(m_entries, date, std::move(result.value())));
 
@@ -194,12 +206,7 @@ int CalendarGrid::daysInMonth() const
 bool CalendarGrid::isToday(const int day) const
 {
     using namespace std::chrono;
-
-    const auto today = year_month_day{
-        floor<days>(system_clock::now())
-    };
-
-    return today == year_month_day{m_currentYearMonth / day};
+    return DateUtils::today() == year_month_day{m_currentYearMonth / day};
 }
 
 void CalendarGrid::onCellRightClicked(const int cellIndex)
@@ -236,15 +243,15 @@ void CalendarGrid::saveEntries() const
     CalendarStorage::save(m_entries);
     if (m_cloudClient != nullptr)
     {
-        g_print("[Cloud] Saving in cloud...\n");
+        g_message("[Cloud] Saving in cloud...");
         try
         {
             m_cloudClient->saveJson(CalendarStorage::toJson(m_entries));
-            g_print("[Cloud] Saved in cloud.\n");
+            g_message("[Cloud] Saved in cloud.");
         }
-        catch (const std::exception& e)
+        catch (const CloudStorageException& e)
         {
-            g_print("[Cloud] Cloud writing error: %s\n", e.what());
+            g_warning("[Cloud] Cloud writing error: %s", e.what());
         }
     }
 }
@@ -274,24 +281,23 @@ void CalendarGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    g_print("[Cloud] Reading from cloud...\n");
+    g_message("[Cloud] Reading from cloud...");
 
     try
     {
         const auto json = m_cloudClient->loadJson();
         if (json.empty())
         {
-            g_print("[Cloud] No data in cloud.\n");
+            g_message("[Cloud] No data in cloud.");
             return;
         }
 
         m_entries = CalendarStorage::fromJson(json);
-        g_print("[Cloud] Read from cloud with success.\n");
+        g_message("[Cloud] Read from cloud with success.");
         populateCells();
     }
-    catch (const std::exception& e)
+    catch (const CloudStorageException& e)
     {
-        g_print("[Cloud] Cloud reading error: %s\n", e.what());
+        g_warning("[Cloud] Cloud reading error: %s", e.what());
     }
 }
-

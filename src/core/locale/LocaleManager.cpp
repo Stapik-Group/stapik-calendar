@@ -1,5 +1,6 @@
 #include "LocaleManager.hpp"
-
+#include "stapik/locale/Locale.hpp"
+#include "stapik/storage/AppPaths.hpp"
 #include <fstream>
 
 LocaleManager & LocaleManager::instance()
@@ -8,7 +9,8 @@ LocaleManager & LocaleManager::instance()
     return manager;
 }
 
-LocaleManager::LocaleManager()
+LocaleManager::LocaleManager() :
+    m_engine(AppPaths::resourcesDir() / "locales")
 {
     m_engine.setLocale(loadSavedLocale());
 }
@@ -40,7 +42,7 @@ void LocaleManager::saveLocale(const Locale locale)
     const auto path = localeConfigPath();
     std::filesystem::create_directories(path.parent_path());
     std::ofstream file(path);
-    file << localeToString(locale);
+    file << toFileString(locale);
 }
 
 Locale LocaleManager::loadSavedLocale()
@@ -56,7 +58,7 @@ Locale LocaleManager::loadSavedLocale()
     std::string content;
     file >> content;
 
-    return localeFromString(content);
+    return fromFileString(content);
 }
 
 std::filesystem::path LocaleManager::localeConfigPath()
@@ -66,22 +68,4 @@ std::filesystem::path LocaleManager::localeConfigPath()
         return std::filesystem::temp_directory_path() / "stapikcalendar_locale.txt";
 
     return std::filesystem::path(home) / ".local" / "share" / "stapikcalendar" / "locale.txt";
-}
-
-std::string LocaleManager::localeToString(Locale locale)
-{
-    switch (locale)
-    {
-        case Locale::PL: return "pl";
-        case Locale::EN: return "en";
-        case Locale::DE: return "de";
-    }
-    return "en";
-}
-
-Locale LocaleManager::localeFromString(const std::string& str)
-{
-    if (str == "en") return Locale::EN;
-    if (str == "de") return Locale::DE;
-    return Locale::EN;
 }

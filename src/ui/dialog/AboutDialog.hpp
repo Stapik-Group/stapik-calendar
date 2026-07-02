@@ -8,8 +8,12 @@
 class AboutDialog : public Gtk::Dialog
 {
 public:
-    explicit AboutDialog(Gtk::Window& parent);
+    explicit AboutDialog(Window& parent);
 private:
+    static constexpr int CONTENT_SPACING = 8;
+    static constexpr int CONTENT_MARGIN = 24;
+    static constexpr int DEFAULT_WIDTH = 320;
+
     Gtk::Box m_contentBox;
     Gtk::Label m_titleLabel;
     Gtk::Separator m_separator;

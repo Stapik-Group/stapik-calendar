@@ -21,6 +21,12 @@ public:
     sigc::signal<void(int)>& signalEditRequested();
     sigc::signal<void(int)>& signalDeleteRequested();
 private:
+    static constexpr int ENTRIES_SPACING = 2;
+    static constexpr int CELL_MARGIN = 4;
+    static constexpr guint LEFT_MOUSE_BUTTON = 1;
+    static constexpr guint RIGHT_MOUSE_BUTTON = 3;
+    static constexpr int DOUBLE_CLICK_COUNT = 2;
+
     Gtk::Box m_outerBox;
     Gtk::Label m_dayLabel;
     Gtk::ScrolledWindow m_scrolledWindow;
