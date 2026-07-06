@@ -19,39 +19,78 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sty
 
 - `gtkmm-4.0`
 - `libcurl`
-- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) (fetched automatically via CMake FetchContent)
-- `nlohmann/json` (fetched automatically via CMake FetchContent)
+- [`stapik-common`](https://github.com/stapik/stapik-common) (fetched automatically via CMake FetchContent)
+- `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
 ```bash
 sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev
 ```
 
+Building a `.deb` package additionally requires `dpkg-dev` (used to auto-detect runtime dependencies):
+```bash
+sudo apt install dpkg-dev
+```
+
 ## Building
 
 ```bash
 git clone https://github.com/Stapik-Group/stapik-calendar
-cd stapikcalendar
+cd stapik-calendar
 cmake -B cmake-build-release -DCMAKE_BUILD_TYPE=Release
 cmake --build cmake-build-release
 ```
 
 ## Installation
 
+### Option 1 — Download prebuilt `.deb` (recommended)
+
+Download the latest `.deb` package from the [Releases page](https://github.com/Stapik-Group/stapik-calendar/releases), then install it:
+
 ```bash
-chmod +x packaging/install.sh
-./packaging/install.sh
+sudo dpkg -i stapikcalendar_*.deb
+sudo apt install -f   # resolves any missing runtime dependencies
 ```
 
-Per-user installation — no sudo required. The app is installed to `~/.local/share/stapikcalendar/` and appears in the desktop environment's application menu.
+### Option 2 — build `.deb` from source
+
+If you'd rather build the package yourself:
+
+```bash
+cd cmake-build-release
+cpack -G DEB
+sudo dpkg -i stapikcalendar_*.deb
+sudo apt install -f
+```
+
+Either option installs the app to `/usr/lib/stapikcalendar/`, with a launcher at `/usr/bin/stapikcalendar`, and it appears in the desktop environment's application menu.
+
+### Option 3 — per-user install (no sudo required)
+
+```bash
+cmake --install cmake-build-release --prefix "$HOME/.local"
+```
+
+Installs to `~/.local/lib/stapikcalendar/`, with a launcher at `~/.local/bin/stapikcalendar`. Make sure `~/.local/bin` is in your `PATH`.
 
 ## Uninstalling
 
+### If installed via `.deb`
+
 ```bash
-rm -rf ~/.local/share/stapikcalendar
+sudo dpkg -r stapikcalendar
+```
+
+### If installed per-user
+
+```bash
+rm -rf ~/.local/lib/stapikcalendar
 rm ~/.local/bin/stapikcalendar
 rm ~/.local/share/applications/stapikcalendar.desktop
+rm ~/.local/share/icons/hicolor/256x256/apps/stapikcalendar.png
 ```
+
+Either way, your calendar data, cloud config and language preference remain at `~/.local/share/stapikcalendar/` — see [Data Storage](#data-storage) below if you want to remove those too.
 
 ## Cloud Sync
 
@@ -69,13 +108,15 @@ The API must expose two endpoints:
 
 ## Data Storage
 
-Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`. Cloud config at `~/.local/share/stapikcalendar/config.json`. Language preference at `~/.local/share/stapikcalendar/locale.txt`.
+Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`, wrapped with a `lastUpdate` timestamp used for cloud sync. Cloud config at `~/.local/share/stapikcalendar/config.json`. Language preference at `~/.local/share/stapikcalendar/locale.txt`.
 
 ## TODO
 
 - [x] General refactor
 - [x] Cloud sync with conflict resolution
+- [x] `.deb` package for easier distribution
 - [ ] Export to iCal format (.ics)
 - [ ] Entry colors — assign a color to each entry
 - [ ] Drag and drop entries between cells
-- [ ] Flatpak / .deb package for easier distribution
+- [ ] Entry search
+- [ ] Flatpak package

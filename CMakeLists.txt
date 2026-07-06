@@ -67,3 +67,39 @@ add_custom_command(TARGET stapikcalendar POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/resources
         $<TARGET_FILE_DIR:stapikcalendar>/resources)
+
+install(TARGETS stapikcalendar
+    RUNTIME DESTINATION lib/stapikcalendar
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/
+    DESTINATION lib/stapikcalendar/resources
+)
+
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/packaging/stapikcalendar-launcher.sh
+    DESTINATION bin
+    RENAME stapikcalendar
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/packaging/stapikcalendar.desktop
+    DESTINATION share/applications
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/packaging/icon.png
+    DESTINATION share/icons/hicolor/256x256/apps
+    RENAME stapikcalendar.png
+)
+
+set(CPACK_PACKAGE_NAME "stapikcalendar")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VENDOR ${PROJECT_AUTHOR})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A retro-styled desktop calendar application")
+set(CPACK_PACKAGE_CONTACT "sebastian.smolinski6@email.com")
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${PROJECT_AUTHOR} <sebastian.smolinski6@email.com>")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+
+include(CPack)
