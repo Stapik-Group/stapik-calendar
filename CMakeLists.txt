@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(stapikcalendar VERSION 1.0.2 LANGUAGES CXX)
+project(stapikcalendar VERSION 1.0.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,13 +23,12 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v0.4.0
+        GIT_TAG v1.0.0
 )
 FetchContent_MakeAvailable(stapikcommon)
 
 add_executable(stapikcalendar
         src/main.cpp
-        src/core/locale/LocaleManager.cpp
         src/core/command/AddEntryCommand.cpp
         src/core/command/EditEntryCommand.cpp
         src/core/command/DeleteEntryCommand.cpp
@@ -40,16 +39,12 @@ add_executable(stapikcalendar
         src/core/util/UrlTitleFetcher.cpp
         src/core/util/ClipboardUrlDetector.cpp
         src/core/util/DateUtils.cpp
-        src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/storage/CalendarStorage.cpp
         src/infrastructure/storage/CalendarSyncCoordinator.cpp
         src/ui/window/MainWindow.cpp
-        src/ui/style/AppStyleProvider.cpp
         src/ui/action/MenuActionHandler.cpp
         src/ui/dialog/AboutDialog.cpp
-        src/ui/dialog/ConnectDialog.cpp
         src/ui/dialog/CalendarEntryDialog.cpp
-        src/ui/dialog/DialogUtils.cpp
         src/ui/view/CalendarCell.cpp
         src/ui/view/CalendarGrid.cpp
         src/ui/view/CalendarHeader.cpp

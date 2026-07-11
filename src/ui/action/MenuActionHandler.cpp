@@ -1,12 +1,12 @@
 #include "MenuActionHandler.hpp"
 
 #include "stapik/cloud/CloudStorageException.hpp"
+#include "stapik/locale/LocaleManager.hpp"
+#include "stapik/storage/CloudStorageConfigStorage.hpp"
+#include "stapik/ui/dialog/ConnectDialog.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
-#include "../../infrastructure/network/CloudStorageConfigStorage.hpp"
-#include "../dialog/ConnectDialog.hpp"
 #include "../dialog/AboutDialog.hpp"
-#include "../dialog/DialogUtils.hpp"
 
 #include <gtkmm/application.h>
 #include <gtkmm/messagedialog.h>
@@ -30,7 +30,7 @@ void MenuActionHandler::onActionConnect() const
 {
     auto* dialog = new ConnectDialog(m_window);
 
-    if (const auto config = CloudStorageConfigStorage::load(); config.has_value())
+    if (const auto config = CloudStorageConfigStorage::load("stapikcalendar"); config.has_value())
         dialog->prefillConfig(config.value());
 
     dialog->signal_response().connect([this, dialog](const int responseId)
@@ -49,7 +49,7 @@ void MenuActionHandler::onActionConnect() const
 
 void MenuActionHandler::handleConnectResult(const CloudStorageConfig& config) const
 {
-    CloudStorageConfigStorage::save(config);
+    CloudStorageConfigStorage::save(config, "stapikcalendar");
     applyCloudConfig(config);
 }
 

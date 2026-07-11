@@ -1,6 +1,8 @@
 #include "CalendarNavBar.hpp"
 #include <array>
 
+#include "stapik/locale/LocaleManager.hpp"
+
 namespace
 {
     constexpr std::array<const char*, 12> MONTH_KEYS = {

@@ -1,7 +1,7 @@
 #include "AboutDialog.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
 #include "Version.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 AboutDialog::AboutDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.about.title"), parent, true),

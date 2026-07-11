@@ -1,9 +1,9 @@
 #include "MainMenu.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
-MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) : m_window(window),
-    m_actionHandler(window, calendarGrid)
+
+MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) : m_window(window), m_actionHandler(window, calendarGrid)
 {
     m_actionHandler.registerActions();
     initLanguageAction();

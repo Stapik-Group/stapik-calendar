@@ -1,7 +1,8 @@
 #include <gtkmm.h>
 
 #include "stapik/storage/AppPaths.hpp"
-#include "ui/style/AppStyleProvider.hpp"
+#include "stapik/ui/style/AppStyleProvider.hpp"
+
 #include "ui/window/MainWindow.hpp"
 
 int main(const int argc, char *argv[])
