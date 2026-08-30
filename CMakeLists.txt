@@ -37,10 +37,12 @@ add_executable(stapikcalendar
         src/core/command/CalendarCommand.cpp
         src/core/command/EntryCommandBase.cpp
         src/core/command/IndexedEntryCommand.cpp
+        src/core/command/MoveEntryCommand.cpp
         src/core/util/UrlTitleFetcher.cpp
         src/core/util/ClipboardUrlDetector.cpp
         src/core/util/DateUtils.cpp
         src/core/util/EntryColorUtils.cpp
+        src/core/util/EntryDragPayload.cpp
         src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/infrastructure/storage/CalendarStorage.cpp

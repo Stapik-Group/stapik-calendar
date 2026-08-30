@@ -8,6 +8,7 @@
 #include "../../core/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 #include "../../infrastructure/storage/CalendarStorage.hpp"
+#include "../../core/command/MoveEntryCommand.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
@@ -39,7 +40,11 @@ void CalendarGrid::initLayout()
 
     for (int row = 0; row < ROWS; ++row)
         for (int col = 0; col < COLUMNS; ++col)
-            attach(m_cells[row * COLUMNS + col], col, row);
+        {
+            const int index = row * COLUMNS + col;
+            m_cells[index].setCellIndex(index);
+            attach(m_cells[index], col, row);
+        }
 }
 
 void CalendarGrid::connectCellSignals()
@@ -51,6 +56,7 @@ void CalendarGrid::connectCellSignals()
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
         m_cells[i].signalColorChangeRequested().connect([this, i](const int entryIndex, const EntryColor color) { onEntryColorChangeRequested(i, entryIndex, color); });
+        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const int sourceEntryIndex) { onEntryMoveRequested(sourceCellIndex, sourceEntryIndex, i); });
     }
 }
 
@@ -137,6 +143,26 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
         return;
 
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex)));
+    touchLastUpdate();
+    saveEntries();
+    populateCells();
+}
+
+void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex)
+{
+    const int sourceDay = cellDay(sourceCellIndex);
+    const int destDay = cellDay(destCellIndex);
+    if (sourceDay < 1 || sourceDay > daysInMonth() || destDay < 1 || destDay > daysInMonth())
+        return;
+
+    const auto sourceDate = cellDate(sourceDay);
+    const auto destDate = cellDate(destDay);
+    if (sourceDate == destDate)
+        return;
+    if (!isValidEntryIndex(sourceDate, sourceEntryIndex))
+        return;
+
+    m_history.execute(std::make_unique<MoveEntryCommand>(m_entries, sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
     touchLastUpdate();
     saveEntries();
     populateCells();

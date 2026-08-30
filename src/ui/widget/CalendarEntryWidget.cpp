@@ -1,8 +1,10 @@
 #include "CalendarEntryWidget.hpp"
 
 #include <gtkmm/gestureclick.h>
+#include <gdkmm/contentprovider.h>
 
 #include "../../core/util/EntryColorUtils.hpp"
+#include "../../core/util/EntryDragPayload.hpp"
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
     Box(Gtk::Orientation::HORIZONTAL, 4)
@@ -10,6 +12,7 @@ CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
     initLayout(entry);
     initGesture();
     initColorPopover(entry.color);
+    initDragSource();
 }
 
 void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
@@ -36,7 +39,7 @@ void CalendarEntryWidget::initGesture()
 {
     const auto gesture = Gtk::GestureClick::create();
     gesture->set_button(1);
-    gesture->signal_pressed().connect(
+    gesture->signal_released().connect(
         [this](const int nPress, double, double)
         {
             if (nPress == 1)
@@ -68,6 +71,27 @@ void CalendarEntryWidget::initColorPopover(const EntryColor currentColor)
             m_colorPopover.popup();
         });
     add_controller(rightClickGesture);
+}
+
+void CalendarEntryWidget::initDragSource()
+{
+    m_dragSource = Gtk::DragSource::create();
+    m_dragSource->set_actions(Gdk::DragAction::MOVE);
+    m_dragSource->signal_prepare().connect(
+        [this](double, double) -> Glib::RefPtr<Gdk::ContentProvider>
+        {
+            Glib::Value<Glib::ustring> value;
+            value.init(Glib::Value<Glib::ustring>::value_type());
+            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryIndex));
+            return Gdk::ContentProvider::create(value);
+        }, false);
+    add_controller(m_dragSource);
+}
+
+void CalendarEntryWidget::setSourceLocator(const int cellIndex, const int entryIndex)
+{
+    m_cellIndex = cellIndex;
+    m_entryIndex = entryIndex;
 }
 
 sigc::signal<void()>& CalendarEntryWidget::signalEditRequested()

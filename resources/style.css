@@ -208,3 +208,7 @@ entry {
 .calendar-entry-color-purple .calendar-entry-label {
     color: #ffffff;
 }
+
+.drag-over {
+    border: 2px dashed #000080;
+}
