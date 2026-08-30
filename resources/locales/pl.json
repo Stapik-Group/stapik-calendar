@@ -45,6 +45,10 @@
   "dialog.button.cancel": "Anuluj",
   "dialog.entry.color.label": "Kolor",
 
+  "menu.settings.theme": "Motyw",
+  "menu.settings.theme.classic": "Klasyczny",
+  "menu.settings.theme.modern": "Nowoczesny",
+
   "dialog.connect.title": "Połącz z chmurą",
   "dialog.connect.url.label": "URL serwera:",
   "dialog.connect.key.label": "Klucz API:",

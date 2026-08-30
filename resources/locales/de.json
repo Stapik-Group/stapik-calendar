@@ -43,6 +43,10 @@
   "dialog.entry.link.placeholder": "https://...",
   "dialog.entry.color.label": "Farbe",
 
+  "menu.settings.theme": "Design",
+  "menu.settings.theme.classic": "Klassisch",
+  "menu.settings.theme.modern": "Modern",
+
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Abbrechen",
 

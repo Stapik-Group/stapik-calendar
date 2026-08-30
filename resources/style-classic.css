@@ -212,3 +212,21 @@ entry {
 .drag-over {
     border: 2px dashed #000080;
 }
+
+headerbar {
+    background: linear-gradient(to right, #000080, #1084d0);
+    padding: 2px 4px;
+    border-bottom: 2px solid #808080;
+    min-height: 26px;
+    box-shadow: none;
+}
+headerbar .title,
+headerbar label {
+    color: #ffffff;
+    font-weight: bold;
+}
+windowcontrols button {
+    min-width: 20px;
+    min-height: 18px;
+    padding: 0 2px;
+}

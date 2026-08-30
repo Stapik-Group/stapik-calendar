@@ -23,7 +23,7 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v1.1.2
+        GIT_TAG v1.1.5
 )
 FetchContent_MakeAvailable(stapikcommon)
 
@@ -48,7 +48,6 @@ add_executable(stapikcalendar
         src/infrastructure/storage/CalendarStorage.cpp
         src/infrastructure/storage/CalendarSyncCoordinator.cpp
         src/ui/window/MainWindow.cpp
-        src/ui/style/AppStyleProvider.cpp
         src/ui/action/MenuActionHandler.cpp
         src/ui/dialog/AboutDialog.cpp
         src/ui/dialog/ConnectDialog.cpp

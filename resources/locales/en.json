@@ -45,6 +45,10 @@
   "dialog.button.cancel": "Cancel",
   "dialog.entry.color.label": "Color",
 
+  "menu.settings.theme": "Theme",
+  "menu.settings.theme.classic": "Classic",
+  "menu.settings.theme.modern": "Modern",
+
   "dialog.connect.title": "Connect to cloud",
   "dialog.connect.url.label": "Server URL:",
   "dialog.connect.key.label": "API key:",
