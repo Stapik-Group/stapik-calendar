@@ -64,6 +64,28 @@ std::chrono::year_month_day CalendarStorage::deserializeDate(const std::string &
     };
 }
 
+std::string CalendarStorage::serializeTimestamp(const std::chrono::system_clock::time_point tp)
+{
+    return std::format("{:%Y-%m-%dT%H:%M:%SZ}", std::chrono::floor<std::chrono::seconds>(tp));
+}
+
+std::chrono::system_clock::time_point CalendarStorage::deserializeTimestamp(const std::string& str)
+{
+    if (str.size() < 19)
+        throw CalendarStorageException("Invalid ISO-8601 timestamp: " + str);
+
+    std::tm tm{};
+    tm.tm_year = std::stoi(str.substr(0, 4)) - 1900;
+    tm.tm_mon = std::stoi(str.substr(5, 2)) - 1;
+    tm.tm_mday = std::stoi(str.substr(8, 2));
+    tm.tm_hour = std::stoi(str.substr(11, 2));
+    tm.tm_min = std::stoi(str.substr(14, 2));
+    tm.tm_sec = std::stoi(str.substr(17, 2));
+
+    const auto time = timegm(&tm);
+    return std::chrono::system_clock::from_time_t(time);
+}
+
 nlohmann::json CalendarStorage::entriesToJson(const CalendarEntries& entries)
 {
     nlohmann::json json = nlohmann::json::array();
@@ -98,7 +120,12 @@ CalendarEntries CalendarStorage::entriesFromJson(const nlohmann::json& json)
 nlohmann::json CalendarStorage::toJson(const CalendarSnapshot& snapshot)
 {
     const stapik::sync::SyncEnvelope envelope{ snapshot.lastUpdate, entriesToJson(snapshot.entries) };
-    return envelope.toJson();
+    auto json = envelope.toJson();
+
+    if (snapshot.lastKnownCloudUpdate.has_value())
+        json["lastKnownCloudUpdate"] = serializeTimestamp(snapshot.lastKnownCloudUpdate.value());
+
+    return json;
 }
 
 CalendarSnapshot CalendarStorage::fromJson(const nlohmann::json& json)
@@ -107,10 +134,15 @@ CalendarSnapshot CalendarStorage::fromJson(const nlohmann::json& json)
     {
         // Legacy pre-sync files: bare array, no envelope/timestamp.
         if (json.is_array())
-            return CalendarSnapshot{ entriesFromJson(json), std::chrono::system_clock::time_point{} };
+            return CalendarSnapshot{ entriesFromJson(json), std::chrono::system_clock::time_point{}, std::nullopt };
 
-        const auto envelope = stapik::sync::SyncEnvelope::fromJson(json);
-        return CalendarSnapshot{ entriesFromJson(envelope.payload), envelope.lastUpdate };
+        const auto [lastUpdate, payload] = stapik::sync::SyncEnvelope::fromJson(json);
+
+        std::optional<std::chrono::system_clock::time_point> lastKnownCloudUpdate;
+        if (json.contains("lastKnownCloudUpdate"))
+            lastKnownCloudUpdate = deserializeTimestamp(json.at("lastKnownCloudUpdate").get<std::string>());
+
+        return CalendarSnapshot{ entriesFromJson(payload), lastUpdate, lastKnownCloudUpdate };
     }
     catch (const nlohmann::json::exception&)
     {

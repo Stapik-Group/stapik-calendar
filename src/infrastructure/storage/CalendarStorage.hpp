@@ -17,6 +17,7 @@ struct CalendarSnapshot
 {
     CalendarEntries entries;
     std::chrono::system_clock::time_point lastUpdate;
+    std::optional<std::chrono::system_clock::time_point> lastKnownCloudUpdate;
 };
 
 class CalendarStorage
@@ -30,6 +31,8 @@ private:
     static std::filesystem::path storagePath();
     static std::string serializeDate(std::chrono::year_month_day date);
     static std::chrono::year_month_day deserializeDate(const std::string& str);
+    static std::string serializeTimestamp(std::chrono::system_clock::time_point tp);
+    static std::chrono::system_clock::time_point deserializeTimestamp(const std::string& str);
     static nlohmann::json entriesToJson(const CalendarEntries& entries);
     static CalendarEntries entriesFromJson(const nlohmann::json& json);
 };

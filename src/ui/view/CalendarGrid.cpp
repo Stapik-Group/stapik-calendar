@@ -1,7 +1,5 @@
 #include "CalendarGrid.hpp"
 
-#include "stapik/cloud/CloudStorageException.hpp"
-
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/command/AddEntryCommand.hpp"
 #include "../../core/command/DeleteEntryCommand.hpp"
@@ -16,14 +14,16 @@
 #include <nlohmann/json.hpp>
 
 #include "../../core/util/DateUtils.hpp"
+#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
 
 CalendarGrid::CalendarGrid()
 {
     m_currentYearMonth = DateUtils::todayYearMonth();
 
-    const auto [entries, lastUpdate] = CalendarStorage::load();
+    const auto [entries, lastUpdate, lastKnownCloudUpdate] = CalendarStorage::load();
     m_entries = entries;
     m_lastUpdate = lastUpdate;
+    m_lastKnownCloudUpdate = lastKnownCloudUpdate;
 
     initLayout();
     connectCellSignals();
@@ -244,24 +244,22 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     );
 }
 
-void CalendarGrid::saveEntries() const
+void CalendarGrid::saveEntries()
 {
-    const CalendarSnapshot snapshot{ m_entries, m_lastUpdate };
-    CalendarStorage::save(snapshot);
-
     if (m_cloudClient != nullptr)
     {
+        const CalendarSnapshot snapshot{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate };
         g_message("[Cloud] Saving in cloud...");
-        try
-        {
-            m_cloudClient->saveJson(CalendarStorage::toJson(snapshot));
-            g_message("[Cloud] Saved in cloud.");
-        }
-        catch (const CloudStorageException& e)
-        {
-            g_warning("[Cloud] Cloud writing error: %s", e.what());
-        }
+
+        const auto [entries, lastUpdate, lastKnownCloudUpdate] = CalendarSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
+        m_entries = entries;
+        m_lastUpdate = lastUpdate;
+        m_lastKnownCloudUpdate = lastKnownCloudUpdate;
+
+        g_message("[Cloud] Saved in cloud.");
     }
+
+    CalendarStorage::save(CalendarSnapshot{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate });
 }
 
 void CalendarGrid::undo()
@@ -291,11 +289,14 @@ void CalendarGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    const CalendarSnapshot local{ m_entries, m_lastUpdate };
+    const CalendarSnapshot local{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate };
     const auto resolved = CalendarSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
 
     m_entries = resolved.entries;
     m_lastUpdate = resolved.lastUpdate;
+    m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
+
+    CalendarStorage::save(resolved);
     populateCells();
 }
 

@@ -60,7 +60,7 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
     try
     {
         auto client = std::make_unique<CloudStorageClient>(config, CALENDAR_FILENAME);
-        std::ignore = client->loadJson();
+        std::ignore = client->loadDocument();
 
         m_calendarGrid.setCloudClient(std::move(client));
 

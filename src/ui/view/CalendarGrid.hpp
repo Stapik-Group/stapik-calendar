@@ -3,7 +3,6 @@
 #include "CalendarCell.hpp"
 #include "../../core/command/CalendarCommandHistory.hpp"
 #include "../../core/model/CalendarEntries.hpp"
-#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
 
@@ -29,13 +28,15 @@ private:
     std::chrono::year_month m_currentYearMonth {};
     CalendarEntries m_entries;
     std::chrono::system_clock::time_point m_lastUpdate{};
+    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
+
     CalendarCommandHistory m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
     void initLayout();
     void populateCells();
     void connectCellSignals();
-    void saveEntries() const;
+    void saveEntries();
     void syncFromCloud();
     void touchLastUpdate();
 
