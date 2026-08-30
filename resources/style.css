@@ -142,3 +142,9 @@ entry {
     padding: 2px 4px;
     color: #000000;
 }
+
+.calendar-entry-delete:active {
+    padding: 0;
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: none;
+}
