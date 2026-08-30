@@ -1,7 +1,5 @@
 #include "CalendarGrid.hpp"
 
-#include "stapik/cloud/CloudStorageException.hpp"
-
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/command/AddEntryCommand.hpp"
 #include "../../core/command/DeleteEntryCommand.hpp"
@@ -10,20 +8,24 @@
 #include "../../core/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 #include "../../infrastructure/storage/CalendarStorage.hpp"
+#include "../../core/command/MoveEntryCommand.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
 #include <nlohmann/json.hpp>
 
 #include "../../core/util/DateUtils.hpp"
+#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
+#include "../../core/command/AddEntryCommand.hpp"
 
 CalendarGrid::CalendarGrid()
 {
     m_currentYearMonth = DateUtils::todayYearMonth();
 
-    const auto [entries, lastUpdate] = CalendarStorage::load();
+    const auto [entries, lastUpdate, lastKnownCloudUpdate] = CalendarStorage::load();
     m_entries = entries;
     m_lastUpdate = lastUpdate;
+    m_lastKnownCloudUpdate = lastKnownCloudUpdate;
 
     initLayout();
     connectCellSignals();
@@ -39,7 +41,11 @@ void CalendarGrid::initLayout()
 
     for (int row = 0; row < ROWS; ++row)
         for (int col = 0; col < COLUMNS; ++col)
-            attach(m_cells[row * COLUMNS + col], col, row);
+        {
+            const int index = row * COLUMNS + col;
+            m_cells[index].setCellIndex(index);
+            attach(m_cells[index], col, row);
+        }
 }
 
 void CalendarGrid::connectCellSignals()
@@ -50,6 +56,8 @@ void CalendarGrid::connectCellSignals()
         m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
+        m_cells[i].signalColorChangeRequested().connect([this, i](const int entryIndex, const EntryColor color) { onEntryColorChangeRequested(i, entryIndex, color); });
+        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const int sourceEntryIndex, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, sourceEntryIndex, i, isCopy); });
     }
 }
 
@@ -136,6 +144,35 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
         return;
 
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex)));
+    touchLastUpdate();
+    saveEntries();
+    populateCells();
+}
+
+void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
+{
+    const int sourceDay = cellDay(sourceCellIndex);
+    const int destDay = cellDay(destCellIndex);
+    if (sourceDay < 1 || sourceDay > daysInMonth() || destDay < 1 || destDay > daysInMonth())
+        return;
+
+    const auto sourceDate = cellDate(sourceDay);
+    const auto destDate = cellDate(destDay);
+    if (!isValidEntryIndex(sourceDate, sourceEntryIndex))
+        return;
+    if (!isCopy && sourceDate == destDate)
+        return;
+
+    if (isCopy)
+    {
+        const auto entryCopy = m_entries.at(sourceDate).at(static_cast<std::size_t>(sourceEntryIndex));
+        m_history.execute(std::make_unique<AddEntryCommand>(m_entries, destDate, entryCopy));
+    }
+    else
+    {
+        m_history.execute(std::make_unique<MoveEntryCommand>(m_entries, sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
+    }
+
     touchLastUpdate();
     saveEntries();
     populateCells();
@@ -244,24 +281,41 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     );
 }
 
-void CalendarGrid::saveEntries() const
+void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int entryIndex, const EntryColor color)
 {
-    const CalendarSnapshot snapshot{ m_entries, m_lastUpdate };
-    CalendarStorage::save(snapshot);
+    const int day = cellDay(cellIndex);
+    if (day < 1 || day > daysInMonth())
+        return;
 
+    const auto date = cellDate(day);
+    if (!isValidEntryIndex(date, entryIndex))
+        return;
+
+    auto updated = m_entries.at(date).at(static_cast<std::size_t>(entryIndex));
+    updated.color = color;
+
+    m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex), std::move(updated)));
+    touchLastUpdate();
+    saveEntries();
+    populateCells();
+}
+
+void CalendarGrid::saveEntries()
+{
     if (m_cloudClient != nullptr)
     {
+        const CalendarSnapshot snapshot{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate };
         g_message("[Cloud] Saving in cloud...");
-        try
-        {
-            m_cloudClient->saveJson(CalendarStorage::toJson(snapshot));
-            g_message("[Cloud] Saved in cloud.");
-        }
-        catch (const CloudStorageException& e)
-        {
-            g_warning("[Cloud] Cloud writing error: %s", e.what());
-        }
+
+        const auto [entries, lastUpdate, lastKnownCloudUpdate] = CalendarSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
+        m_entries = entries;
+        m_lastUpdate = lastUpdate;
+        m_lastKnownCloudUpdate = lastKnownCloudUpdate;
+
+        g_message("[Cloud] Saved in cloud.");
     }
+
+    CalendarStorage::save(CalendarSnapshot{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate });
 }
 
 void CalendarGrid::undo()
@@ -291,11 +345,14 @@ void CalendarGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    const CalendarSnapshot local{ m_entries, m_lastUpdate };
+    const CalendarSnapshot local{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate };
     const auto resolved = CalendarSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
 
     m_entries = resolved.entries;
     m_lastUpdate = resolved.lastUpdate;
+    m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
+
+    CalendarStorage::save(resolved);
     populateCells();
 }
 
@@ -308,3 +365,4 @@ void CalendarGrid::touchLastUpdate()
 {
     m_lastUpdate = std::chrono::system_clock::now();
 }
+

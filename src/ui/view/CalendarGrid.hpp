@@ -3,7 +3,6 @@
 #include "CalendarCell.hpp"
 #include "../../core/command/CalendarCommandHistory.hpp"
 #include "../../core/model/CalendarEntries.hpp"
-#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
 
@@ -29,13 +28,15 @@ private:
     std::chrono::year_month m_currentYearMonth {};
     CalendarEntries m_entries;
     std::chrono::system_clock::time_point m_lastUpdate{};
+    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
+
     CalendarCommandHistory m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
     void initLayout();
     void populateCells();
     void connectCellSignals();
-    void saveEntries() const;
+    void saveEntries();
     void syncFromCloud();
     void touchLastUpdate();
 
@@ -43,6 +44,8 @@ private:
     void onCellRightClicked(int cellIndex);
     void onEntryEditRequested(int cellIndex, int entryIndex);
     void onEntryDeleteRequested(int cellIndex, int entryIndex);
+    void onEntryColorChangeRequested(int cellIndex, int entryIndex, EntryColor color);
+    void onEntryMoveRequested(int sourceCellIndex, int sourceEntryIndex, int destCellIndex, bool isCopy);
 
     void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, std::optional<int> editIndex);
     [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);

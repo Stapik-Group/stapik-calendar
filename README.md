@@ -1,19 +1,21 @@
 # Stapik Calendar
 
-A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Styled after the retro old-school aesthetic.
+A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Supports multiple visual themes, from a retro look to a modern one.
 
 ![Screenshot](screenshots/screenshot_1.png)
 
 ## Features
 
 - **Monthly view** - calendar grid with month and year navigation
-- **Calendar entries** - add, edit and delete entries with a name and optional link
-- **Quick add from clipboard** - right-clicking a cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
-- **Undo/Redo** - full operation history for adding, editing and deleting entries
+- **Calendar entries** - add, edit and delete entries with a name, optional link and color
+- **Entry colors** - assign one of several predefined colors to an entry, either from the entry dialog or via a quick right-click popover on an existing entry
+- **Drag and drop** - drag an entry to another day to move it; hold **Ctrl** while dragging to copy it instead
+- **Quick add from clipboard** - right-clicking an empty cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
+- **Undo/Redo** - full operation history for adding, editing, deleting, moving and copying entries
 - **Cloud sync** - save and load data via an external API (compatible with a self-hosted server), with automatic conflict resolution based on timestamps
 - **Multilingual UI** - Polish, English and German interface with instant switching
+- **Themes** - switch between **Classic** (retro Win98), **Modern** (light, rounded, macOS-inspired) and **Classic Pink** (Win98 layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
 - **Auto-save** - calendar data saved locally after every change
-- **Retro aesthetic** — classic look with raised buttons, blue navigation bar and grey cells
 
 ## Dependencies
 
@@ -90,33 +92,50 @@ rm ~/.local/share/applications/stapikcalendar.desktop
 rm ~/.local/share/icons/hicolor/256x256/apps/stapikcalendar.png
 ```
 
-Either way, your calendar data, cloud config and language preference remain at `~/.local/share/stapikcalendar/` — see [Data Storage](#data-storage) below if you want to remove those too.
+Either way, your calendar data, cloud config, language and theme preferences remain at `~/.local/share/stapikcalendar/` — see [Data Storage](#data-storage) below if you want to remove those too.
 
 ## Cloud Sync
 
-The app supports synchronization via a self-hosted API server. Go to **File → Connect**, enter the server URL and API key.
+The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable).
 
-Once connected, the app compares the local file and the cloud copy using a `lastUpdate` timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the older one is fully replaced.
+Once connected, the app compares the local file and the cloud copy using a timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the write that's based on the older cloud state loses.
+
+Unlike the original simple sync protocol, a losing write isn't necessarily gone for good. Each cloud document slot has a conflict-resolution strategy set in the admin panel:
+- **Last-write-wins with shadow copy** (the default) — the losing write is kept in the document's version history and can be restored from the admin panel.
+- **Last-write-wins** — the losing write is discarded, matching the original behavior.
 
 Data is saved locally after every change, and the app also attempts to push it to the cloud right away. If the cloud is unreachable at that moment, the change stays saved locally and the app quietly retries on the next save — no data is lost, but the cloud copy will lag behind until the next successful write. You can also trigger a sync manually from **File → Sync**.
 
-**Caution for multi-device use:** since conflict resolution is whole-document and last-write-wins, editing the calendar offline on two different machines before either one reconnects can cause one set of changes to be silently discarded. If you use the app on more than one device, make sure to sync (or at least go online) after each editing session to avoid overwriting your own changes.
+**Caution for multi-device use:** editing the calendar offline on two different machines before either one reconnects can still cause one set of changes to lose the conflict. With shadow-copy resolution (the default), that copy isn't destroyed — it's recoverable from the admin panel's version history — but it won't reappear in the app on its own; recovering it means restoring it from the admin panel and syncing again. If you use the app on more than one device, sync (or at least go online) after each editing session to avoid needing a manual restore.
 
-The API must expose two endpoints:
-- `GET /read?filename=calendar.json` — returns `{ "content": "..." }`
-- `POST /write` — accepts `{ "filename": "calendar.json", "content": "..." }`
+### API
+
+The app talks to a Stapik Cloud server (or any server implementing the same contract):
+
+- `GET /api/v1/documents/{slotKey}` — returns `{ "slotKey": "...", "content": "...", "contentHash": "...", "updatedAt": "..." }`
+- `PUT /api/v1/documents/{slotKey}` — accepts `{ "content": "...", "clientLastKnownUpdate": "..." }`, returns the same shape as `GET`. Status `200` means the write was accepted; `409` means it lost a conflict, and the response body is the current, winning document rather than an echo of what was sent.
+
+Authentication: `x-api-key` header with a per-device key from the admin panel. The old `/read`/`/write` endpoints and the single shared API key are no longer supported — existing installations need to be reconnected in **File → Connect** with a newly issued key.
 
 ## Data Storage
 
-Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`, wrapped with a `lastUpdate` timestamp used for cloud sync. Cloud config at `~/.local/share/stapikcalendar/config.json`. Language preference at `~/.local/share/stapikcalendar/locale.txt`.
+Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`, wrapped with a `lastUpdate` timestamp used for cloud sync. Each entry stores a name, an optional link and a color; files saved before entry colors were introduced are read without a `color` field and default to the standard color automatically.
+
+Cloud config at `~/.local/share/stapikcalendar/config.json`. Language preference at `~/.local/share/stapikcalendar/locale.txt`. Theme preference at `~/.local/share/stapikcalendar/theme.txt`.
+
+## Themes
+
+![Screenshot](screenshots/screenshot_2.png)
+![Screenshot](screenshots/screenshot_3.png)
 
 ## TODO
 
 - [x] General refactor
 - [x] Cloud sync with conflict resolution
 - [x] `.deb` package for easier distribution
+- [x] Entry colors — assign a color to each entry
+- [x] Drag and drop entries between cells (with copy via Ctrl)
+- [x] Theme switcher — Classic / Modern / Classic Pink
 - [ ] Export to iCal format (.ics)
-- [ ] Entry colors — assign a color to each entry
-- [ ] Drag and drop entries between cells
 - [ ] Entry search
 - [ ] Flatpak package

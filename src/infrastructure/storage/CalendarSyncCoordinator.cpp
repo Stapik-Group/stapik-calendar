@@ -2,19 +2,70 @@
 #include <glib.h>
 #include "stapik/cloud/CloudStorageException.hpp"
 
-CalendarSnapshot CalendarSyncCoordinator::resolveOnConnect(const CalendarSnapshot& local, CloudStorageClient& cloudClient)
+CalendarSnapshot CalendarSyncCoordinator::fromCloudDocument(const CloudDocument& document)
 {
-    CalendarSnapshot cloud;
+    auto snapshot = CalendarStorage::fromJson(document.content);
+    snapshot.lastKnownCloudUpdate = document.updatedAt;
+    return snapshot;
+}
+
+CalendarSnapshot CalendarSyncCoordinator::pushWithConflictResolution(
+    const CalendarSnapshot& local,
+    CloudStorageClient& cloudClient,
+    const std::optional<std::chrono::system_clock::time_point> baseline)
+{
+    CloudWriteResult result;
 
     try
     {
-        const auto json = cloudClient.loadJson();
-        if (json.empty())
+        result = cloudClient.saveDocument(CalendarStorage::toJson(local), baseline.value_or(std::chrono::system_clock::time_point{}));
+    }
+    catch (const CloudStorageException&)
+    {
+        g_debug("Cannot sync with cloud, will retry on next save.");
+        return local;
+    }
+
+    if (!result.conflict)
+    {
+        auto snapshot = local;
+        snapshot.lastKnownCloudUpdate = result.document.updatedAt;
+        return snapshot;
+    }
+
+    // Server has a newer document than we knew about.
+    if (result.document.updatedAt > local.lastUpdate)
+        return fromCloudDocument(result.document);
+
+    // We're still newer (rare race) — one retry against the server's current baseline.
+    try
+    {
+        const auto [document, conflict] = cloudClient.saveDocument(CalendarStorage::toJson(local), result.document.updatedAt);
+
+        if (!conflict)
         {
-            cloudClient.saveJson(CalendarStorage::toJson(local));
-            return local;
+            auto snapshot = local;
+            snapshot.lastKnownCloudUpdate = document.updatedAt;
+            return snapshot;
         }
-        cloud = CalendarStorage::fromJson(json);
+
+        // Lost the race twice — accept the server's version to avoid looping.
+        return fromCloudDocument(document);
+    }
+    catch (const CloudStorageException&)
+    {
+        g_debug("Cannot sync with cloud, will retry on next save.");
+        return local;
+    }
+}
+
+CalendarSnapshot CalendarSyncCoordinator::resolveOnConnect(const CalendarSnapshot& local, CloudStorageClient& cloudClient)
+{
+    std::optional<CloudDocument> remote;
+
+    try
+    {
+        remote = cloudClient.loadDocument();
     }
     catch (const CloudStorageException&)
     {
@@ -22,20 +73,16 @@ CalendarSnapshot CalendarSyncCoordinator::resolveOnConnect(const CalendarSnapsho
         return local;
     }
 
-    if (cloud.lastUpdate > local.lastUpdate)
-    {
-        CalendarStorage::save(cloud);
-        return cloud;
-    }
+    if (!remote.has_value())
+        return pushWithConflictResolution(local, cloudClient, std::nullopt);
 
-    if (local.lastUpdate > cloud.lastUpdate)
-    {
-        try { cloudClient.saveJson(CalendarStorage::toJson(local)); }
-        catch (const CloudStorageException&)
-        {
-            g_debug("Cannot sync with cloud, will retry on next save.");
-        }
-    }
+    if (remote->updatedAt > local.lastUpdate)
+        return fromCloudDocument(remote.value());
 
-    return local;
+    return pushWithConflictResolution(local, cloudClient, remote->updatedAt);
+}
+
+CalendarSnapshot CalendarSyncCoordinator::pushLocalChange(const CalendarSnapshot& local, CloudStorageClient& cloudClient)
+{
+    return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate);
 }

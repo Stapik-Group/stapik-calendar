@@ -1,5 +1,6 @@
 #include "MainMenu.hpp"
 
+#include "stapik/theme/ThemeManager.hpp"
 #include "../../core/locale/LocaleManager.hpp"
 
 MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) : m_window(window),
@@ -7,6 +8,7 @@ MainMenu::MainMenu(Gtk::ApplicationWindow &window, CalendarGrid &calendarGrid) :
 {
     m_actionHandler.registerActions();
     initLanguageAction();
+    initThemeAction();
     buildModel();
     LocaleManager::instance().signalLocaleChanged().connect([this] { buildModel(); });
 }
@@ -42,8 +44,14 @@ void MainMenu::buildModel()
     menuLanguage->append(loc.translate("menu.settings.language.en"), "win.setLanguage::en");
     menuLanguage->append(loc.translate("menu.settings.language.de"), "win.setLanguage::de");
 
+    const auto menuTheme = Gio::Menu::create();
+    menuTheme->append(loc.translate("menu.settings.theme.classic"), "win.setTheme::classic");
+    menuTheme->append(loc.translate("menu.settings.theme.classicPink"), "win.setTheme::classic-pink");
+    menuTheme->append(loc.translate("menu.settings.theme.modern"), "win.setTheme::modern");
+
     const auto menuSettings = Gio::Menu::create();
     menuSettings->append_submenu(loc.translate("menu.settings.language"), menuLanguage);
+    menuSettings->append_submenu(loc.translate("menu.settings.theme"), menuTheme);
     m_menuModel->append_submenu(loc.translate("menu.settings"), menuSettings);
 
     m_menuBar.set_menu_model(m_menuModel);
@@ -70,5 +78,24 @@ void MainMenu::initLanguageAction() const
         else if (value == "de") LocaleManager::instance().setLocale(DE);
     });
 
+    m_window.add_action(action);
+}
+
+void MainMenu::initThemeAction() const
+{
+    const auto currentTheme = ThemeManager::instance().getTheme();
+    std::string initialValue = "classic";
+    if (currentTheme == Theme::Modern) initialValue = "modern";
+    else if (currentTheme == Theme::ClassicPink) initialValue = "classic-pink";
+
+    auto action = Gio::SimpleAction::create_radio_string("setTheme", initialValue);
+    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
+    {
+        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
+        action->change_state(value);
+        if (value == "modern") ThemeManager::instance().setTheme(Theme::Modern);
+        else if (value == "classic-pink") ThemeManager::instance().setTheme(Theme::ClassicPink);
+        else ThemeManager::instance().setTheme(Theme::Classic);
+    });
     m_window.add_action(action);
 }

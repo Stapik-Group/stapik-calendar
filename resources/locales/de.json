@@ -41,6 +41,13 @@
   "dialog.entry.name.placeholder": "Namen eingeben...",
   "dialog.entry.link.label": "Link (optional):",
   "dialog.entry.link.placeholder": "https://...",
+  "dialog.entry.color.label": "Farbe",
+
+  "menu.settings.theme": "Design",
+  "menu.settings.theme.classic": "Klassisch",
+  "menu.settings.theme.classicPink": "Klassisch Pink",
+  "menu.settings.theme.modern": "Modern",
+
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Abbrechen",
 

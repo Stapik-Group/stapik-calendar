@@ -16,6 +16,7 @@ CalendarEntryDialog::CalendarEntryDialog(Window& parent, const CalendarEntry& ex
     initLayout();
     m_nameEntry.set_text(existing.name);
     m_linkEntry.set_text(existing.link);
+    m_colorPicker.setSelectedColor(existing.color);
 }
 
 void CalendarEntryDialog::initLayout()
@@ -30,11 +31,16 @@ void CalendarEntryDialog::initLayout()
     m_linkLabel.set_halign(Gtk::Align::START);
     m_linkEntry.set_placeholder_text(loc.translate("dialog.entry.link.placeholder"));
 
+    m_colorLabel.set_text(loc.translate("dialog.entry.color.label"));
+    m_colorLabel.set_halign(Gtk::Align::START);
+
     m_contentBox.set_margin(CONTENT_MARGIN);
     m_contentBox.append(m_nameLabel);
     m_contentBox.append(m_nameEntry);
     m_contentBox.append(m_linkLabel);
     m_contentBox.append(m_linkEntry);
+    m_contentBox.append(m_colorLabel);
+    m_contentBox.append(m_colorPicker);
 
     get_content_area()->append(m_contentBox);
 
@@ -54,5 +60,5 @@ std::optional<CalendarEntry> CalendarEntryDialog::getResult() const
     if (name.empty())
         return std::nullopt;
 
-    return CalendarEntry{ name, m_linkEntry.get_text() };
+    return CalendarEntry{ name, m_linkEntry.get_text(), m_colorPicker.getSelectedColor() };
 }

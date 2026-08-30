@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(stapikcalendar VERSION 1.0.2 LANGUAGES CXX)
+project(stapikcalendar VERSION 1.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,7 +23,7 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v0.4.0
+        GIT_TAG v1.1.6
 )
 FetchContent_MakeAvailable(stapikcommon)
 
@@ -37,14 +37,17 @@ add_executable(stapikcalendar
         src/core/command/CalendarCommand.cpp
         src/core/command/EntryCommandBase.cpp
         src/core/command/IndexedEntryCommand.cpp
+        src/core/command/MoveEntryCommand.cpp
         src/core/util/UrlTitleFetcher.cpp
         src/core/util/ClipboardUrlDetector.cpp
         src/core/util/DateUtils.cpp
+        src/core/util/EntryColorUtils.cpp
+        src/core/util/EntryDragPayload.cpp
         src/infrastructure/network/CloudStorageConfigStorage.cpp
+        src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/infrastructure/storage/CalendarStorage.cpp
         src/infrastructure/storage/CalendarSyncCoordinator.cpp
         src/ui/window/MainWindow.cpp
-        src/ui/style/AppStyleProvider.cpp
         src/ui/action/MenuActionHandler.cpp
         src/ui/dialog/AboutDialog.cpp
         src/ui/dialog/ConnectDialog.cpp
@@ -56,7 +59,8 @@ add_executable(stapikcalendar
         src/ui/view/CalendarView.cpp
         src/ui/view/CalendarNavBar.cpp
         src/ui/widget/MainMenu.cpp
-        src/ui/widget/CalendarEntryWidget.cpp)
+        src/ui/widget/CalendarEntryWidget.cpp
+        src/ui/widget/EntryColorPickerWidget.cpp)
 
 target_include_directories(stapikcalendar PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_include_directories(stapikcalendar PRIVATE ${CMAKE_BINARY_DIR}/generated)

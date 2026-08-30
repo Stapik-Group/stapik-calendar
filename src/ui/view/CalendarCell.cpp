@@ -1,5 +1,6 @@
 #include "CalendarCell.hpp"
 
+#include "../../core/util/EntryDragPayload.hpp"
 #include "../widget/CalendarEntryWidget.hpp"
 
 CalendarCell::CalendarCell() :
@@ -8,6 +9,7 @@ CalendarCell::CalendarCell() :
 {
     initLayout();
     initGesture();
+    initDropTarget();
 }
 
 void CalendarCell::initLayout()
@@ -53,9 +55,24 @@ void CalendarCell::initGesture()
     add_controller(m_gestureRightClick);
 }
 
+void CalendarCell::initDropTarget()
+{
+    m_dropTarget = Gtk::DropTarget::create(Glib::Value<Glib::ustring>::value_type(), Gdk::DragAction::MOVE | Gdk::DragAction::COPY);
+    m_dropTarget->signal_drop().connect(sigc::mem_fun(*this, &CalendarCell::onDrop), false);
+    m_dropTarget->signal_enter().connect(
+        [this](double, double) { add_css_class("drag-over"); return Gdk::DragAction::MOVE; }, false);
+    m_dropTarget->signal_leave().connect([this] { remove_css_class("drag-over"); });
+    add_controller(m_dropTarget);
+}
+
 void CalendarCell::setDay(const int day)
 {
     m_dayLabel.set_text(std::to_string(day));
+}
+
+void CalendarCell::setCellIndex(const int cellIndex)
+{
+    m_cellIndex = cellIndex;
 }
 
 void CalendarCell::clearDay()
@@ -88,9 +105,28 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
 
         widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
         widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
+        widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
+        widget->setSourceLocator(m_cellIndex, i);
 
         m_entriesBox.append(*widget);
     }
+}
+
+bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
+{
+    remove_css_class("drag-over");
+
+    if (G_VALUE_TYPE(value.gobj()) != G_TYPE_STRING)
+        return false;
+
+    const auto& stringValue = static_cast<const Glib::Value<Glib::ustring>&>(value);
+    const auto parsed = EntryDragPayload::deserialize(stringValue.get());
+    if (!parsed.has_value())
+        return false;
+
+    const auto [sourceCellIndex, sourceEntryIndex, isCopy] = parsed.value();
+    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryIndex, isCopy);
+    return true;
 }
 
 sigc::signal<void()>& CalendarCell::signalDoubleClicked()
@@ -111,4 +147,14 @@ sigc::signal<void(int)>& CalendarCell::signalDeleteRequested()
 sigc::signal<void()> &CalendarCell::signalRightClicked()
 {
     return m_signalRightClicked;
+}
+
+sigc::signal<void(int, EntryColor)>& CalendarCell::signalColorChangeRequested()
+{
+    return m_signalColorChangeRequested;
+}
+
+sigc::signal<void(int, int, bool)>& CalendarCell::signalEntryMoveRequested()
+{
+    return m_signalEntryMoveRequested;
 }

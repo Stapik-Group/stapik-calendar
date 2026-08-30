@@ -5,8 +5,11 @@
 #include <gtkmm/box.h>
 #include <gtkmm/gestureclick.h>
 #include <gtkmm/scrolledwindow.h>
+#include <gtkmm/droptarget.h>
+#include <glibmm/value.h>
 
 #include "../../core/model/CalendarEntry.hpp"
+#include "../../core/model/EntryColor.hpp"
 
 class CalendarCell : public Gtk::Frame {
 public:
@@ -15,17 +18,22 @@ public:
     void clearDay();
     void markAsToday(bool isToday);
     void setEntries(const std::vector<CalendarEntry>& entries);
+    void setCellIndex(int cellIndex);
 
     sigc::signal<void()>& signalDoubleClicked();
     sigc::signal<void()>& signalRightClicked();
     sigc::signal<void(int)>& signalEditRequested();
     sigc::signal<void(int)>& signalDeleteRequested();
+    sigc::signal<void(int, EntryColor)>& signalColorChangeRequested();
+    sigc::signal<void(int, int, bool)>& signalEntryMoveRequested();
 private:
     static constexpr int ENTRIES_SPACING = 2;
     static constexpr int CELL_MARGIN = 4;
     static constexpr guint LEFT_MOUSE_BUTTON = 1;
     static constexpr guint RIGHT_MOUSE_BUTTON = 3;
     static constexpr int DOUBLE_CLICK_COUNT = 2;
+
+    int m_cellIndex = -1;
 
     Gtk::Box m_outerBox;
     Gtk::Label m_dayLabel;
@@ -38,8 +46,13 @@ private:
     sigc::signal<void()> m_signalRightClicked;
     sigc::signal<void(int)> m_signalEditRequested;
     sigc::signal<void(int)> m_signalDeleteRequested;
+    sigc::signal<void(int, EntryColor)> m_signalColorChangeRequested;
+    Glib::RefPtr<Gtk::DropTarget> m_dropTarget;
+    sigc::signal<void(int, int, bool)> m_signalEntryMoveRequested;
 
     void initLayout();
     void initGesture();
     void refreshEntries(const std::vector<CalendarEntry>& entries);
+    void initDropTarget();
+    bool onDrop(const Glib::ValueBase& value, double x, double y);
 };

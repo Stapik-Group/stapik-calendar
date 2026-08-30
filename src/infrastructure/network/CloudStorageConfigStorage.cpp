@@ -43,6 +43,12 @@ std::optional<CloudStorageConfig> CloudStorageConfigStorage::load()
     }
 }
 
+void CloudStorageConfigStorage::clear()
+{
+    std::error_code ec;
+    std::filesystem::remove(configPath(), ec);
+}
+
 std::filesystem::path CloudStorageConfigStorage::configPath()
 {
     const auto* home = std::getenv("HOME");
