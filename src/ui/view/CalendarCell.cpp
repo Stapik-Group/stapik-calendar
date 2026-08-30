@@ -57,7 +57,7 @@ void CalendarCell::initGesture()
 
 void CalendarCell::initDropTarget()
 {
-    m_dropTarget = Gtk::DropTarget::create(Glib::Value<Glib::ustring>::value_type(), Gdk::DragAction::MOVE);
+    m_dropTarget = Gtk::DropTarget::create(Glib::Value<Glib::ustring>::value_type(), Gdk::DragAction::MOVE | Gdk::DragAction::COPY);
     m_dropTarget->signal_drop().connect(sigc::mem_fun(*this, &CalendarCell::onDrop), false);
     m_dropTarget->signal_enter().connect(
         [this](double, double) { add_css_class("drag-over"); return Gdk::DragAction::MOVE; }, false);
@@ -124,7 +124,8 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
     if (!parsed.has_value())
         return false;
 
-    m_signalEntryMoveRequested.emit(parsed->first, parsed->second);
+    const auto [sourceCellIndex, sourceEntryIndex, isCopy] = parsed.value();
+    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryIndex, isCopy);
     return true;
 }
 
@@ -153,7 +154,7 @@ sigc::signal<void(int, EntryColor)>& CalendarCell::signalColorChangeRequested()
     return m_signalColorChangeRequested;
 }
 
-sigc::signal<void(int, int)>& CalendarCell::signalEntryMoveRequested()
+sigc::signal<void(int, int, bool)>& CalendarCell::signalEntryMoveRequested()
 {
     return m_signalEntryMoveRequested;
 }

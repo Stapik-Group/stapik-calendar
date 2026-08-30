@@ -6,6 +6,6 @@
 class EntryDragPayload
 {
 public:
-    static Glib::ustring serialize(int cellIndex, int entryIndex);
-    static std::optional<std::pair<int, int>> deserialize(const Glib::ustring& payload);
+    static Glib::ustring serialize(int cellIndex, int entryIndex, bool isCopy);
+    static std::optional<std::tuple<int, int, bool>> deserialize(const Glib::ustring& payload);
 };

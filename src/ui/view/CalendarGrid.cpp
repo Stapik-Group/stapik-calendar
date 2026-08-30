@@ -16,6 +16,7 @@
 
 #include "../../core/util/DateUtils.hpp"
 #include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
+#include "../../core/command/AddEntryCommand.hpp"
 
 CalendarGrid::CalendarGrid()
 {
@@ -56,7 +57,7 @@ void CalendarGrid::connectCellSignals()
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
         m_cells[i].signalColorChangeRequested().connect([this, i](const int entryIndex, const EntryColor color) { onEntryColorChangeRequested(i, entryIndex, color); });
-        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const int sourceEntryIndex) { onEntryMoveRequested(sourceCellIndex, sourceEntryIndex, i); });
+        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const int sourceEntryIndex, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, sourceEntryIndex, i, isCopy); });
     }
 }
 
@@ -148,7 +149,7 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
     populateCells();
 }
 
-void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex)
+void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
 {
     const int sourceDay = cellDay(sourceCellIndex);
     const int destDay = cellDay(destCellIndex);
@@ -157,12 +158,21 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sou
 
     const auto sourceDate = cellDate(sourceDay);
     const auto destDate = cellDate(destDay);
-    if (sourceDate == destDate)
-        return;
     if (!isValidEntryIndex(sourceDate, sourceEntryIndex))
         return;
+    if (!isCopy && sourceDate == destDate)
+        return;
 
-    m_history.execute(std::make_unique<MoveEntryCommand>(m_entries, sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
+    if (isCopy)
+    {
+        const auto entryCopy = m_entries.at(sourceDate).at(static_cast<std::size_t>(sourceEntryIndex));
+        m_history.execute(std::make_unique<AddEntryCommand>(m_entries, destDate, entryCopy));
+    }
+    else
+    {
+        m_history.execute(std::make_unique<MoveEntryCommand>(m_entries, sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
+    }
+
     touchLastUpdate();
     saveEntries();
     populateCells();

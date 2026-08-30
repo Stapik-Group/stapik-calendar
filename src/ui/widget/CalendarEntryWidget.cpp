@@ -76,13 +76,14 @@ void CalendarEntryWidget::initColorPopover(const EntryColor currentColor)
 void CalendarEntryWidget::initDragSource()
 {
     m_dragSource = Gtk::DragSource::create();
-    m_dragSource->set_actions(Gdk::DragAction::MOVE);
+    m_dragSource->set_actions(Gdk::DragAction::MOVE | Gdk::DragAction::COPY);
     m_dragSource->signal_prepare().connect(
         [this](double, double) -> Glib::RefPtr<Gdk::ContentProvider>
         {
+            const bool isCopy = (m_dragSource->get_current_event_state() & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
             Glib::Value<Glib::ustring> value;
             value.init(Glib::Value<Glib::ustring>::value_type());
-            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryIndex));
+            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryIndex, isCopy));
             return Gdk::ContentProvider::create(value);
         }, false);
     add_controller(m_dragSource);

@@ -25,7 +25,7 @@ public:
     sigc::signal<void(int)>& signalEditRequested();
     sigc::signal<void(int)>& signalDeleteRequested();
     sigc::signal<void(int, EntryColor)>& signalColorChangeRequested();
-    sigc::signal<void(int, int)>& signalEntryMoveRequested();
+    sigc::signal<void(int, int, bool)>& signalEntryMoveRequested();
 private:
     static constexpr int ENTRIES_SPACING = 2;
     static constexpr int CELL_MARGIN = 4;
@@ -48,7 +48,7 @@ private:
     sigc::signal<void(int)> m_signalDeleteRequested;
     sigc::signal<void(int, EntryColor)> m_signalColorChangeRequested;
     Glib::RefPtr<Gtk::DropTarget> m_dropTarget;
-    sigc::signal<void(int, int)> m_signalEntryMoveRequested;
+    sigc::signal<void(int, int, bool)> m_signalEntryMoveRequested;
 
     void initLayout();
     void initGesture();
