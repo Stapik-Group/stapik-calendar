@@ -46,6 +46,7 @@ void MainMenu::buildModel()
 
     const auto menuTheme = Gio::Menu::create();
     menuTheme->append(loc.translate("menu.settings.theme.classic"), "win.setTheme::classic");
+    menuTheme->append(loc.translate("menu.settings.theme.classicPink"), "win.setTheme::classic-pink");
     menuTheme->append(loc.translate("menu.settings.theme.modern"), "win.setTheme::modern");
 
     const auto menuSettings = Gio::Menu::create();
@@ -82,13 +83,19 @@ void MainMenu::initLanguageAction() const
 
 void MainMenu::initThemeAction() const
 {
-    const auto initialValue = ThemeManager::instance().getTheme() == Theme::Modern ? "modern" : "classic";
+    const auto currentTheme = ThemeManager::instance().getTheme();
+    std::string initialValue = "classic";
+    if (currentTheme == Theme::Modern) initialValue = "modern";
+    else if (currentTheme == Theme::ClassicPink) initialValue = "classic-pink";
+
     auto action = Gio::SimpleAction::create_radio_string("setTheme", initialValue);
     action->signal_activate().connect([action](const Glib::VariantBase& parameter)
     {
         const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
         action->change_state(value);
-        ThemeManager::instance().setTheme(value == "modern" ? Theme::Modern : Theme::Classic);
+        if (value == "modern") ThemeManager::instance().setTheme(Theme::Modern);
+        else if (value == "classic-pink") ThemeManager::instance().setTheme(Theme::ClassicPink);
+        else ThemeManager::instance().setTheme(Theme::Classic);
     });
     m_window.add_action(action);
 }
