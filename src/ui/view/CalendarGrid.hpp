@@ -44,6 +44,7 @@ private:
     void onCellRightClicked(int cellIndex);
     void onEntryEditRequested(int cellIndex, int entryIndex);
     void onEntryDeleteRequested(int cellIndex, int entryIndex);
+    void onEntryColorChangeRequested(int cellIndex, int entryIndex, EntryColor color);
 
     void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, std::optional<int> editIndex);
     [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);

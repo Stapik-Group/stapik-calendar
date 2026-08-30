@@ -43,6 +43,7 @@
   "dialog.entry.link.placeholder": "https://...",
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Anuluj",
+  "dialog.entry.color.label": "Kolor",
 
   "dialog.connect.title": "Połącz z chmurą",
   "dialog.connect.url.label": "URL serwera:",

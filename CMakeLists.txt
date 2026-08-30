@@ -40,6 +40,7 @@ add_executable(stapikcalendar
         src/core/util/UrlTitleFetcher.cpp
         src/core/util/ClipboardUrlDetector.cpp
         src/core/util/DateUtils.cpp
+        src/core/util/EntryColorUtils.cpp
         src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/infrastructure/storage/CalendarStorage.cpp
@@ -57,7 +58,8 @@ add_executable(stapikcalendar
         src/ui/view/CalendarView.cpp
         src/ui/view/CalendarNavBar.cpp
         src/ui/widget/MainMenu.cpp
-        src/ui/widget/CalendarEntryWidget.cpp)
+        src/ui/widget/CalendarEntryWidget.cpp
+        src/ui/widget/EntryColorPickerWidget.cpp)
 
 target_include_directories(stapikcalendar PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_include_directories(stapikcalendar PRIVATE ${CMAKE_BINARY_DIR}/generated)

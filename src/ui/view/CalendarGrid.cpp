@@ -50,6 +50,7 @@ void CalendarGrid::connectCellSignals()
         m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
+        m_cells[i].signalColorChangeRequested().connect([this, i](const int entryIndex, const EntryColor color) { onEntryColorChangeRequested(i, entryIndex, color); });
     }
 }
 
@@ -244,6 +245,25 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     );
 }
 
+void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int entryIndex, const EntryColor color)
+{
+    const int day = cellDay(cellIndex);
+    if (day < 1 || day > daysInMonth())
+        return;
+
+    const auto date = cellDate(day);
+    if (!isValidEntryIndex(date, entryIndex))
+        return;
+
+    auto updated = m_entries.at(date).at(static_cast<std::size_t>(entryIndex));
+    updated.color = color;
+
+    m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex), std::move(updated)));
+    touchLastUpdate();
+    saveEntries();
+    populateCells();
+}
+
 void CalendarGrid::saveEntries()
 {
     if (m_cloudClient != nullptr)
@@ -309,3 +329,4 @@ void CalendarGrid::touchLastUpdate()
 {
     m_lastUpdate = std::chrono::system_clock::now();
 }
+

@@ -1,5 +1,6 @@
 #include "CalendarStorage.hpp"
 
+#include "../../core/util/EntryColorUtils.hpp"
 #include "stapik/sync/SyncEnvelope.hpp"
 
 #include <fstream>
@@ -91,11 +92,12 @@ nlohmann::json CalendarStorage::entriesToJson(const CalendarEntries& entries)
     nlohmann::json json = nlohmann::json::array();
 
     for (const auto& [date, dayEntries] : entries)
-        for (const auto& [name, link] : dayEntries)
+        for (const auto& [name, link, color] : dayEntries)
             json.push_back({
                 { "date", serializeDate(date) },
                 { "name", name },
-                { "link", link }
+                { "link", link },
+                { "color", EntryColorUtils::toString(color) }
             });
 
     return json;
@@ -110,7 +112,8 @@ CalendarEntries CalendarStorage::entriesFromJson(const nlohmann::json& json)
         const auto date = deserializeDate(item.at("date").get<std::string>());
         entries[date].emplace_back(
             item.at("name").get<std::string>(),
-            item.at("link").get<std::string>()
+            item.at("link").get<std::string>(),
+            EntryColorUtils::fromString(item.value("color", std::string{"default"}))
         );
     }
 

@@ -43,6 +43,7 @@
   "dialog.entry.link.placeholder": "https://...",
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Cancel",
+  "dialog.entry.color.label": "Color",
 
   "dialog.connect.title": "Connect to cloud",
   "dialog.connect.url.label": "Server URL:",

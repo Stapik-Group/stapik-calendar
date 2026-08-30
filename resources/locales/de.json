@@ -41,6 +41,8 @@
   "dialog.entry.name.placeholder": "Namen eingeben...",
   "dialog.entry.link.label": "Link (optional):",
   "dialog.entry.link.placeholder": "https://...",
+  "dialog.entry.color.label": "Farbe",
+
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Abbrechen",
 

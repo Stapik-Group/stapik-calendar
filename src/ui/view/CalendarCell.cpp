@@ -88,6 +88,7 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
 
         widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
         widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
+        widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
 
         m_entriesBox.append(*widget);
     }
@@ -111,4 +112,9 @@ sigc::signal<void(int)>& CalendarCell::signalDeleteRequested()
 sigc::signal<void()> &CalendarCell::signalRightClicked()
 {
     return m_signalRightClicked;
+}
+
+sigc::signal<void(int, EntryColor)>& CalendarCell::signalColorChangeRequested()
+{
+    return m_signalColorChangeRequested;
 }

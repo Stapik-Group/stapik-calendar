@@ -7,6 +7,7 @@
 #include <gtkmm/label.h>
 
 #include "../../core/model/CalendarEntry.hpp"
+#include "../widget/EntryColorPickerWidget.hpp"
 
 class CalendarEntryDialog : public Gtk::Dialog
 {
@@ -24,6 +25,8 @@ private:
     Gtk::Entry m_nameEntry;
     Gtk::Label m_linkLabel;
     Gtk::Entry m_linkEntry;
+    Gtk::Label m_colorLabel;
+    EntryColorPickerWidget m_colorPicker;
 
     void initLayout();
 };

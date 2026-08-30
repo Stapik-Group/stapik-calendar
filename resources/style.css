@@ -148,3 +148,63 @@ entry {
     border-color: #808080 #ffffff #ffffff #808080;
     box-shadow: none;
 }
+
+.color-swatch {
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    border-radius: 0;
+}
+.color-swatch:checked {
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: none;
+}
+.calendar-entry-color-red    { background-color: #800000; }
+.calendar-entry-color-green  { background-color: #008000; }
+.calendar-entry-color-blue   { background-color: #000080; }
+.calendar-entry-color-yellow { background-color: #808000; }
+.calendar-entry-color-purple { background-color: #800080; }
+.calendar-entry-color-orange { background-color: #ff8000; }
+
+.calendar-entry-color-red .calendar-entry-label,
+.calendar-entry-color-green .calendar-entry-label,
+.calendar-entry-color-blue .calendar-entry-label,
+.calendar-entry-color-purple .calendar-entry-label {
+    color: #ffffff;
+}
+
+.color-swatch {
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    border-radius: 0;
+}
+.color-swatch:hover,
+.color-swatch:active {
+    padding: 0;
+    box-shadow: none;
+}
+.color-swatch:checked {
+    border-color: #808080 #ffffff #ffffff #808080;
+    box-shadow: none;
+}
+.calendar-entry-color-red    { background-color: #800000; }
+.calendar-entry-color-green  { background-color: #008000; }
+.calendar-entry-color-blue   { background-color: #000080; }
+.calendar-entry-color-yellow { background-color: #808000; }
+.calendar-entry-color-purple { background-color: #800080; }
+.calendar-entry-color-orange { background-color: #ff8000; }
+
+.calendar-entry-color-red:hover    { background-color: #800000; }
+.calendar-entry-color-green:hover  { background-color: #008000; }
+.calendar-entry-color-blue:hover   { background-color: #000080; }
+.calendar-entry-color-yellow:hover { background-color: #808000; }
+.calendar-entry-color-purple:hover { background-color: #800080; }
+.calendar-entry-color-orange:hover { background-color: #ff8000; }
+
+.calendar-entry-color-red .calendar-entry-label,
+.calendar-entry-color-green .calendar-entry-label,
+.calendar-entry-color-blue .calendar-entry-label,
+.calendar-entry-color-purple .calendar-entry-label {
+    color: #ffffff;
+}
