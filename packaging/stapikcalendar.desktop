@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Stapik Calendar
+Comment=Oldschool calendar
+Exec=stapikcalendar
+Icon=stapikcalendar
+Terminal=false
+Categories=Office;Calendar;
+StartupWMClass=pl.stapik.calendar
