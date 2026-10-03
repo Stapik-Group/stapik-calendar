@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 
-#include "../../infrastructure/network/CloudStorageConfigStorage.hpp"
+#include "stapik/app/AppContext.hpp"
+#include "stapik/storage/CloudStorageConfigStorage.hpp"
 
 MainWindow::MainWindow() :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
@@ -26,7 +27,7 @@ void MainWindow::initLayout()
 
 void MainWindow::initCloud()
 {
-    const auto config = CloudStorageConfigStorage::load();
+    const auto config = CloudStorageConfigStorage::load(stapik::app::AppContext::instance().info().internalName);
     if (!config.has_value())
         return;
 

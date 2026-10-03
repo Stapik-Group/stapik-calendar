@@ -5,7 +5,7 @@
 #include "../../core/command/DeleteEntryCommand.hpp"
 #include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 #include "../../infrastructure/storage/CalendarStorage.hpp"
 #include "../../core/command/MoveEntryCommand.hpp"

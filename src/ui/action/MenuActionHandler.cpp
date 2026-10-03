@@ -1,12 +1,12 @@
 #include "MenuActionHandler.hpp"
 
+#include "stapik/app/AppContext.hpp"
 #include "stapik/cloud/CloudStorageException.hpp"
-
-#include "../../core/locale/LocaleManager.hpp"
-#include "../../infrastructure/network/CloudStorageConfigStorage.hpp"
-#include "../dialog/ConnectDialog.hpp"
-#include "../dialog/AboutDialog.hpp"
-#include "../dialog/DialogUtils.hpp"
+#include "stapik/locale/LocaleManager.hpp"
+#include "stapik/storage/CloudStorageConfigStorage.hpp"
+#include "stapik/ui/dialog/AboutDialog.hpp"
+#include "stapik/ui/dialog/ConnectDialog.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
 
 #include <gtkmm/application.h>
 #include <gtkmm/messagedialog.h>
@@ -28,29 +28,23 @@ void MenuActionHandler::registerActions()
 
 void MenuActionHandler::onActionConnect() const
 {
-    auto* dialog = new ConnectDialog(m_window);
-
-    if (const auto config = CloudStorageConfigStorage::load(); config.has_value())
-        dialog->prefillConfig(config.value());
-
-    dialog->signal_response().connect([this, dialog](const int responseId)
-    {
-        if (responseId == Gtk::ResponseType::OK)
-        {
-            if (const auto result = dialog->getResult(); result.has_value())
-                handleConnectResult(result.value());
-        }
-        dialog->hide();
-    });
-
-    dialog->signal_hide().connect([dialog] { delete dialog; });
-    dialog->show();
+    showConnectDialog(
+        m_window,
+        CloudStorageConfigStorage::load(appName()),
+        [this](const CloudStorageConfig& config) { handleConnectResult(config); });
 }
 
 void MenuActionHandler::handleConnectResult(const CloudStorageConfig& config) const
 {
-    CloudStorageConfigStorage::save(config);
+    if (!CloudStorageConfigStorage::save(config, appName()))
+        g_warning("[Cloud] Cannot save the cloud configuration; it will be lost after restart.");
+
     applyCloudConfig(config);
+}
+
+std::string MenuActionHandler::appName()
+{
+    return stapik::app::AppContext::instance().info().internalName;
 }
 
 void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
@@ -91,7 +85,7 @@ void MenuActionHandler::onActionRedo() const
 
 void MenuActionHandler::onActionAbout() const
 {
-    showAutoDeletingDialog<AboutDialog>(m_window);
+    showAboutDialog(m_window);
 }
 
 void MenuActionHandler::onActionSync() const

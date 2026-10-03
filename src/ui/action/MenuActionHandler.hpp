@@ -1,6 +1,8 @@
 #pragma once
 #include <gtkmm/applicationwindow.h>
 
+#include <string>
+
 #include "../view/CalendarGrid.hpp"
 
 class MenuActionHandler
@@ -23,6 +25,7 @@ private:
     void onActionAbout() const;
     void onActionSync() const;
 
+    [[nodiscard]] static std::string appName();
     void handleConnectResult(const CloudStorageConfig& config) const;
     void applyCloudConfig(const CloudStorageConfig& config) const;
 };

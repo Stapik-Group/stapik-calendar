@@ -1,5 +1,5 @@
 #include "CalendarHeader.hpp"
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 CalendarHeader::CalendarHeader()
 {

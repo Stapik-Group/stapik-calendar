@@ -1,6 +1,6 @@
 #include "CalendarEntryDialog.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 CalendarEntryDialog::CalendarEntryDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),

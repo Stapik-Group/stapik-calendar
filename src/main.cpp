@@ -1,6 +1,7 @@
+
 #include <gtkmm.h>
 
-#include "infrastructure/network/CloudSchemaMigrationGuard.hpp"
+#include "stapik/app/AppContext.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 #include "stapik/ui/style/AppStyleProvider.hpp"
@@ -8,19 +9,33 @@
 
 namespace
 {
-    constexpr auto APP_NAME = "stapikcalendar";
+    constexpr auto APPLICATION_ID = "pl.stapik.calendar";
+    constexpr auto AUTHOR = "Sebastian Smoliński";
+    constexpr auto REPOSITORY_URL = "https://github.com/Stapik-Group/stapik-calendar";
+
+    stapik::app::AppInfo createAppInfo()
+    {
+        return {
+            .applicationId = APPLICATION_ID,
+            .internalName = STAPIK_APP_NAME,
+            .displayName = STAPIK_APP_DISPLAY_NAME,
+            .version = STAPIK_APP_VERSION,
+            .author = AUTHOR,
+            .repositoryUrl = REPOSITORY_URL
+        };
+    }
 }
 
 int main(const int argc, char *argv[])
 {
-    CloudSchemaMigrationGuard::ensureCompatible();
-    const auto app = Gtk::Application::create("pl.stapik.calendar");
+    stapik::app::AppContext::initialize(createAppInfo());
+    const auto app = Gtk::Application::create(APPLICATION_ID);
 
-    AppStyleProvider styleProvider(AppPaths::resourcesDir());
+    auto styleProvider = AppStyleProvider::withCommonThemes(AppPaths::resourcesDir());
 
     app->signal_activate().connect([&]
     {
-        styleProvider.apply(ThemeManager::instance(APP_NAME).getTheme());
+        styleProvider.apply(ThemeManager::instance().getTheme());
         ThemeManager::instance().signalThemeChanged().connect(
             [&styleProvider] { styleProvider.apply(ThemeManager::instance().getTheme()); });
 
