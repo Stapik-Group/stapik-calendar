@@ -4,6 +4,7 @@
 #include "stapik/app/AppContext.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/theme/ThemeManager.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
 #include "stapik/ui/style/AppStyleProvider.hpp"
 #include "ui/window/MainWindow.hpp"
 
@@ -35,11 +36,13 @@ int main(const int argc, char *argv[])
 
     app->signal_activate().connect([&]
     {
-        styleProvider.apply(ThemeManager::instance().getTheme());
+        styleProvider.apply(ThemeManager::instance().themeId());
         ThemeManager::instance().signalThemeChanged().connect(
-            [&styleProvider] { styleProvider.apply(ThemeManager::instance().getTheme()); });
+            [&styleProvider] { styleProvider.apply(ThemeManager::instance().themeId()); });
 
-        auto* window = new MainWindow();
+        StandardMenu::installShortcuts(*app);
+
+        auto* window = new MainWindow(styleProvider.themes());
         app->add_window(*window);
         window->show();
     });

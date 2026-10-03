@@ -4,7 +4,6 @@
 #include "stapik/cloud/CloudStorageException.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/storage/CloudStorageConfigStorage.hpp"
-#include "stapik/ui/dialog/AboutDialog.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
 
@@ -22,7 +21,6 @@ void MenuActionHandler::registerActions()
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
     m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
-    m_window.add_action("about", sigc::mem_fun(*this, &MenuActionHandler::onActionAbout));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
 }
 
@@ -81,11 +79,6 @@ void MenuActionHandler::onActionUndo() const
 void MenuActionHandler::onActionRedo() const
 {
     m_calendarGrid.redo();
-}
-
-void MenuActionHandler::onActionAbout() const
-{
-    showAboutDialog(m_window);
 }
 
 void MenuActionHandler::onActionSync() const

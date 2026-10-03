@@ -22,7 +22,6 @@ private:
     void onActionQuit() const;
     void onActionUndo() const;
     void onActionRedo() const;
-    void onActionAbout() const;
     void onActionSync() const;
 
     [[nodiscard]] static std::string appName();

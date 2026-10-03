@@ -3,13 +3,16 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
 
-#include "../widget/MainMenu.hpp"
+#include "stapik/theme/ThemeRegistry.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
+
+#include "../action/MenuActionHandler.hpp"
 #include "../view/CalendarView.hpp"
 
 class MainWindow : public Gtk::ApplicationWindow
 {
 public:
-    explicit MainWindow();
+    explicit MainWindow(const stapik::theme::ThemeRegistry& themes);
     ~MainWindow() override = default;
     void initCloud();
 private:
@@ -19,7 +22,8 @@ private:
 
     Gtk::Box m_mainBox;
     CalendarView m_calendarView;
-    MainMenu m_mainMenu;
+    MenuActionHandler m_actionHandler;
+    StandardMenu m_menu;
 
     void init();
     void initLayout();

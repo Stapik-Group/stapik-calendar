@@ -3,10 +3,12 @@
 #include "stapik/app/AppContext.hpp"
 #include "stapik/storage/CloudStorageConfigStorage.hpp"
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
-    m_mainMenu(*this, m_calendarView.getCalendarGrid())
+    m_actionHandler(*this, m_calendarView.getCalendarGrid()),
+    m_menu(*this, StandardMenuOptions{ .themes = &themes })
 {
+    m_actionHandler.registerActions();
     init();
     initLayout();
     initCloud();
@@ -21,7 +23,7 @@ void MainWindow::init()
 
 void MainWindow::initLayout()
 {
-    m_mainBox.append(m_mainMenu.getMenuBar());
+    m_mainBox.append(m_menu.menuBar());
     m_mainBox.append(m_calendarView);
 }
 
