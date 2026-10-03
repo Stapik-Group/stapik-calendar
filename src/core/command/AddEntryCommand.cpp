@@ -11,5 +11,14 @@ void AddEntryCommand::execute()
 
 void AddEntryCommand::undo()
 {
-    m_entries[m_date].pop_back();
+    auto& dayEntries = m_entries[m_date];
+    dayEntries.pop_back();
+
+    if (dayEntries.empty())
+        m_entries.erase(m_date);
+}
+
+std::string AddEntryCommand::description() const
+{
+    return describe("command.entry.add", m_entry.name);
 }

@@ -19,8 +19,6 @@ void MenuActionHandler::registerActions()
 {
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
-    m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
-    m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
 }
 
@@ -69,16 +67,6 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
 void MenuActionHandler::onActionQuit() const
 {
     m_window.get_application()->quit();
-}
-
-void MenuActionHandler::onActionUndo() const
-{
-    m_calendarGrid.undo();
-}
-
-void MenuActionHandler::onActionRedo() const
-{
-    m_calendarGrid.redo();
 }
 
 void MenuActionHandler::onActionSync() const

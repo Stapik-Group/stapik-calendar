@@ -6,7 +6,7 @@
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_actionHandler(*this, m_calendarView.getCalendarGrid()),
-    m_menu(*this, StandardMenuOptions{ .themes = &themes })
+    m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_calendarView.getCalendarGrid().undoStack() })
 {
     m_actionHandler.registerActions();
     init();

@@ -27,6 +27,8 @@ CalendarGrid::CalendarGrid()
     m_lastUpdate = lastUpdate;
     m_lastKnownCloudUpdate = lastKnownCloudUpdate;
 
+    m_historyConnection = m_history.signalChanged().connect(sigc::mem_fun(*this, &CalendarGrid::onHistoryChanged));
+
     initLayout();
     connectCellSignals();
     populateCells();
@@ -144,9 +146,6 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
         return;
 
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex)));
-    touchLastUpdate();
-    saveEntries();
-    populateCells();
 }
 
 void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
@@ -172,10 +171,6 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sou
     {
         m_history.execute(std::make_unique<MoveEntryCommand>(m_entries, sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
     }
-
-    touchLastUpdate();
-    saveEntries();
-    populateCells();
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
@@ -204,10 +199,6 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
                     m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, static_cast<std::size_t>(editIndex.value()), std::move(result.value())));
                 else
                     m_history.execute(std::make_unique<AddEntryCommand>(m_entries, date, std::move(result.value())));
-
-                touchLastUpdate();
-                saveEntries();
-                populateCells();
             }
         }
         dialog->hide();
@@ -271,9 +262,6 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
                 Glib::signal_idle().connect_once([this, date, entry]
                 {
                     m_history.execute(std::make_unique<AddEntryCommand>(m_entries, date, entry));
-                    touchLastUpdate();
-                    saveEntries();
-                    populateCells();
                 });
             });
         },
@@ -295,9 +283,6 @@ void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int en
     updated.color = color;
 
     m_history.execute(std::make_unique<EditEntryCommand>(m_entries, date, static_cast<std::size_t>(entryIndex), std::move(updated)));
-    touchLastUpdate();
-    saveEntries();
-    populateCells();
 }
 
 void CalendarGrid::saveEntries()
@@ -308,6 +293,9 @@ void CalendarGrid::saveEntries()
         g_message("[Cloud] Saving in cloud...");
 
         const auto [entries, lastUpdate, lastKnownCloudUpdate] = CalendarSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
+        if (entries != m_entries)
+            clearHistorySilently();
+
         m_entries = entries;
         m_lastUpdate = lastUpdate;
         m_lastKnownCloudUpdate = lastKnownCloudUpdate;
@@ -318,20 +306,9 @@ void CalendarGrid::saveEntries()
     CalendarStorage::save(CalendarSnapshot{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate });
 }
 
-void CalendarGrid::undo()
+stapik::command::UndoStack& CalendarGrid::undoStack()
 {
-    m_history.undo();
-    touchLastUpdate();
-    saveEntries();
-    populateCells();
-}
-
-void CalendarGrid::redo()
-{
-    m_history.redo();
-    touchLastUpdate();
-    saveEntries();
-    populateCells();
+    return m_history;
 }
 
 void CalendarGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
@@ -347,6 +324,8 @@ void CalendarGrid::syncFromCloud()
 
     const CalendarSnapshot local{ m_entries, m_lastUpdate, m_lastKnownCloudUpdate };
     const auto resolved = CalendarSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
+    if (resolved.entries != m_entries)
+        clearHistorySilently();
 
     m_entries = resolved.entries;
     m_lastUpdate = resolved.lastUpdate;
@@ -366,3 +345,16 @@ void CalendarGrid::touchLastUpdate()
     m_lastUpdate = std::chrono::system_clock::now();
 }
 
+void CalendarGrid::onHistoryChanged()
+{
+    touchLastUpdate();
+    saveEntries();
+    populateCells();
+}
+
+void CalendarGrid::clearHistorySilently()
+{
+    m_historyConnection.block();
+    m_history.clear();
+    m_historyConnection.unblock();
+}

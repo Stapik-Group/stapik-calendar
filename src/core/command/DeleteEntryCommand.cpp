@@ -20,3 +20,8 @@ void DeleteEntryCommand::undo()
     auto& entries = m_entries[m_date];
     entries.insert(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_entryIndex), m_deletedEntry);
 }
+
+std::string DeleteEntryCommand::description() const
+{
+    return describe("command.entry.delete", m_deletedEntry.name);
+}

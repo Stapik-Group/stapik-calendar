@@ -33,8 +33,6 @@ stapik_add_application(
                 src/core/command/AddEntryCommand.cpp
                 src/core/command/EditEntryCommand.cpp
                 src/core/command/DeleteEntryCommand.cpp
-                src/core/command/CalendarCommandHistory.cpp
-                src/core/command/CalendarCommand.cpp
                 src/core/command/EntryCommandBase.cpp
                 src/core/command/IndexedEntryCommand.cpp
                 src/core/command/MoveEntryCommand.cpp

@@ -13,5 +13,9 @@
   "dialog.entry.link.label": "Link (opcjonalny):",
   "dialog.entry.link.placeholder": "https://...",
   "dialog.entry.color.label": "Kolor",
-  "entry.default_name": "Bez nazwy"
+  "entry.default_name": "Bez nazwy",
+  "command.entry.add": "dodanie wpisu „{name}”",
+  "command.entry.edit": "edycja wpisu „{name}”",
+  "command.entry.delete": "usunięcie wpisu „{name}”",
+  "command.entry.move": "przeniesienie wpisu „{name}”"
 }

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "CalendarCell.hpp"
-#include "../../core/command/CalendarCommandHistory.hpp"
 #include "../../core/model/CalendarEntries.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
+#include "stapik/command/UndoStack.hpp"
 
 #include <gtkmm/grid.h>
+#include <sigc++/connection.h>
 #include <array>
 #include <chrono>
 
@@ -15,8 +16,7 @@ class CalendarGrid : public Gtk::Grid
 public:
     explicit CalendarGrid();
     void displayMonth(std::chrono::year_month yearMonth);
-    void undo();
-    void redo();
+    [[nodiscard]] stapik::command::UndoStack& undoStack();
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
     void retrySync();
 private:
@@ -30,7 +30,8 @@ private:
     std::chrono::system_clock::time_point m_lastUpdate{};
     std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
 
-    CalendarCommandHistory m_history;
+    stapik::command::UndoStack m_history;
+    sigc::connection m_historyConnection;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
     void initLayout();
@@ -39,6 +40,8 @@ private:
     void saveEntries();
     void syncFromCloud();
     void touchLastUpdate();
+    void onHistoryChanged();
+    void clearHistorySilently();
 
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);

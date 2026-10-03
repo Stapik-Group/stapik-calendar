@@ -13,5 +13,9 @@
   "dialog.entry.link.label": "Link (optional):",
   "dialog.entry.link.placeholder": "https://...",
   "dialog.entry.color.label": "Color",
-  "entry.default_name": "No name"
+  "entry.default_name": "No name",
+  "command.entry.add": "add entry “{name}”",
+  "command.entry.edit": "edit entry “{name}”",
+  "command.entry.delete": "delete entry “{name}”",
+  "command.entry.move": "move entry “{name}”"
 }
