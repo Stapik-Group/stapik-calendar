@@ -57,7 +57,7 @@ button {
 frame {
     background-color: #ffffff;
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     margin: 4px;
     transition: box-shadow 150ms ease, background-color 150ms ease;
@@ -67,6 +67,7 @@ frame:hover {
 }
 frame > border {
     border: none;
+    border-radius: 0;
 }
 .today {
     background-color: #eaf2ff;

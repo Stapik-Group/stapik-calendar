@@ -35,10 +35,12 @@ frame {
     background-color: #c0c0c0;
     border: 1px solid;
     border-color: #808080 #ffffff #ffffff #808080;
+    border-radius: 0;
 }
 
 frame > border {
     border: none;
+    border-radius: 0;
 }
 
 .today {

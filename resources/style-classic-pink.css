@@ -34,9 +34,11 @@ frame {
     background-color: #f4b6dd;
     border: 1px solid;
     border-color: #8c3a72 #ffe0f3 #ffe0f3 #8c3a72;
+    border-radius: 0;
 }
 frame > border {
     border: none;
+    border-radius: 0;
 }
 .today {
     background-color: #00e5ff;
