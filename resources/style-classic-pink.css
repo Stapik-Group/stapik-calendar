@@ -7,12 +7,6 @@ headerbar {
     box-shadow: none;
 }
 
-button:hover {
-    background-color: #f9cbe6;
-}
-button:active {
-    padding: 3px 7px 1px 9px;
-}
 .calendar-navbar {
     background: linear-gradient(to right, #ff6ec7, #7b2ff7);
     padding: 4px;
@@ -54,6 +48,10 @@ frame > border {
 .drag-over {
     border: 2px dashed #00e5ff;
 }
+.calendar-entry {
+    padding: 1px 4px;
+}
+
 .calendar-entry-label {
     padding: 1px 2px;
 }
