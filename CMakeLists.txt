@@ -18,6 +18,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stapikcommon)
 
+# Keeps the familiar package name: stapikcalendar_<version>_<arch>.deb
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+
 stapik_add_application(
         NAME stapikcalendar
         DISPLAY_NAME "Stapik Calendar"
@@ -25,7 +28,7 @@ stapik_add_application(
         APPLICATION_ID pl.stapik.calendar
         RESOURCES_DIRECTORY resources
         PACKAGING_DIRECTORY packaging
-        MAINTAINER "Sebastian Smoliński <sebastian.smolinski6@email.com>"
+        MAINTAINER "Sebastian Smoliński <sebastian.smolinski6@gmail.com>"
         HOMEPAGE "https://github.com/Stapik-Group/stapik-calendar"
         DESKTOP_CATEGORIES Office Calendar
         SOURCES
