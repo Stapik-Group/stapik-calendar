@@ -92,8 +92,11 @@ frame > border {
 /* --- Entries --- */
 
 .calendar-entry-label {
-    color: #1c1c1e;
     padding: 3px 6px;
+    border-radius: 6px;
+}
+
+.calendar-entry {
     border-radius: 6px;
 }
 
@@ -115,60 +118,3 @@ frame > border {
     padding: 0 !important;
     box-shadow: none;
 }
-
-/* --- Entry colors --- */
-
-.calendar-entry-color-red    { background-color: #ff453a; border-radius: 6px; }
-.calendar-entry-color-green  { background-color: #34c759; border-radius: 6px; }
-.calendar-entry-color-blue   { background-color: #007aff; border-radius: 6px; }
-.calendar-entry-color-yellow { background-color: #ffcc00; border-radius: 6px; }
-.calendar-entry-color-purple { background-color: #af52de; border-radius: 6px; }
-.calendar-entry-color-orange { background-color: #ff9500; border-radius: 6px; }
-
-.calendar-entry-color-red:hover,
-.calendar-entry-color-green:hover,
-.calendar-entry-color-blue:hover,
-.calendar-entry-color-purple:hover,
-.calendar-entry-color-orange:hover {
-    filter: brightness(0.92);
-}
-
-.calendar-entry-color-red .calendar-entry-label,
-.calendar-entry-color-green .calendar-entry-label,
-.calendar-entry-color-blue .calendar-entry-label,
-.calendar-entry-color-purple .calendar-entry-label,
-.calendar-entry-color-orange .calendar-entry-label {
-    color: #ffffff;
-}
-
-/* --- Color picker swatches --- */
-
-.color-swatch {
-    min-width: 18px;
-    min-height: 18px;
-    padding: 0;
-    border-radius: 999px;
-    border: 2px solid transparent;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    transition: transform 100ms ease;
-}
-.color-swatch:hover {
-    padding: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-.color-swatch:active {
-    padding: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-.color-swatch:checked {
-    border-color: #1c1c1e;
-    box-shadow: 0 0 0 1px #ffffff inset, 0 1px 2px rgba(0,0,0,0.2);
-}
-
-/* --- Color picker swatches: kolor musi wygrać z button/:hover/:active/:checked --- */
-.color-swatch.calendar-entry-color-red    { background-color: #ff453a; }
-.color-swatch.calendar-entry-color-green  { background-color: #34c759; }
-.color-swatch.calendar-entry-color-blue   { background-color: #007aff; }
-.color-swatch.calendar-entry-color-yellow { background-color: #ffcc00; }
-.color-swatch.calendar-entry-color-purple { background-color: #af52de; }
-.color-swatch.calendar-entry-color-orange { background-color: #ff9500; }

@@ -1,6 +1,6 @@
 #include "CalendarDocument.hpp"
 
-#include "../util/EntryColorUtils.hpp"
+#include "stapik/domain/CategoryColor.hpp"
 #include "stapik/sync/Timestamp.hpp"
 
 #include <charconv>
@@ -12,6 +12,7 @@
 namespace
 {
     constexpr std::size_t DATE_LENGTH = 10;
+    constexpr auto DEFAULT_COLOR_ID = "default";
 
     template<typename Number>
     bool parseNumber(const std::string& text, const std::size_t offset, const std::size_t length, Number& value)
@@ -58,6 +59,11 @@ namespace
         return *parsed;
     }
 
+    std::string serializeColor(const EntryColor color)
+    {
+        return color.has_value() ? std::string(stapik::domain::categoryColorId(*color)) : DEFAULT_COLOR_ID;
+    }
+
     nlohmann::json entriesToJson(const CalendarEntries& entries)
     {
         auto json = nlohmann::json::array();
@@ -70,7 +76,7 @@ namespace
                     { "date", serializeDate(date) },
                     { "name", name },
                     { "link", link },
-                    { "color", EntryColorUtils::toString(color) }
+                    { "color", serializeColor(color) }
                 });
             }
         }
@@ -87,7 +93,7 @@ namespace
             entries[deserializeDate(item.at("date").get<std::string>())].push_back(CalendarEntry{
                 item.at("name").get<std::string>(),
                 item.at("link").get<std::string>(),
-                EntryColorUtils::fromString(item.value("color", std::string{"default"}))
+                stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID}))
             });
         }
 

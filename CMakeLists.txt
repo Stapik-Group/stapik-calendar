@@ -42,7 +42,6 @@ stapik_add_application(
                 src/core/util/UrlTitleFetcher.cpp
                 src/core/util/ClipboardUrlDetector.cpp
                 src/core/util/DateUtils.cpp
-                src/core/util/EntryColorUtils.cpp
                 src/core/util/EntryDragPayload.cpp
                 src/infrastructure/storage/CalendarDocumentStore.cpp
                 src/ui/window/MainWindow.cpp

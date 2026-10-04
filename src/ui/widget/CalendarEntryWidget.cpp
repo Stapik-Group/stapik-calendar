@@ -3,7 +3,7 @@
 #include <gtkmm/gestureclick.h>
 #include <gdkmm/contentprovider.h>
 
-#include "../../core/util/EntryColorUtils.hpp"
+#include "EntryColorStyle.hpp"
 #include "../../core/util/EntryDragPayload.hpp"
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
@@ -28,8 +28,8 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
     m_deleteButton.add_css_class("calendar-entry-delete");
     m_deleteButton.signal_clicked().connect([this] { m_signalDeleteRequested.emit(); });
 
-    if (const auto cssClass = EntryColorUtils::cssClass(entry.color); !cssClass.empty())
-        add_css_class(cssClass);
+    add_css_class("calendar-entry");
+    add_css_class(entryColorCssClass(entry.color));
 
     append(m_nameLabel);
     append(m_deleteButton);
