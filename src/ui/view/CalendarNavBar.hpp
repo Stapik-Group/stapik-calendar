@@ -5,7 +5,7 @@
 #include <gtkmm/label.h>
 #include <sigc++/signal.h>
 #include <chrono>
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 class CalendarNavBar : public Gtk::Box
 {

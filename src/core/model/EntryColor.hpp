@@ -1,12 +1,8 @@
 #pragma once
 
-enum class EntryColor
-{
-    Default,
-    Red,
-    Green,
-    Blue,
-    Yellow,
-    Purple,
-    Orange
-};
+#include "stapik/domain/CategoryColor.hpp"
+
+#include <optional>
+
+// One of the shared category colors, or no value for the default look.
+using EntryColor = std::optional<stapik::domain::CategoryColor>;

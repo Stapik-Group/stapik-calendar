@@ -1,24 +1,20 @@
 #pragma once
 
 #include "CalendarCell.hpp"
-#include "../../core/command/CalendarCommandHistory.hpp"
-#include "../../core/model/CalendarEntries.hpp"
-
-#include "stapik/cloud/CloudStorageClient.hpp"
+#include "../../application/CalendarController.hpp"
 
 #include <gtkmm/grid.h>
+#include <sigc++/connection.h>
 #include <array>
 #include <chrono>
 
 class CalendarGrid : public Gtk::Grid
 {
 public:
-    explicit CalendarGrid();
+    explicit CalendarGrid(CalendarController& controller);
+    ~CalendarGrid() override;
+
     void displayMonth(std::chrono::year_month yearMonth);
-    void undo();
-    void redo();
-    void setCloudClient(std::unique_ptr<CloudStorageClient> client);
-    void retrySync();
 private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;
@@ -26,19 +22,12 @@ private:
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
-    CalendarEntries m_entries;
-    std::chrono::system_clock::time_point m_lastUpdate{};
-    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
-
-    CalendarCommandHistory m_history;
-    std::unique_ptr<CloudStorageClient> m_cloudClient;
+    CalendarController& m_controller;
+    sigc::connection m_documentConnection;
 
     void initLayout();
     void populateCells();
     void connectCellSignals();
-    void saveEntries();
-    void syncFromCloud();
-    void touchLastUpdate();
 
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);

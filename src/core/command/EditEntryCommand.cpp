@@ -17,3 +17,8 @@ void EditEntryCommand::undo()
 {
     dayEntries().at(m_entryIndex) = m_oldEntry;
 }
+
+std::string EditEntryCommand::description() const
+{
+    return describe("command.entry.edit", m_newEntry.name);
+}

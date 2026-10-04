@@ -1,7 +1,8 @@
 #pragma once
 #include <gtkmm/box.h>
 #include <gtkmm/togglebutton.h>
-#include <array>
+#include <deque>
+#include <vector>
 #include "../../core/model/EntryColor.hpp"
 
 class EntryColorPickerWidget : public Gtk::Box
@@ -14,8 +15,9 @@ public:
 private:
     static constexpr int SWATCH_SPACING = 4;
     static constexpr int SWATCH_SIZE = 16;
-    std::array<Gtk::ToggleButton, 7> m_swatches;
-    EntryColor m_selected = EntryColor::Default;
+    std::vector<EntryColor> m_colors;
+    std::deque<Gtk::ToggleButton> m_swatches;
+    EntryColor m_selected;
     sigc::signal<void(EntryColor)> m_signalColorSelected;
     void initLayout();
     void selectColor(EntryColor color);
