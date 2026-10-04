@@ -1,16 +1,45 @@
 #include "CalendarSyncCoordinator.hpp"
-#include <glib.h>
-#include "stapik/cloud/CloudStorageException.hpp"
 
-CalendarSnapshot CalendarSyncCoordinator::fromCloudDocument(const CloudDocument& document)
+#include "stapik/cloud/CloudStorageException.hpp"
+#include "stapik/sync/SyncEnvelope.hpp"
+
+#include <glib.h>
+
+namespace
 {
-    auto snapshot = CalendarStorage::fromJson(document.content);
-    snapshot.lastKnownCloudUpdate = document.updatedAt;
-    return snapshot;
+    bool isEmptyContent(const nlohmann::json& content)
+    {
+        return content.is_null() || ((content.is_object() || content.is_array()) && content.empty());
+    }
 }
 
-CalendarSnapshot CalendarSyncCoordinator::pushWithConflictResolution(
-    const CalendarSnapshot& local,
+nlohmann::json CalendarSyncCoordinator::toCloudContent(const CalendarDocument& document)
+{
+    return stapik::sync::SyncEnvelope{ document.lastUpdate(), document.toJson() }.toJson();
+}
+
+std::optional<CalendarDocument> CalendarSyncCoordinator::fromCloudDocument(const CloudDocument& document)
+{
+    try
+    {
+        const auto envelope = stapik::sync::SyncEnvelope::fromJson(document.content);
+        auto parsed = CalendarDocument::fromJson(envelope.payload);
+
+        // An old cloud payload is a bare array: its timestamp lives only in the envelope.
+        if (envelope.payload.is_array())
+            parsed = CalendarDocument(std::move(parsed.entries()), envelope.lastUpdate);
+
+        return parsed.withLastKnownCloudUpdate(document.updatedAt);
+    }
+    catch (const std::exception& exception)
+    {
+        g_warning("[Cloud] Cannot read the cloud document, keeping local data: %s", exception.what());
+        return std::nullopt;
+    }
+}
+
+CalendarDocument CalendarSyncCoordinator::pushWithConflictResolution(
+    const CalendarDocument& local,
     CloudStorageClient& cloudClient,
     const std::optional<std::chrono::system_clock::time_point> baseline)
 {
@@ -18,7 +47,7 @@ CalendarSnapshot CalendarSyncCoordinator::pushWithConflictResolution(
 
     try
     {
-        result = cloudClient.saveDocument(CalendarStorage::toJson(local), baseline.value_or(std::chrono::system_clock::time_point{}));
+        result = cloudClient.saveDocument(toCloudContent(local), baseline.value_or(std::chrono::system_clock::time_point{}));
     }
     catch (const CloudStorageException&)
     {
@@ -27,30 +56,22 @@ CalendarSnapshot CalendarSyncCoordinator::pushWithConflictResolution(
     }
 
     if (!result.conflict)
-    {
-        auto snapshot = local;
-        snapshot.lastKnownCloudUpdate = result.document.updatedAt;
-        return snapshot;
-    }
+        return local.withLastKnownCloudUpdate(result.document.updatedAt);
 
     // Server has a newer document than we knew about.
-    if (result.document.updatedAt > local.lastUpdate)
-        return fromCloudDocument(result.document);
+    if (result.document.updatedAt > local.lastUpdate())
+        return fromCloudDocument(result.document).value_or(local);
 
     // We're still newer (rare race) — one retry against the server's current baseline.
     try
     {
-        const auto [document, conflict] = cloudClient.saveDocument(CalendarStorage::toJson(local), result.document.updatedAt);
+        const auto [document, conflict] = cloudClient.saveDocument(toCloudContent(local), result.document.updatedAt);
 
         if (!conflict)
-        {
-            auto snapshot = local;
-            snapshot.lastKnownCloudUpdate = document.updatedAt;
-            return snapshot;
-        }
+            return local.withLastKnownCloudUpdate(document.updatedAt);
 
         // Lost the race twice — accept the server's version to avoid looping.
-        return fromCloudDocument(document);
+        return fromCloudDocument(document).value_or(local);
     }
     catch (const CloudStorageException&)
     {
@@ -59,7 +80,7 @@ CalendarSnapshot CalendarSyncCoordinator::pushWithConflictResolution(
     }
 }
 
-CalendarSnapshot CalendarSyncCoordinator::resolveOnConnect(const CalendarSnapshot& local, CloudStorageClient& cloudClient)
+CalendarDocument CalendarSyncCoordinator::resolveOnConnect(const CalendarDocument& local, CloudStorageClient& cloudClient)
 {
     std::optional<CloudDocument> remote;
 
@@ -76,13 +97,17 @@ CalendarSnapshot CalendarSyncCoordinator::resolveOnConnect(const CalendarSnapsho
     if (!remote.has_value())
         return pushWithConflictResolution(local, cloudClient, std::nullopt);
 
-    if (remote->updatedAt > local.lastUpdate)
-        return fromCloudDocument(remote.value());
+    // A document that exists but has no content must never replace local data.
+    if (isEmptyContent(remote->content))
+        return pushWithConflictResolution(local, cloudClient, remote->updatedAt);
+
+    if (remote->updatedAt > local.lastUpdate())
+        return fromCloudDocument(remote.value()).value_or(local);
 
     return pushWithConflictResolution(local, cloudClient, remote->updatedAt);
 }
 
-CalendarSnapshot CalendarSyncCoordinator::pushLocalChange(const CalendarSnapshot& local, CloudStorageClient& cloudClient)
+CalendarDocument CalendarSyncCoordinator::pushLocalChange(const CalendarDocument& local, CloudStorageClient& cloudClient)
 {
-    return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate);
+    return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate());
 }

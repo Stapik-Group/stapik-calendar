@@ -1,7 +1,8 @@
 #pragma once
 
 #include "CalendarCell.hpp"
-#include "../../core/model/CalendarEntries.hpp"
+#include "../../core/model/CalendarDocument.hpp"
+#include "../../infrastructure/storage/CalendarDocumentStore.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
 #include "stapik/command/UndoStack.hpp"
@@ -26,9 +27,8 @@ private:
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
-    CalendarEntries m_entries;
-    std::chrono::system_clock::time_point m_lastUpdate{};
-    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
+    CalendarDocumentStore m_store;
+    CalendarDocument m_document;
 
     stapik::command::UndoStack m_history;
     sigc::connection m_historyConnection;
