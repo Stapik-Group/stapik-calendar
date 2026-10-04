@@ -1,33 +1,31 @@
 #include "CalendarGrid.hpp"
 
 #include "../../core/util/UrlTitleFetcher.hpp"
-#include "../../core/command/AddEntryCommand.hpp"
-#include "../../core/command/DeleteEntryCommand.hpp"
-#include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
-#include "../../core/command/MoveEntryCommand.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
 #include <nlohmann/json.hpp>
 
 #include "../../core/util/DateUtils.hpp"
-#include "../../infrastructure/storage/CalendarSyncCoordinator.hpp"
-#include "../../core/command/AddEntryCommand.hpp"
 
-CalendarGrid::CalendarGrid() :
-    m_store(CalendarDocumentStore::createDefault()),
-    m_document(m_store.load())
+CalendarGrid::CalendarGrid(CalendarController& controller) :
+    m_controller(controller)
 {
     m_currentYearMonth = DateUtils::todayYearMonth();
 
-    m_historyConnection = m_history.signalChanged().connect(sigc::mem_fun(*this, &CalendarGrid::onHistoryChanged));
+    m_documentConnection = m_controller.signalDocumentChanged().connect(sigc::mem_fun(*this, &CalendarGrid::populateCells));
 
     initLayout();
     connectCellSignals();
     populateCells();
+}
+
+CalendarGrid::~CalendarGrid()
+{
+    m_documentConnection.disconnect();
 }
 
 void CalendarGrid::initLayout()
@@ -81,8 +79,8 @@ void CalendarGrid::populateCells()
             m_cells[i].setDay(day);
             m_cells[i].markAsToday(isToday(day));
 
-            if (const auto date = cellDate(day); m_document.entries().contains(date))
-                m_cells[i].setEntries(m_document.entries().at(date));
+            if (const auto* entries = m_controller.entriesOn(cellDate(day)); entries != nullptr)
+                m_cells[i].setEntries(*entries);
             else
                 m_cells[i].setEntries({});
         }
@@ -100,11 +98,7 @@ Gtk::Window* CalendarGrid::validatedWindowForCell(const int cellIndex, int& outD
 
 bool CalendarGrid::isValidEntryIndex(const std::chrono::year_month_day date, const int entryIndex) const
 {
-    if (!m_document.entries().contains(date))
-        return false;
-
-    const auto& entries = m_document.entries().at(date);
-    return entryIndex >= 0 && entryIndex < static_cast<int>(entries.size());
+    return entryIndex >= 0 && m_controller.findEntry(date, static_cast<std::size_t>(entryIndex)) != nullptr;
 }
 
 void CalendarGrid::onCellDoubleClicked(const int cellIndex)
@@ -137,11 +131,10 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
     if (day < 1 || day > daysInMonth())
         return;
 
-    const auto date = cellDate(day);
-    if (!isValidEntryIndex(date, entryIndex))
+    if (entryIndex < 0)
         return;
 
-    m_history.execute(std::make_unique<DeleteEntryCommand>(m_document.entries(), date, static_cast<std::size_t>(entryIndex)));
+    m_controller.deleteEntry(cellDate(day), static_cast<std::size_t>(entryIndex));
 }
 
 void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
@@ -151,22 +144,14 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sou
     if (sourceDay < 1 || sourceDay > daysInMonth() || destDay < 1 || destDay > daysInMonth())
         return;
 
-    const auto sourceDate = cellDate(sourceDay);
-    const auto destDate = cellDate(destDay);
-    if (!isValidEntryIndex(sourceDate, sourceEntryIndex))
-        return;
-    if (!isCopy && sourceDate == destDate)
+    if (sourceEntryIndex < 0)
         return;
 
+    const auto index = static_cast<std::size_t>(sourceEntryIndex);
     if (isCopy)
-    {
-        const auto entryCopy = m_document.entries().at(sourceDate).at(static_cast<std::size_t>(sourceEntryIndex));
-        m_history.execute(std::make_unique<AddEntryCommand>(m_document.entries(), destDate, entryCopy));
-    }
+        m_controller.copyEntry(cellDate(sourceDay), index, cellDate(destDay));
     else
-    {
-        m_history.execute(std::make_unique<MoveEntryCommand>(m_document.entries(), sourceDate, static_cast<std::size_t>(sourceEntryIndex), destDate));
-    }
+        m_controller.moveEntry(cellDate(sourceDay), index, cellDate(destDay));
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
@@ -175,10 +160,13 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
 {
     CalendarEntryDialog* dialog = nullptr;
 
-    if (editIndex.has_value() && m_document.entries().contains(date))
+    const auto* existing = editIndex.has_value()
+        ? m_controller.findEntry(date, static_cast<std::size_t>(editIndex.value()))
+        : nullptr;
+
+    if (existing != nullptr)
     {
-        const auto& existing = m_document.entries().at(date).at(static_cast<std::size_t>(editIndex.value()));
-        dialog = new CalendarEntryDialog(window, existing);
+        dialog = new CalendarEntryDialog(window, *existing);
     }
     else
     {
@@ -192,9 +180,9 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
             if (auto result = dialog->getResult(); result.has_value())
             {
                 if (editIndex.has_value())
-                    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, static_cast<std::size_t>(editIndex.value()), std::move(result.value())));
+                    m_controller.editEntry(date, static_cast<std::size_t>(editIndex.value()), std::move(result.value()));
                 else
-                    m_history.execute(std::make_unique<AddEntryCommand>(m_document.entries(), date, std::move(result.value())));
+                    m_controller.addEntry(date, std::move(result.value()));
             }
         }
         dialog->hide();
@@ -257,7 +245,7 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
 
                 Glib::signal_idle().connect_once([this, date, entry]
                 {
-                    m_history.execute(std::make_unique<AddEntryCommand>(m_document.entries(), date, entry));
+                    m_controller.addEntry(date, entry);
                 });
             });
         },
@@ -271,78 +259,8 @@ void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int en
     if (day < 1 || day > daysInMonth())
         return;
 
-    const auto date = cellDate(day);
-    if (!isValidEntryIndex(date, entryIndex))
+    if (entryIndex < 0)
         return;
 
-    auto updated = m_document.entries().at(date).at(static_cast<std::size_t>(entryIndex));
-    updated.color = color;
-
-    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, static_cast<std::size_t>(entryIndex), std::move(updated)));
-}
-
-void CalendarGrid::saveEntries()
-{
-    if (m_cloudClient != nullptr)
-    {
-        g_message("[Cloud] Saving in cloud...");
-
-        const auto synced = CalendarSyncCoordinator::pushLocalChange(m_document, *m_cloudClient);
-        if (synced.entries() != m_document.entries())
-            clearHistorySilently();
-
-        m_document = synced;
-
-        g_message("[Cloud] Saved in cloud.");
-    }
-
-    if (!m_store.save(m_document))
-        g_warning("Cannot save the calendar to disk.");
-}
-
-stapik::command::UndoStack& CalendarGrid::undoStack()
-{
-    return m_history;
-}
-
-void CalendarGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
-{
-    m_cloudClient = std::move(client);
-    syncFromCloud();
-}
-
-void CalendarGrid::syncFromCloud()
-{
-    if (m_cloudClient == nullptr)
-        return;
-
-    const auto resolved = CalendarSyncCoordinator::resolveOnConnect(m_document, *m_cloudClient);
-    if (resolved.entries() != m_document.entries())
-        clearHistorySilently();
-
-    m_document = resolved;
-
-    if (!m_store.save(m_document))
-        g_warning("Cannot save the calendar to disk.");
-
-    populateCells();
-}
-
-void CalendarGrid::retrySync()
-{
-    syncFromCloud();
-}
-
-void CalendarGrid::onHistoryChanged()
-{
-    m_document.markUpdated();
-    saveEntries();
-    populateCells();
-}
-
-void CalendarGrid::clearHistorySilently()
-{
-    m_historyConnection.block();
-    m_history.clear();
-    m_historyConnection.unblock();
+    m_controller.changeEntryColor(cellDate(day), static_cast<std::size_t>(entryIndex), color);
 }

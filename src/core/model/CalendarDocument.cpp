@@ -125,10 +125,15 @@ void CalendarDocument::markUpdated(const TimePoint when)
     m_lastUpdate = when;
 }
 
+void CalendarDocument::setLastKnownCloudUpdate(const TimePoint cloudUpdatedAt)
+{
+    m_lastKnownCloudUpdate = cloudUpdatedAt;
+}
+
 CalendarDocument CalendarDocument::withLastKnownCloudUpdate(const TimePoint cloudUpdatedAt) const
 {
     CalendarDocument copy = *this;
-    copy.m_lastKnownCloudUpdate = cloudUpdatedAt;
+    copy.setLastKnownCloudUpdate(cloudUpdatedAt);
     return copy;
 }
 

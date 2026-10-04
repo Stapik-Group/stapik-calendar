@@ -2,7 +2,10 @@
 
 #include "../../core/util/DateUtils.hpp"
 
-CalendarView::CalendarView() : Box(Gtk::Orientation::VERTICAL, 0), m_currentYearMonth(DateUtils::todayYearMonth())
+CalendarView::CalendarView(CalendarController& controller) :
+    Box(Gtk::Orientation::VERTICAL, 0),
+    m_currentYearMonth(DateUtils::todayYearMonth()),
+    m_grid(controller)
 {
     initLayout();
     initNavigation();
@@ -55,9 +58,4 @@ void CalendarView::refreshView()
 {
     m_navBar.updateDisplay(m_currentYearMonth);
     m_grid.displayMonth(m_currentYearMonth);
-}
-
-CalendarGrid& CalendarView::getCalendarGrid()
-{
-    return m_grid;
 }

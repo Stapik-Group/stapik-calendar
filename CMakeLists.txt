@@ -30,6 +30,8 @@ stapik_add_application(
         DESKTOP_CATEGORIES Office Calendar
         SOURCES
                 src/main.cpp
+                src/application/CalendarCloudHooks.cpp
+                src/application/CalendarController.cpp
                 src/core/model/CalendarDocument.cpp
                 src/core/command/AddEntryCommand.cpp
                 src/core/command/EditEntryCommand.cpp
@@ -43,7 +45,6 @@ stapik_add_application(
                 src/core/util/EntryColorUtils.cpp
                 src/core/util/EntryDragPayload.cpp
                 src/infrastructure/storage/CalendarDocumentStore.cpp
-                src/infrastructure/storage/CalendarSyncCoordinator.cpp
                 src/ui/window/MainWindow.cpp
                 src/ui/action/MenuActionHandler.cpp
                 src/ui/dialog/CalendarEntryDialog.cpp

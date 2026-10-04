@@ -10,8 +10,7 @@
 class CalendarView : public Gtk::Box
 {
 public:
-    explicit CalendarView();
-    CalendarGrid& getCalendarGrid();
+    explicit CalendarView(CalendarController& controller);
 private:
     std::chrono::year_month m_currentYearMonth;
 

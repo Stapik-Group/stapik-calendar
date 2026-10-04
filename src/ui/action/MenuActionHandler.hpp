@@ -1,28 +1,26 @@
 #pragma once
 #include <gtkmm/applicationwindow.h>
+#include <sigc++/connection.h>
 
-#include <string>
-
-#include "../view/CalendarGrid.hpp"
+#include "../../application/CalendarController.hpp"
 
 class MenuActionHandler
 {
 public:
-    explicit MenuActionHandler(Gtk::ApplicationWindow& window, CalendarGrid& calendarGrid);
-    ~MenuActionHandler() = default;
+    explicit MenuActionHandler(Gtk::ApplicationWindow& window, CalendarController& controller);
+    ~MenuActionHandler();
+
+    MenuActionHandler(const MenuActionHandler&) = delete;
+    MenuActionHandler& operator=(const MenuActionHandler&) = delete;
 
     void registerActions();
 private:
-    static constexpr auto CALENDAR_FILENAME = "calendar.json";
-
     Gtk::ApplicationWindow& m_window;
-    CalendarGrid& m_calendarGrid;
+    CalendarController& m_controller;
+    sigc::connection m_connectionResult;
 
     void onActionConnect() const;
     void onActionQuit() const;
     void onActionSync() const;
-
-    [[nodiscard]] static std::string appName();
-    void handleConnectResult(const CloudStorageConfig& config) const;
-    void applyCloudConfig(const CloudStorageConfig& config) const;
+    void onConnectionResult(const ConnectionResult& result) const;
 };

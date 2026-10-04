@@ -23,6 +23,7 @@ public:
     [[nodiscard]] std::optional<TimePoint> lastKnownCloudUpdate() const;
 
     void markUpdated(TimePoint when = std::chrono::system_clock::now());
+    void setLastKnownCloudUpdate(TimePoint cloudUpdatedAt);
     [[nodiscard]] CalendarDocument withLastKnownCloudUpdate(TimePoint cloudUpdatedAt) const;
 
     [[nodiscard]] nlohmann::json toJson() const;
