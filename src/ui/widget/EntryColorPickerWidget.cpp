@@ -20,6 +20,8 @@ void EntryColorPickerWidget::initLayout()
     for (const auto color : m_colors)
     {
         auto& swatch = m_swatches.emplace_back();
+        if (m_swatches.size() > 1)
+            swatch.set_group(m_swatches.front());
         swatch.set_size_request(SWATCH_SIZE, SWATCH_SIZE);
         swatch.add_css_class("stapik-color-swatch");
         swatch.add_css_class(entryColorCssClass(color));
@@ -27,7 +29,7 @@ void EntryColorPickerWidget::initLayout()
             swatch.set_tooltip_text(loc.translate(stapik::domain::categoryColorNameKey(*color)));
         swatch.signal_toggled().connect([this, color, &swatch]
         {
-            if (swatch.get_active())
+            if (swatch.get_active() && color != m_selected)
                 selectColor(color);
         });
         append(swatch);
@@ -37,9 +39,13 @@ void EntryColorPickerWidget::initLayout()
 
 void EntryColorPickerWidget::selectColor(const EntryColor color)
 {
+    // Set first: the toggled handler of the activated swatch must see no change and stay silent.
     m_selected = color;
     for (std::size_t i = 0; i < m_colors.size(); ++i)
-        m_swatches[i].set_active(m_colors[i] == color);
+    {
+        if (m_colors[i] == color)
+            m_swatches[i].set_active(true);
+    }
     m_signalColorSelected.emit(color);
 }
 
