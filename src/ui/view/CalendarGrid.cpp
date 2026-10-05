@@ -2,12 +2,12 @@
 
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
+#include "../../core/util/UrlOpener.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
-#include <nlohmann/json.hpp>
 
 #include "../../core/util/DateUtils.hpp"
 
@@ -49,6 +49,7 @@ void CalendarGrid::connectCellSignals()
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
         m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
+        m_cells[i].signalEntryClicked().connect([this, i](const int entryIndex) { onEntryClicked(i, entryIndex); });
         m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
@@ -109,6 +110,19 @@ void CalendarGrid::onCellDoubleClicked(const int cellIndex)
         return;
 
     showEntryDialog(*window, cellDate(day), std::nullopt);
+}
+
+void CalendarGrid::onEntryClicked(const int cellIndex, const int entryIndex)
+{
+    int day = 0;
+    if (validatedWindowForCell(cellIndex, day) == nullptr || entryIndex < 0)
+        return;
+
+    const auto* entry = m_controller.findEntry(cellDate(day), static_cast<std::size_t>(entryIndex));
+    if (entry == nullptr || entry->link.empty())
+        return;
+
+    UrlOpener::open(entry->link);
 }
 
 void CalendarGrid::onEntryEditRequested(const int cellIndex, const int entryIndex)

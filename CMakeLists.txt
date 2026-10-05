@@ -42,6 +42,7 @@ stapik_add_application(
                 src/core/command/EntryCommandBase.cpp
                 src/core/command/IndexedEntryCommand.cpp
                 src/core/command/MoveEntryCommand.cpp
+                src/core/util/UrlOpener.cpp
                 src/core/util/UrlTitleFetcher.cpp
                 src/core/util/ClipboardUrlDetector.cpp
                 src/core/util/DateUtils.cpp

@@ -31,6 +31,7 @@ private:
 
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);
+    void onEntryClicked(int cellIndex, int entryIndex);
     void onEntryEditRequested(int cellIndex, int entryIndex);
     void onEntryDeleteRequested(int cellIndex, int entryIndex);
     void onEntryColorChangeRequested(int cellIndex, int entryIndex, EntryColor color);

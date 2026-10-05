@@ -22,6 +22,7 @@ public:
 
     sigc::signal<void()>& signalDoubleClicked();
     sigc::signal<void()>& signalRightClicked();
+    sigc::signal<void(int)>& signalEntryClicked();
     sigc::signal<void(int)>& signalEditRequested();
     sigc::signal<void(int)>& signalDeleteRequested();
     sigc::signal<void(int, EntryColor)>& signalColorChangeRequested();
@@ -44,6 +45,7 @@ private:
     Glib::RefPtr<Gtk::GestureClick> m_gestureRightClick;
     sigc::signal<void()> m_signalDoubleClicked;
     sigc::signal<void()> m_signalRightClicked;
+    sigc::signal<void(int)> m_signalEntryClicked;
     sigc::signal<void(int)> m_signalEditRequested;
     sigc::signal<void(int)> m_signalDeleteRequested;
     sigc::signal<void(int, EntryColor)> m_signalColorChangeRequested;
@@ -52,6 +54,7 @@ private:
 
     void initLayout();
     void initGesture();
+    [[nodiscard]] bool isOverEntry(double x, double y);
     void refreshEntries(const std::vector<CalendarEntry>& entries);
     void initDropTarget();
     bool onDrop(const Glib::ValueBase& value, double x, double y);
