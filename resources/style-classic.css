@@ -1,11 +1,9 @@
 * {
     font-family: "Arial", sans-serif;
-    font-size: 11px;
 }
 
 .calendar-navbar {
     background: linear-gradient(to right, #000080, #1084d0);
-    padding: 4px;
     border-bottom: 2px solid #808080;
 }
 
@@ -16,8 +14,6 @@
 
 .calendar-navbar button {
     background-color: #c0c0c0;
-    min-width: 28px;
-    min-height: 20px;
 }
 
 .calendar-header-cell {
@@ -51,14 +47,6 @@ frame > border {
     color: #ffffff;
 }
 
-.calendar-entry {
-    padding: 1px 4px;
-}
-
-.calendar-entry-label {
-    padding: 1px 2px;
-}
-
 .calendar-entry-label:hover {
     background-color: #000080;
     color: #ffffff;
@@ -69,7 +57,6 @@ frame > border {
     min-width: 16px;
     min-height: 16px;
     padding: 0;
-    font-size: 9px;
 }
 
 .calendar-entry-delete:active {
@@ -84,4 +71,55 @@ frame > border {
 
 headerbar {
     box-shadow: none;
+}
+
+/* --- Typography and metrics: IDENTICAL in every style-*.css (edit all three together) --- */
+
+* {
+    font-size: 12px;
+}
+
+menubar > item {
+    padding: 3px 8px;
+}
+
+popover modelbutton {
+    padding: 4px 14px;
+}
+
+menubar > item,
+menubar > item *,
+popover modelbutton,
+popover modelbutton * {
+    font-size: 14px;
+}
+
+.calendar-navbar {
+    padding: 6px 10px;
+}
+
+.calendar-navbar label {
+    font-size: 16px;
+}
+
+.calendar-navbar button {
+    min-width: 28px;
+    min-height: 22px;
+    padding: 2px 8px;
+}
+
+.calendar-header-cell {
+    padding: 4px 0;
+}
+
+.calendar-entry {
+    padding: 0 2px;
+}
+
+.calendar-entry-label {
+    padding: 1px 4px;
+}
+
+.calendar-entry-delete {
+    font-size: 10px;
 }
