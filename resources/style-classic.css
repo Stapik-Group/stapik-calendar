@@ -73,7 +73,7 @@ headerbar {
     box-shadow: none;
 }
 
-/* --- Typography and metrics: IDENTICAL in every style-*.css (edit all three together) --- */
+/* --- Typography and metrics: IDENTICAL in every style-*.css (edit all five together) --- */
 
 * {
     font-size: 12px;

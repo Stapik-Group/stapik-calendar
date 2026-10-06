@@ -16,7 +16,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sup
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **User guide** - **Help → Guide** (or `F1`) opens a full illustrated guide in your browser, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
-- **Themes** - switch between **Classic** (retro Win98), **Modern** (light, rounded, macOS-inspired) and **Classic Pink** (Win98 layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
+- **Themes** - switch between **Classic** (retro Win98), **Neoclassic** (a softer, XP-inspired take on the classic look), **Modern** (light, rounded, macOS-inspired), **Dark** (the modern look on a dark palette) and **Classic Pink** (Win98 layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
 - **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups
 
 ## Dependencies
@@ -24,7 +24,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sup
 - `gtkmm-4.0` and `sigc++-3.0`
 - `libcurl`
 - CMake 4.2 or newer
-- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.2.0 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
+- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.3.2 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
 - `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
@@ -180,7 +180,7 @@ GitHub Actions (`.github/workflows/ci.yml`) builds every pull request into `mast
 - [x] `.deb` package for easier distribution
 - [x] Entry colors — assign a color to each entry
 - [x] Drag and drop entries between cells (with copy via Ctrl)
-- [x] Theme switcher — Classic / Modern / Classic Pink
+- [x] Theme switcher — Classic / Neoclassic / Modern / Dark / Classic Pink
 - [x] Migration to stapik-common 1.2.0 — background sync, versioned storage, shared colors and menu
 - [ ] Export to iCal format (.ics)
 - [ ] Entry search
