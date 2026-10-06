@@ -41,6 +41,7 @@ int main(const int argc, char *argv[])
             [&styleProvider] { styleProvider.apply(ThemeManager::instance().themeId()); });
 
         StandardMenu::installShortcuts(*app);
+        app->set_accels_for_action("win.guide", { "F1" });
 
         auto* window = new MainWindow(styleProvider.themes());
         app->add_window(*window);

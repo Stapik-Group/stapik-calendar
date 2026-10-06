@@ -2,6 +2,8 @@
 
 #include "../../application/CalendarCloudHooks.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
@@ -11,6 +13,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
     m_actionHandler.registerActions();
+    initHelpMenu();
     init();
     initLayout();
     initSyncStatus();
@@ -39,6 +42,14 @@ void MainWindow::initLayout()
     m_mainBox.append(m_menu.menuBar());
     m_mainBox.append(m_calendarView);
     m_mainBox.append(m_statusBar);
+}
+
+void MainWindow::initHelpMenu()
+{
+    m_menu.addToMenu(StandardMenu::Target::Help, [](Gio::Menu& menu)
+    {
+        menu.append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
+    });
 }
 
 void MainWindow::initSyncStatus()

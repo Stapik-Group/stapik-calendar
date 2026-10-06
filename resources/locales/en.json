@@ -17,5 +17,8 @@
   "command.entry.add": "add entry “{name}”",
   "command.entry.edit": "edit entry “{name}”",
   "command.entry.delete": "delete entry “{name}”",
-  "command.entry.move": "move entry “{name}”"
+  "command.entry.move": "move entry “{name}”",
+  "menu.help.guide": "Guide",
+  "guide.error.title": "Could not open the guide",
+  "guide.error.text": "The guide file for this language was not found or no web browser could be started."
 }

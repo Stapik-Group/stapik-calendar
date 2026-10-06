@@ -14,6 +14,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sup
 - **Quick add from clipboard** - right-clicking an empty cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
+- **User guide** - **Help → Guide** (or `F1`) opens a full illustrated guide in your browser, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Themes** - switch between **Classic** (retro Win98), **Modern** (light, rounded, macOS-inspired) and **Classic Pink** (Win98 layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
 - **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups

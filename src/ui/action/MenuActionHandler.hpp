@@ -22,5 +22,6 @@ private:
     void onActionConnect() const;
     void onActionQuit() const;
     void onActionSync() const;
+    void onActionGuide() const;
     void onConnectionResult(const ConnectionResult& result) const;
 };

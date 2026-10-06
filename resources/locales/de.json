@@ -17,5 +17,8 @@
   "command.entry.add": "Eintrag „{name}“ hinzufügen",
   "command.entry.edit": "Eintrag „{name}“ bearbeiten",
   "command.entry.delete": "Eintrag „{name}“ löschen",
-  "command.entry.move": "Eintrag „{name}“ verschieben"
+  "command.entry.move": "Eintrag „{name}“ verschieben",
+  "menu.help.guide": "Anleitung",
+  "guide.error.title": "Die Anleitung konnte nicht geöffnet werden",
+  "guide.error.text": "Die Anleitungsdatei für diese Sprache wurde nicht gefunden oder es konnte kein Browser gestartet werden."
 }

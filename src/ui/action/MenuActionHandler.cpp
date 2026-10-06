@@ -1,5 +1,7 @@
 #include "MenuActionHandler.hpp"
 
+#include "../../infrastructure/help/UserGuide.hpp"
+
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
@@ -22,6 +24,7 @@ void MenuActionHandler::registerActions()
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
+    m_window.add_action("guide", sigc::mem_fun(*this, &MenuActionHandler::onActionGuide));
 }
 
 void MenuActionHandler::onActionConnect() const
@@ -41,6 +44,15 @@ void MenuActionHandler::onActionQuit() const
 void MenuActionHandler::onActionSync() const
 {
     m_controller.syncNow();
+}
+
+void MenuActionHandler::onActionGuide() const
+{
+    const auto& loc = LocaleManager::instance();
+    if (UserGuide::open(loc.languageCode()))
+        return;
+
+    showMessageDialog(m_window, loc.translate("guide.error.title"), loc.translate("guide.error.text"), Gtk::MessageType::ERROR);
 }
 
 void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const

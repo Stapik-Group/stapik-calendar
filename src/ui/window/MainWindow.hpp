@@ -34,6 +34,7 @@ private:
 
     void init();
     void initLayout();
+    void initHelpMenu();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

@@ -17,5 +17,8 @@
   "command.entry.add": "dodanie wpisu „{name}”",
   "command.entry.edit": "edycja wpisu „{name}”",
   "command.entry.delete": "usunięcie wpisu „{name}”",
-  "command.entry.move": "przeniesienie wpisu „{name}”"
+  "command.entry.move": "przeniesienie wpisu „{name}”",
+  "menu.help.guide": "Poradnik",
+  "guide.error.title": "Nie udało się otworzyć poradnika",
+  "guide.error.text": "Nie znaleziono pliku poradnika dla tego języka albo nie udało się uruchomić przeglądarki."
 }
