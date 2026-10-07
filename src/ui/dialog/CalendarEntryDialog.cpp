@@ -1,6 +1,6 @@
 #include "CalendarEntryDialog.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 CalendarEntryDialog::CalendarEntryDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
@@ -44,8 +44,12 @@ void CalendarEntryDialog::initLayout()
 
     get_content_area()->append(m_contentBox);
 
-    add_button(loc.translate("dialog.button.cancel"), Gtk::ResponseType::CANCEL);
-    add_button(loc.translate("dialog.button.ok"), Gtk::ResponseType::OK);
+    auto* cancelButton = add_button(loc.translate("dialog.button.cancel"), Gtk::ResponseType::CANCEL);
+    auto* okButton = add_button(loc.translate("dialog.button.ok"), Gtk::ResponseType::OK);
+
+    m_buttonSizeGroup = Gtk::SizeGroup::create(Gtk::SizeGroup::Mode::HORIZONTAL);
+    m_buttonSizeGroup->add_widget(*cancelButton);
+    m_buttonSizeGroup->add_widget(*okButton);
 
     set_default_response(Gtk::ResponseType::OK);
     m_nameEntry.set_activates_default(true);

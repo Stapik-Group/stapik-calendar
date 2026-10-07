@@ -1,100 +1,66 @@
 #include "MenuActionHandler.hpp"
 
-#include "stapik/cloud/CloudStorageException.hpp"
+#include "../../infrastructure/help/UserGuide.hpp"
 
-#include "../../core/locale/LocaleManager.hpp"
-#include "../../infrastructure/network/CloudStorageConfigStorage.hpp"
-#include "../dialog/ConnectDialog.hpp"
-#include "../dialog/AboutDialog.hpp"
-#include "../dialog/DialogUtils.hpp"
+#include "stapik/locale/LocaleManager.hpp"
+#include "stapik/ui/dialog/ConnectDialog.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
 
-#include <gtkmm/application.h>
-#include <gtkmm/messagedialog.h>
-#include <tuple>
-
-MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, CalendarGrid& calendarGrid):
+MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, CalendarController& controller):
     m_window(window),
-    m_calendarGrid(calendarGrid) {}
+    m_controller(controller)
+{
+    m_connectionResult = m_controller.signalConnectionResult().connect(
+        sigc::mem_fun(*this, &MenuActionHandler::onConnectionResult));
+}
+
+MenuActionHandler::~MenuActionHandler()
+{
+    m_connectionResult.disconnect();
+}
 
 void MenuActionHandler::registerActions()
 {
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
-    m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
-    m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
-    m_window.add_action("about", sigc::mem_fun(*this, &MenuActionHandler::onActionAbout));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
+    m_window.add_action("guide", sigc::mem_fun(*this, &MenuActionHandler::onActionGuide));
 }
 
 void MenuActionHandler::onActionConnect() const
 {
-    auto* dialog = new ConnectDialog(m_window);
-
-    if (const auto config = CloudStorageConfigStorage::load(); config.has_value())
-        dialog->prefillConfig(config.value());
-
-    dialog->signal_response().connect([this, dialog](const int responseId)
-    {
-        if (responseId == Gtk::ResponseType::OK)
-        {
-            if (const auto result = dialog->getResult(); result.has_value())
-                handleConnectResult(result.value());
-        }
-        dialog->hide();
-    });
-
-    dialog->signal_hide().connect([dialog] { delete dialog; });
-    dialog->show();
-}
-
-void MenuActionHandler::handleConnectResult(const CloudStorageConfig& config) const
-{
-    CloudStorageConfigStorage::save(config);
-    applyCloudConfig(config);
-}
-
-void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
-{
-    const auto& loc = LocaleManager::instance();
-
-    try
-    {
-        auto client = std::make_unique<CloudStorageClient>(config, CALENDAR_FILENAME);
-        std::ignore = client->loadDocument();
-
-        m_calendarGrid.setCloudClient(std::move(client));
-
-        g_message("[Cloud] Connected: %s", config.apiUrl.c_str());
-        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"), Gtk::MessageType::INFO);
-    }
-    catch (const CloudStorageException& e)
-    {
-        g_warning("[Cloud] Cloud connection error: %s", e.what());
-        showMessageDialog(m_window, loc.translate("cloud.failed.header"), e.what(), Gtk::MessageType::ERROR);
-    }
+    showConnectDialog(
+        m_window,
+        m_controller.savedCloudConfig(),
+        [this](const CloudStorageConfig& config) { m_controller.connect(config); });
 }
 
 void MenuActionHandler::onActionQuit() const
 {
-    m_window.get_application()->quit();
-}
-
-void MenuActionHandler::onActionUndo() const
-{
-    m_calendarGrid.undo();
-}
-
-void MenuActionHandler::onActionRedo() const
-{
-    m_calendarGrid.redo();
-}
-
-void MenuActionHandler::onActionAbout() const
-{
-    showAutoDeletingDialog<AboutDialog>(m_window);
+    // Closing the window (instead of quitting the application) lets MainWindow flush pending changes first.
+    m_window.close();
 }
 
 void MenuActionHandler::onActionSync() const
 {
-    m_calendarGrid.retrySync();
+    m_controller.syncNow();
+}
+
+void MenuActionHandler::onActionGuide() const
+{
+    const auto& loc = LocaleManager::instance();
+    if (UserGuide::open(loc.languageCode()))
+        return;
+
+    showMessageDialog(m_window, loc.translate("guide.error.title"), loc.translate("guide.error.text"), Gtk::MessageType::ERROR);
+}
+
+void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
+{
+    const auto& loc = LocaleManager::instance();
+
+    if (result.connected)
+        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"), Gtk::MessageType::INFO);
+    else
+        showMessageDialog(m_window, loc.translate("cloud.failed.header"), result.message, Gtk::MessageType::ERROR);
 }

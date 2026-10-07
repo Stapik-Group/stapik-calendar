@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stapik Calendar — Anleitung</title>
+    <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<header>
+    <h1>Stapik Calendar</h1>
+    <p class="subtitle">Benutzeranleitung · Version 1.2.0</p>
+    <nav class="languages" aria-label="Sprache der Anleitung">
+        <a href="guide-pl.html" hreflang="pl" lang="pl">Polski</a>
+        <a href="guide-en.html" hreflang="en" lang="en">English</a>
+        <a href="guide-de.html" hreflang="de" lang="de" aria-current="page">Deutsch</a>
+    </nav>
+</header>
+
+<main>
+    <nav class="toc" aria-label="Inhaltsverzeichnis">
+        <h2>Inhaltsverzeichnis</h2>
+        <ol>
+            <li><a href="#start">Erste Schritte</a></li>
+            <li><a href="#window">Das Hauptfenster</a></li>
+            <li><a href="#navigation">Zwischen Monaten wechseln</a></li>
+            <li><a href="#entries">Einträge</a></li>
+            <li><a href="#undo">Rückgängig und Wiederholen</a></li>
+            <li><a href="#menus">Menüs</a></li>
+            <li><a href="#shortcuts">Tastenkürzel und Mausaktionen</a></li>
+            <li><a href="#look">Sprache und Thema</a></li>
+            <li><a href="#cloud">Synchronisierung mit Stapik Cloud</a></li>
+            <li><a href="#data">Ihre Daten und Sicherungen</a></li>
+            <li><a href="#upgrade">Update von Version 1.1.x</a></li>
+            <li><a href="#troubleshooting">Problemlösung</a></li>
+            <li><a href="#about">Über die Anwendung</a></li>
+        </ol>
+    </nav>
+
+    <section id="start">
+        <h2>1. Erste Schritte</h2>
+        <p>Stapik Calendar ist ein Desktop-Kalender. Er zeigt jeweils einen Monat an, und jeder Tag kann beliebig viele <strong>Einträge</strong> enthalten. Ein Eintrag hat einen Namen, einen optionalen Weblink und eine optionale Farbe.</p>
+        <p>Alles, was Sie tun, wird automatisch auf Ihrem Computer gespeichert. Wenn Sie einen eigenen Stapik-Cloud-Server haben, kann der Kalender außerdem zwischen allen Ihren Geräten synchronisiert werden (siehe <a href="#cloud">Synchronisierung mit Stapik Cloud</a>).</p>
+        <p>Ein kurzer Einstieg:</p>
+        <ol>
+            <li>Starten Sie die Anwendung über Ihr Anwendungsmenü (<em>Stapik Calendar</em>). Sie öffnet sich im aktuellen Monat.</li>
+            <li>Doppelklicken Sie auf eine leere Stelle eines beliebigen Tages.</li>
+            <li>Geben Sie einen Namen ein und klicken Sie auf <strong>OK</strong>. Der Eintrag erscheint an diesem Tag.</li>
+            <li>Klicken Sie mit der rechten Maustaste auf den Eintrag, um ihm eine Farbe zu geben, ziehen Sie ihn auf einen anderen Tag, um ihn zu verschieben, oder klicken Sie auf <strong>✕</strong>, um ihn zu löschen.</li>
+        </ol>
+        <figure>
+            <img src="screenshots/de/main-window.png" alt="Das Hauptfenster von Stapik Calendar mit einem Monat und mehreren Einträgen">
+            <figcaption>Das Hauptfenster.</figcaption>
+        </figure>
+    </section>
+
+    <section id="window">
+        <h2>2. Das Hauptfenster</h2>
+        <p>Das Fenster besteht von oben nach unten aus:</p>
+        <ul>
+            <li><strong>Menüleiste</strong> — <em>Datei</em>, <em>Bearbeiten</em>, <em>Einstellungen</em> und <em>Hilfe</em> (siehe <a href="#menus">Menüs</a>).</li>
+            <li><strong>Navigationsleiste</strong> — der Name des angezeigten Monats und Jahres mit Schaltflächen zum Wechseln.</li>
+            <li><strong>Wochentagszeile</strong> — Montag bis Sonntag. Die Woche beginnt am Montag.</li>
+            <li><strong>Tageszellen</strong> — eine Zelle pro Tag. Die Tagesnummer steht in der Ecke der Zelle, der heutige Tag ist hervorgehoben. Zellen außerhalb des angezeigten Monats bleiben leer.</li>
+            <li><strong>Statusleiste</strong> — wird nur angezeigt, wenn der Kalender mit einer Cloud verbunden ist; sie zeigt den Synchronisierungsstatus (siehe <a href="#cloud">Synchronisierung mit Stapik Cloud</a>).</li>
+        </ul>
+        <figure>
+            <img src="screenshots/de/menu-bar.png" alt="Die Menüleiste mit Datei, Bearbeiten, Einstellungen und Hilfe">
+            <figcaption>Die Menüleiste.</figcaption>
+        </figure>
+    </section>
+
+    <section id="navigation">
+        <h2>3. Zwischen Monaten wechseln</h2>
+        <p>Die Navigationsleiste hat vier Schaltflächen rund um den Monatsnamen:</p>
+        <table>
+            <tr><th>Schaltfläche</th><th>Aktion</th></tr>
+            <tr><td>◀</td><td>voriger Monat</td></tr>
+            <tr><td>▶</td><td>nächster Monat</td></tr>
+            <tr><td>◀◀</td><td>voriges Jahr (gleicher Monat)</td></tr>
+            <tr><td>▶▶</td><td>nächstes Jahr (gleicher Monat)</td></tr>
+        </table>
+        <p>Die Anwendung startet immer im aktuellen Monat. Einträge werden für jeden Monat und jedes Jahr gespeichert, ohne Begrenzung.</p>
+        <figure>
+            <img src="screenshots/de/navigation-bar.png" alt="Die Navigationsleiste mit dem Monatsnamen und vier Pfeilschaltflächen">
+            <figcaption>Die Navigationsleiste.</figcaption>
+        </figure>
+    </section>
+
+    <section id="entries">
+        <h2>4. Einträge</h2>
+
+        <h3>4.1 Einen Eintrag hinzufügen</h3>
+        <p>Doppelklicken Sie auf eine leere Stelle einer Tageszelle. Das Fenster <strong>Neuer Eintrag</strong> öffnet sich:</p>
+        <ul>
+            <li><strong>Name</strong> — erforderlich. Ohne Namen wird der Eintrag nicht angelegt.</li>
+            <li><strong>Link (optional)</strong> — eine Webadresse, die Sie später mit einem Klick öffnen können.</li>
+            <li><strong>Farbe</strong> — das erste, leere Quadrat bedeutet keine Farbe; die übrigen sind Farben (siehe <a href="#colors">Farben</a>).</li>
+        </ul>
+        <p>Bestätigen Sie mit <strong>OK</strong> oder wählen Sie <strong>Abbrechen</strong>, um zu verwerfen.</p>
+        <figure>
+            <img src="screenshots/de/new-entry-dialog.png" alt="Das Fenster Neuer Eintrag mit den Feldern Name, Link und Farbe">
+            <figcaption>Das Fenster Neuer Eintrag.</figcaption>
+        </figure>
+
+        <h3>4.2 Schnell aus der Zwischenablage hinzufügen</h3>
+        <p>Wenn Sie eine Webadresse kopiert haben (beginnend mit <code>http://</code> oder <code>https://</code>), klicken Sie mit der <strong>rechten Maustaste</strong> auf einen Tag. Die Anwendung legt für diesen Tag einen Eintrag an, mit der Adresse als Link und dem Titel der Webseite als Name. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, heißt der Eintrag <em>Ohne Namen</em>. Enthält die Zwischenablage keine Webadresse, passiert nichts.</p>
+
+        <h3>4.3 Einen Link öffnen</h3>
+        <p>Hat ein Eintrag einen Link, wird der Mauszeiger über seinem Namen zu einer Hand. <strong>Klicken Sie einmal auf den Eintrag</strong>, um den Link im Standardbrowser zu öffnen. Die Anwendung wartet einen Moment (die in Ihrem System eingestellte Doppelklickzeit), um sicherzugehen, dass Sie keinen Doppelklick meinten; die Seite öffnet sich daher mit kurzer Verzögerung.</p>
+        <div class="note">Es werden nur <code>http</code>- und <code>https</code>-Links geöffnet. Ein Link ohne Schema, etwa <code>example.com</code>, wird als <code>https://example.com</code> geöffnet.</div>
+
+        <h3>4.4 Einen Eintrag bearbeiten</h3>
+        <p><strong>Doppelklicken</strong> Sie auf einen Eintrag, um das Fenster <strong>Eintrag bearbeiten</strong> zu öffnen, in dem Sie Name, Link und Farbe ändern können.</p>
+
+        <h3>4.5 Einen Eintrag löschen</h3>
+        <p>Klicken Sie auf die Schaltfläche <strong>✕</strong> am rechten Rand des Eintrags. Ein gelöschter Eintrag lässt sich mit <a href="#undo">Rückgängig</a> zurückholen.</p>
+
+        <h3 id="colors">4.6 Farben</h3>
+        <p>Klicken Sie mit der rechten Maustaste auf einen Eintrag, um eine Reihe von Quadraten zu öffnen, und klicken Sie auf die gewünschte Farbe. Die Farbe können Sie auch in den Fenstern Neuer Eintrag und Eintrag bearbeiten wählen. Verfügbare Farben: Rot, Orange, Gelb, Grün, Türkis, Blau, Lila, Rosa, Braun und Grau sowie das Standardaussehen ohne Farbe.</p>
+        <figure>
+            <img src="screenshots/de/entry-color-popover.png" alt="Die Farbauswahl nach einem Rechtsklick auf einen Eintrag">
+            <figcaption>Die Farbe eines Eintrags ändern.</figcaption>
+        </figure>
+
+        <h3>4.7 Verschieben und Kopieren</h3>
+        <p>Ziehen Sie einen Eintrag und lassen Sie ihn auf einem anderen Tag los, um ihn zu <strong>verschieben</strong>. Halten Sie beim Ziehen <kbd>Strg</kbd> gedrückt, um ihn stattdessen zu <strong>kopieren</strong>. Wird ein Eintrag auf seinem eigenen Tag losgelassen, ändert sich nichts.</p>
+        <figure>
+            <img src="screenshots/de/drag-and-drop.png" alt="Ein Eintrag wird von einem Tag auf einen anderen gezogen">
+            <figcaption>Einen Eintrag auf einen anderen Tag ziehen.</figcaption>
+        </figure>
+
+        <h3>4.8 Tage mit vielen Einträgen</h3>
+        <p>Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.</p>
+
+        <figure>
+            <img src="screenshots/de/entries-in-cell.png" alt="Eine Tageszelle mit mehreren Einträgen, einige davon farbig">
+            <figcaption>Ein Tag mit mehreren Einträgen.</figcaption>
+        </figure>
+    </section>
+
+    <section id="undo">
+        <h2>5. Rückgängig und Wiederholen</h2>
+        <p>Hinzufügen, Bearbeiten (auch das Ändern der Farbe), Löschen, Verschieben und Kopieren von Einträgen lassen sich rückgängig machen. Verwenden Sie <strong>Bearbeiten → Rückgängig</strong> und <strong>Bearbeiten → Wiederholen</strong> oder die Tastenkürzel <kbd>Strg</kbd>+<kbd>Z</kbd> und <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>Z</kbd>.</p>
+        <p>Der Menüeintrag nennt die Aktion, zum Beispiel <em>Rückgängig: Eintrag „Zahnarzt“ löschen</em>, und ist ausgegraut, wenn es nichts rückgängig zu machen oder zu wiederholen gibt. Der Verlauf umfasst bis zu 100 Schritte. Er wird beim Schließen der Anwendung nicht gespeichert und geleert, wenn die Version aus der Cloud Ihren lokalen Kalender ersetzt (siehe <a href="#cloud">Synchronisierung mit Stapik Cloud</a>).</p>
+        <figure>
+            <img src="screenshots/de/edit-menu.png" alt="Das Menü Bearbeiten mit Rückgängig und Wiederholen, die die letzte Aktion nennen">
+            <figcaption>Das Menü Bearbeiten.</figcaption>
+        </figure>
+    </section>
+
+    <section id="menus">
+        <h2>6. Menüs</h2>
+        <table>
+            <tr><th>Menü</th><th>Eintrag</th><th>Wirkung</th></tr>
+            <tr><td rowspan="3"><strong>Datei</strong></td><td>Mit Cloud verbinden</td><td>Öffnet das Fenster zum Verbinden mit Stapik Cloud.</td></tr>
+            <tr><td>Synchronisieren</td><td>Synchronisiert sofort mit der Cloud.</td></tr>
+            <tr><td>Beenden <kbd>Strg</kbd>+<kbd>Q</kbd></td><td>Schließt die Anwendung. Ausstehende Änderungen werden zuvor an die Cloud gesendet.</td></tr>
+            <tr><td rowspan="2"><strong>Bearbeiten</strong></td><td>Rückgängig <kbd>Strg</kbd>+<kbd>Z</kbd></td><td>Macht die letzte Aktion rückgängig.</td></tr>
+            <tr><td>Wiederholen <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>Z</kbd></td><td>Wiederholt eine rückgängig gemachte Aktion.</td></tr>
+            <tr><td rowspan="2"><strong>Einstellungen</strong></td><td>Sprache</td><td>Polnisch, Englisch oder Deutsch.</td></tr>
+            <tr><td>Thema</td><td>Klassisch, Klassisch Pink oder Modern.</td></tr>
+            <tr><td rowspan="2"><strong>Hilfe</strong></td><td>Info</td><td>Zeigt Version und Autor der Anwendung.</td></tr>
+            <tr><td>Anleitung <kbd>F1</kbd></td><td>Öffnet diese Anleitung im Browser.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/de/file-menu.png" alt="Das Menü Datei">
+            <figcaption>Das Menü Datei.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/help-menu.png" alt="Das Menü Hilfe mit Info und Anleitung">
+            <figcaption>Das Menü Hilfe.</figcaption>
+        </figure>
+    </section>
+
+    <section id="shortcuts">
+        <h2>7. Tastenkürzel und Mausaktionen</h2>
+        <h3>Tastatur</h3>
+        <table>
+            <tr><th>Tasten</th><th>Aktion</th></tr>
+            <tr><td><kbd>Strg</kbd>+<kbd>Z</kbd></td><td>Rückgängig</td></tr>
+            <tr><td><kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>Z</kbd></td><td>Wiederholen</td></tr>
+            <tr><td><kbd>Strg</kbd>+<kbd>Q</kbd></td><td>Beenden</td></tr>
+            <tr><td><kbd>F1</kbd></td><td>Diese Anleitung öffnen</td></tr>
+        </table>
+        <h3>Maus</h3>
+        <table>
+            <tr><th>Wo</th><th>Aktion</th><th>Ergebnis</th></tr>
+            <tr><td>Leere Stelle eines Tages</td><td>Doppelklick</td><td>neuer Eintrag</td></tr>
+            <tr><td>Leere Stelle eines Tages</td><td>Rechtsklick</td><td>schnelles Hinzufügen aus einer kopierten Webadresse</td></tr>
+            <tr><td>Eintrag</td><td>Klick</td><td>öffnet seinen Link (falls vorhanden)</td></tr>
+            <tr><td>Eintrag</td><td>Doppelklick</td><td>Eintrag bearbeiten</td></tr>
+            <tr><td>Eintrag</td><td>Rechtsklick</td><td>Farbe wählen</td></tr>
+            <tr><td>Eintrag</td><td>auf einen anderen Tag ziehen</td><td>verschieben</td></tr>
+            <tr><td>Eintrag</td><td><kbd>Strg</kbd> + auf einen anderen Tag ziehen</td><td>kopieren</td></tr>
+            <tr><td>✕ am Eintrag</td><td>Klick</td><td>Eintrag löschen</td></tr>
+        </table>
+    </section>
+
+    <section id="look">
+        <h2>8. Sprache und Thema</h2>
+        <p>Wählen Sie <strong>Einstellungen → Sprache</strong>, um zwischen Polnisch, Englisch und Deutsch zu wechseln. Die gesamte Anwendung ändert sich sofort, einschließlich der Namen der Monate und Wochentage.</p>
+        <p>Wählen Sie <strong>Einstellungen → Thema</strong>, um das Aussehen zu ändern: <strong>Klassisch</strong> (ein Retro-Look), <strong>Klassisch Pink</strong> (dasselbe Layout in Rosa und Lila), <strong>Neoklassisch</strong> oder <strong>Modern</strong> (ein heller oder dunkel). Ihre Auswahl wird beim nächsten Start der Anwendung beibehalten.</p>
+        <figure>
+            <img src="screenshots/de/settings-menu.png" alt="Das Menü Einstellungen mit den Untermenüs Sprache und Thema">
+            <figcaption>Das Menü Einstellungen.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/theme-classic.png" alt="Das Thema Klassisch">
+            <figcaption>Thema Klassisch.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/theme-classic-pink.png" alt="Das Thema Klassisch Pink">
+            <figcaption>Thema Klassisch Pink.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/theme-neoclassic.png" alt="Das Thema Neoklassish">
+            <figcaption>Thema Neoklassisch.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/theme-modern.png" alt="Das Thema Modern">
+            <figcaption>Thema Modern.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/theme-dark.png" alt="Das Dunkles Thema">
+            <figcaption>Dunkles Thema.</figcaption>
+        </figure>
+    </section>
+
+    <section id="cloud">
+        <h2>9. Synchronisierung mit Stapik Cloud</h2>
+        <p>Stapik Cloud ist ein Server, den Sie selbst betreiben. Er hält eine Kopie Ihres Kalenders vor, sodass alle Ihre Computer dieselben Einträge zeigen. Die Cloud ist optional — ohne sie arbeitet der Kalender einfach auf einem Computer.</p>
+
+        <h3>9.1 Was Sie brauchen</h3>
+        <ul>
+            <li>Einen laufenden Stapik-Cloud-Server, den Ihr Computer erreichen kann, und dessen <strong>Adresse</strong> (die API-URL), zum Beispiel <code>https://cloud.example.com</code>.</li>
+            <li>Einen für dieses Gerät ausgestellten <strong>API-Schlüssel</strong>. Im Admin-Panel von Stapik Cloud erhält jedes Gerät einen eigenen Schlüssel; es gibt keinen gemeinsamen Schlüssel.</li>
+        </ul>
+        <p>Der Kalender wird auf dem Server im Dokument mit dem Namen <code>calendar.json</code> gespeichert.</p>
+
+        <h3>9.2 Verbinden</h3>
+        <ol>
+            <li>Wählen Sie <strong>Datei → Mit Cloud verbinden</strong>.</li>
+            <li>Geben Sie die <strong>API-URL</strong> ein. Sie muss mit <code>http://</code> oder <code>https://</code> beginnen.</li>
+            <li>Geben Sie den <strong>API-Schlüssel</strong> ein. Setzen Sie ein Häkchen bei <strong>Schlüssel anzeigen</strong>, wenn Sie prüfen möchten, was Sie eingegeben haben.</li>
+            <li>Klicken Sie auf <strong>Verbinden</strong>.</li>
+            <li>Nach einem Moment meldet eine Nachricht, ob die Verbindung funktioniert hat (<em>Verbunden</em>) oder nicht (<em>Verbindung fehlgeschlagen</em>, mit dem Grund).</li>
+        </ol>
+        <div class="warning">Beginnt die Adresse mit <code>http://</code>, warnt das Fenster, dass die Verbindung nicht sicher ist: Schlüssel und Kalender werden unverschlüsselt gesendet. Verwenden Sie <code>https://</code>, wenn der Server über das Internet erreichbar ist.</div>
+        <figure>
+            <img src="screenshots/de/connect-dialog.png" alt="Das Fenster Mit Cloud verbinden mit den Feldern API-URL und API-Schlüssel">
+            <figcaption>Das Fenster Mit Cloud verbinden.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/de/connect-success.png" alt="Die Meldung über eine erfolgreiche Verbindung">
+            <figcaption>Eine erfolgreiche Verbindung.</figcaption>
+        </figure>
+        <p>Die Einstellungen werden gespeichert. Beim nächsten Start verbindet sich die Anwendung selbst, und das Fenster, das Sie über <em>Mit Cloud verbinden</em> öffnen, ist bereits ausgefüllt, sodass Sie damit Server oder Schlüssel ändern können.</p>
+        <p><strong>Was bei der ersten Synchronisierung geschieht:</strong> Ist die Cloud noch leer, wird Ihr Kalender hochgeladen. Ist die Kopie in der Cloud neuer als Ihre, ersetzt sie Ihren lokalen Kalender. Andernfalls wird Ihr lokaler Kalender hochgeladen.</p>
+
+        <h3>9.3 Die Statusleiste</h3>
+        <p>Ist eine Cloud eingerichtet, zeigt der untere Fensterrand den aktuellen Zustand:</p>
+        <table>
+            <tr><th>Status</th><th>Bedeutung</th></tr>
+            <tr><td>Aktuell</td><td>Ihr Kalender und die Cloud sind identisch.</td></tr>
+            <tr><td>Synchronisiere…</td><td>Eine Synchronisierung läuft.</td></tr>
+            <tr><td>Offline</td><td>Der Server ist nicht erreichbar. Ihre Änderungen sind auf diesem Computer sicher, und die Anwendung versucht es selbstständig erneut (zuerst nach 2 Sekunden, dann immer seltener, höchstens alle 5 Minuten).</td></tr>
+            <tr><td>Konflikt: Serverversion beibehalten</td><td>In der Cloud lag eine neuere Version, die Ihre lokale ersetzt hat (siehe <a href="#conflicts">Konflikte</a>).</td></tr>
+            <tr><td>Synchronisierungsfehler</td><td>Die Synchronisierung ist aus einem anderen Grund fehlgeschlagen, zum Beispiel weil der Server die Anfrage abgelehnt hat. Lokale Daten bleiben unberührt.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/de/sync-status.png" alt="Die Statusleiste am unteren Fensterrand mit dem Synchronisierungsstatus">
+            <figcaption>Der Synchronisierungsstatus.</figcaption>
+        </figure>
+
+        <h3>9.4 So funktioniert die Synchronisierung</h3>
+        <ul>
+            <li>Jede Änderung wird sofort auf Ihrem Computer gespeichert.</li>
+            <li>Das Senden an die Cloud geschieht im Hintergrund, etwa 1,5 Sekunden nach Ihrer letzten Änderung, sodass das Fenster nie einfriert. Mehrere schnelle Änderungen werden zusammen gesendet.</li>
+            <li>Beim Schließen der Anwendung wird jede noch nicht gesendete Änderung zuerst gesendet.</li>
+            <li><strong>Datei → Synchronisieren</strong> synchronisiert sofort.</li>
+        </ul>
+
+        <h3 id="conflicts">9.5 Konflikte und mehrere Geräte</h3>
+        <p>Der gesamte Kalender wird als ein Dokument verglichen, und die neuere Version gewinnt. Einträge werden nie einzeln zusammengeführt. Ändern Sie den Kalender auf zwei Computern, während beide offline sind, ersetzt die Version, die später den Server erreicht, die andere.</p>
+        <p>Gewinnt die Serverversion, ersetzt sie den Kalender auf Ihrem Computer, und der Rückgängig-Verlauf wird geleert. Standardmäßig bewahrt Stapik Cloud die ersetzte Version im Dokumentverlauf auf, sodass sie im Admin-Panel wiederhergestellt werden kann; stellen Sie sie dort wieder her und synchronisieren Sie erneut.</p>
+        <div class="note">Tipp für mehrere Geräte: Warten Sie nach dem Bearbeiten auf <em>Aktuell</em> (oder verwenden Sie <em>Synchronisieren</em>), bevor Sie zu einem anderen Computer wechseln.</div>
+
+        <h3>9.6 Server wechseln oder Synchronisierung beenden</h3>
+        <p>Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie <strong>Datei → Mit Cloud verbinden</strong> erneut und geben Sie die neuen Werte ein. Es gibt keine Schaltfläche zum Trennen: Um die Cloud nicht mehr zu nutzen, schließen Sie die Anwendung und löschen Sie die Datei <code>~/.local/share/stapikcalendar/config.json</code>. Ihr lokaler Kalender bleibt unberührt.</p>
+        <p>Der API-Schlüssel steht in dieser Datei im Klartext und ist nur für Sie lesbar; schützen Sie daher Ihr Home-Verzeichnis.</p>
+    </section>
+
+    <section id="data">
+        <h2>10. Ihre Daten und Sicherungen</h2>
+        <p>Der Kalender liegt in Ihrem Home-Verzeichnis unter <code>~/.local/share/stapikcalendar/</code>:</p>
+        <table>
+            <tr><th>Datei</th><th>Inhalt</th></tr>
+            <tr><td><code>calendar.json</code></td><td>Ihr Kalender</td></tr>
+            <tr><td><code>calendar.json.bak</code>, <code>.bak.2</code>, <code>.bak.3</code></td><td>die drei vorherigen Versionen, bei jedem Speichern aufgefrischt</td></tr>
+            <tr><td><code>config.json</code></td><td>Cloud-Adresse und Schlüssel</td></tr>
+            <tr><td><code>cloud-baseline.json</code></td><td>technische Daten zur letzten Synchronisierung</td></tr>
+        </table>
+        <p>Sprache und Thema werden in <code>~/.config/stapikcalendar/settings.json</code> gespeichert.</p>
+        <h3>Eine Sicherung wiederherstellen</h3>
+        <ol>
+            <li>Schließen Sie die Anwendung.</li>
+            <li>Kopieren Sie <code>calendar.json.bak</code> (oder <code>.bak.2</code>, <code>.bak.3</code>) über <code>calendar.json</code>.</li>
+            <li>Starten Sie die Anwendung erneut.</li>
+        </ol>
+        <h3>Den Kalender auf einen anderen Computer übertragen</h3>
+        <p>Kopieren Sie <code>calendar.json</code> in denselben Ordner auf dem anderen Computer. Mit Stapik Cloud können Sie stattdessen den neuen Computer mit demselben Server verbinden, und der Kalender wird automatisch geladen.</p>
+    </section>
+
+    <section id="upgrade">
+        <h2>11. Update von Version 1.1.x</h2>
+        <ul>
+            <li>Beim ersten Start von Version 1.2.0 wird Ihr Kalender automatisch in das neue Format umgewandelt. Die alte Datei bleibt als <code>calendar.json.bak</code> erhalten.</li>
+            <li>Auch das in der Cloud gespeicherte Format hat sich geändert. <strong>Aktualisieren Sie alle Geräte, bevor Sie sie erneut mit derselben Cloud verbinden</strong>: Ein Gerät mit 1.1.x kann das neue Format nicht lesen und könnte Ihren Kalender überschreiben.</li>
+            <li>Ein von Version 1.1.x in die Cloud geschriebener Kalender wird korrekt gelesen und bei der nächsten Synchronisierung durch das neue Format ersetzt.</li>
+            <li>Wenn Sie eine Version mit einem einzigen gemeinsamen API-Schlüssel verwendet haben, verbinden Sie sich erneut mit einem für dieses Gerät ausgestellten Schlüssel (<strong>Datei → Mit Cloud verbinden</strong>).</li>
+        </ul>
+    </section>
+
+    <section id="troubleshooting">
+        <h2>12. Problemlösung</h2>
+        <dl>
+            <dt>Ein Klick auf einen Eintrag öffnet keine Seite.</dt>
+            <dd>Prüfen Sie, ob der Eintrag einen Link hat. Es werden nur <code>http</code>- und <code>https</code>-Links geöffnet, und Ihr System braucht einen Standard-Webbrowser.</dd>
+            <dt>Ein Doppelklick öffnet die Seite statt des Editors.</dt>
+            <dd>Klicken Sie etwas schneller oder verlängern Sie die Doppelklickzeit in den Mauseinstellungen Ihres Systems.</dd>
+            <dt>Ein Rechtsklick auf einen Tag bewirkt nichts.</dt>
+            <dd>Die Zwischenablage muss eine vollständige Webadresse enthalten, die mit <code>http://</code> oder <code>https://</code> beginnt.</dd>
+            <dt>Der Status ist „Offline“.</dt>
+            <dd>Prüfen Sie Ihre Internetverbindung und die Serveradresse (<strong>Datei → Mit Cloud verbinden</strong>). Die Anwendung versucht es selbstständig erneut, und <strong>Datei → Synchronisieren</strong> versucht es sofort.</dd>
+            <dt>Der Status ist „Synchronisierungsfehler“, oder das Verbinden schlägt fehl.</dt>
+            <dd>Prüfen Sie, ob Adresse und API-Schlüssel stimmen und ob der Schlüssel für dieses Gerät ausgestellt und im Admin-Panel nicht widerrufen wurde.</dd>
+            <dt>Meine Änderungen sind nach einer Synchronisierung verschwunden.</dt>
+            <dd>Sie haben wahrscheinlich <em>Konflikt: Serverversion beibehalten</em> gesehen: Ein anderes Gerät hat eine neuere Version gespeichert. Stellen Sie die ersetzte Version aus dem Dokumentverlauf im Stapik-Cloud-Admin-Panel wieder her (siehe <a href="#conflicts">Konflikte</a>) oder spielen Sie eine lokale Sicherung ein (siehe <a href="#data">Ihre Daten</a>).</dd>
+            <dt>Die Anwendung startet mit einem leeren Kalender.</dt>
+            <dd>Die Kalenderdatei konnte nicht gelesen werden. Suchen Sie in <code>~/.local/share/stapikcalendar/</code> nach Dateien mit den Namen <code>calendar.json.corrupt-…</code> oder <code>calendar.json.unreadable-…</code> (eine Kopie der unlesbaren Datei) sowie nach den Sicherungen <code>calendar.json.bak</code>; stellen Sie eine davon wie im Abschnitt <a href="#data">Ihre Daten und Sicherungen</a> beschrieben wieder her.</dd>
+            <dt>Der Menüeintrag „Anleitung“ öffnet nichts.</dt>
+            <dd>Stellen Sie sicher, dass ein Webbrowser als Standardanwendung für Webseiten festgelegt ist. Meldet die Nachricht, dass die Datei nicht gefunden wurde, ist die Installation unvollständig; installieren Sie die Anwendung neu.</dd>
+        </dl>
+    </section>
+
+    <section id="about">
+        <h2>13. Über die Anwendung</h2>
+        <p>Wählen Sie <strong>Hilfe → Info</strong>, um Version und Autor zu sehen.</p>
+        <figure>
+            <img src="screenshots/de/about-dialog.png" alt="Das Fenster Info">
+            <figcaption>Das Fenster Info.</figcaption>
+        </figure>
+        <p>Quellcode und Problemmeldungen: <a href="https://github.com/Stapik-Group/stapik-calendar">github.com/Stapik-Group/stapik-calendar</a>. Der Synchronisierungsserver: <a href="https://github.com/Stapik-Group/stapik-cloud">github.com/Stapik-Group/stapik-cloud</a>.</p>
+    </section>
+</main>
+
+<footer>Stapik Calendar 1.2.0</footer>
+</body>
+</html>

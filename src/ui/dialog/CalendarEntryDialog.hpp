@@ -5,6 +5,7 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/label.h>
+#include <gtkmm/sizegroup.h>
 
 #include "../../core/model/CalendarEntry.hpp"
 #include "../widget/EntryColorPickerWidget.hpp"
@@ -27,6 +28,7 @@ private:
     Gtk::Entry m_linkEntry;
     Gtk::Label m_colorLabel;
     EntryColorPickerWidget m_colorPicker;
+    Glib::RefPtr<Gtk::SizeGroup> m_buttonSizeGroup;
 
     void initLayout();
 };

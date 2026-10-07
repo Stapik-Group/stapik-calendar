@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stapik Calendar — User guide</title>
+    <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<header>
+    <h1>Stapik Calendar</h1>
+    <p class="subtitle">User guide · version 1.2.0</p>
+    <nav class="languages" aria-label="Guide language">
+        <a href="guide-pl.html" hreflang="pl" lang="pl">Polski</a>
+        <a href="guide-en.html" hreflang="en" lang="en" aria-current="page">English</a>
+        <a href="guide-de.html" hreflang="de" lang="de">Deutsch</a>
+    </nav>
+</header>
+
+<main>
+    <nav class="toc" aria-label="Contents">
+        <h2>Contents</h2>
+        <ol>
+            <li><a href="#start">Getting started</a></li>
+            <li><a href="#window">The main window</a></li>
+            <li><a href="#navigation">Moving between months</a></li>
+            <li><a href="#entries">Entries</a></li>
+            <li><a href="#undo">Undo and redo</a></li>
+            <li><a href="#menus">Menus</a></li>
+            <li><a href="#shortcuts">Shortcuts and mouse actions</a></li>
+            <li><a href="#look">Language and theme</a></li>
+            <li><a href="#cloud">Stapik Cloud synchronization</a></li>
+            <li><a href="#data">Your data and backups</a></li>
+            <li><a href="#upgrade">Upgrading from version 1.1.x</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#about">About the application</a></li>
+        </ol>
+    </nav>
+
+    <section id="start">
+        <h2>1. Getting started</h2>
+        <p>Stapik Calendar is a desktop calendar. It shows one month at a time, and every day can hold any number of <strong>entries</strong>. An entry has a name, an optional web link and an optional color.</p>
+        <p>Everything you do is saved automatically on your computer. If you have a Stapik Cloud server, the calendar can also be kept in sync between all your devices (see <a href="#cloud">Stapik Cloud synchronization</a>).</p>
+        <p>A quick tour:</p>
+        <ol>
+            <li>Start the application from your application menu (<em>Stapik Calendar</em>). It opens on the current month.</li>
+            <li>Double-click an empty area of any day.</li>
+            <li>Type a name and press <strong>OK</strong>. The entry appears in that day.</li>
+            <li>Right-click the entry to give it a color, drag it to another day to move it, or click <strong>✕</strong> to delete it.</li>
+        </ol>
+        <figure>
+            <img src="screenshots/en/main-window.png" alt="The main window of Stapik Calendar showing a month with several entries">
+            <figcaption>The main window.</figcaption>
+        </figure>
+    </section>
+
+    <section id="window">
+        <h2>2. The main window</h2>
+        <p>From top to bottom the window consists of:</p>
+        <ul>
+            <li><strong>Menu bar</strong> — <em>File</em>, <em>Edit</em>, <em>Settings</em> and <em>Help</em> (see <a href="#menus">Menus</a>).</li>
+            <li><strong>Navigation bar</strong> — the name of the displayed month and year with buttons to change them.</li>
+            <li><strong>Weekday header</strong> — Mon to Sun. Weeks start on Monday.</li>
+            <li><strong>Day cells</strong> — one cell per day. The number of the day is in the corner of its cell, and today is highlighted. Cells outside the displayed month stay empty.</li>
+            <li><strong>Status bar</strong> — shown only when the calendar is connected to a cloud; it tells you the synchronization state (see <a href="#cloud">Stapik Cloud synchronization</a>).</li>
+        </ul>
+        <figure>
+            <img src="screenshots/en/menu-bar.png" alt="The menu bar with File, Edit, Settings and Help">
+            <figcaption>The menu bar.</figcaption>
+        </figure>
+    </section>
+
+    <section id="navigation">
+        <h2>3. Moving between months</h2>
+        <p>The navigation bar has four buttons around the month name:</p>
+        <table>
+            <tr><th>Button</th><th>Action</th></tr>
+            <tr><td>◀</td><td>previous month</td></tr>
+            <tr><td>▶</td><td>next month</td></tr>
+            <tr><td>◀◀</td><td>previous year (same month)</td></tr>
+            <tr><td>▶▶</td><td>next year (same month)</td></tr>
+        </table>
+        <p>The application always starts on the current month. Entries are kept for every month and year, there is no limit.</p>
+        <figure>
+            <img src="screenshots/en/navigation-bar.png" alt="The navigation bar with the month name and four arrow buttons">
+            <figcaption>The navigation bar.</figcaption>
+        </figure>
+    </section>
+
+    <section id="entries">
+        <h2>4. Entries</h2>
+
+        <h3>4.1 Adding an entry</h3>
+        <p>Double-click an empty area of a day cell. The <strong>New entry</strong> window opens:</p>
+        <ul>
+            <li><strong>Name</strong> — required. Without a name the entry is not created.</li>
+            <li><strong>Link (optional)</strong> — a web address that you can open later with one click.</li>
+            <li><strong>Color</strong> — the first, empty square means no color; the others are colors (see <a href="#colors">Colors</a>).</li>
+        </ul>
+        <p>Confirm with <strong>OK</strong>, or choose <strong>Cancel</strong> to discard.</p>
+        <figure>
+            <img src="screenshots/en/new-entry-dialog.png" alt="The New entry window with the name, link and color fields">
+            <figcaption>The New entry window.</figcaption>
+        </figure>
+
+        <h3>4.2 Quick add from the clipboard</h3>
+        <p>If you copied a web address (starting with <code>http://</code> or <code>https://</code>), <strong>right-click</strong> a day. The application creates an entry for that day with the address as the link and the title of the web page as the name. This needs an internet connection; if the title cannot be read, the entry is named <em>No name</em>. When the clipboard does not contain a web address, nothing happens.</p>
+
+        <h3>4.3 Opening a link</h3>
+        <p>When an entry has a link, the mouse pointer turns into a hand over its name. <strong>Click the entry once</strong> to open the link in your default browser. The application waits a moment (the double-click time set in your system) to be sure that you did not mean to double-click, so the page opens with a short delay.</p>
+        <div class="note">Only <code>http</code> and <code>https</code> links are opened. A link typed without a scheme, such as <code>example.com</code>, is opened as <code>https://example.com</code>.</div>
+
+        <h3>4.4 Editing an entry</h3>
+        <p><strong>Double-click</strong> an entry to open the <strong>Edit entry</strong> window, where you can change the name, the link and the color.</p>
+
+        <h3>4.5 Deleting an entry</h3>
+        <p>Click the <strong>✕</strong> button at the right edge of the entry. A deleted entry can be brought back with <a href="#undo">Undo</a>.</p>
+
+        <h3 id="colors">4.6 Colors</h3>
+        <p>Right-click an entry to open a row of squares and click the color you want. You can also choose the color in the New entry and Edit entry windows. Available colors: red, orange, yellow, green, teal, blue, purple, pink, brown and gray, plus the default look with no color.</p>
+        <figure>
+            <img src="screenshots/en/entry-color-popover.png" alt="The color picker shown after right-clicking an entry">
+            <figcaption>Changing the color of an entry.</figcaption>
+        </figure>
+
+        <h3>4.7 Moving and copying</h3>
+        <p>Drag an entry and drop it on another day to <strong>move</strong> it. Hold <kbd>Ctrl</kbd> while dragging to <strong>copy</strong> it instead. Dropping an entry on its own day changes nothing.</p>
+        <figure>
+            <img src="screenshots/en/drag-and-drop.png" alt="An entry being dragged from one day to another">
+            <figcaption>Dragging an entry to another day.</figcaption>
+        </figure>
+
+        <h3>4.8 Days with many entries</h3>
+        <p>When a day has more entries than fit in its cell, the cell can be scrolled. Entries are listed in the order in which you added them.</p>
+
+        <figure>
+            <img src="screenshots/en/entries-in-cell.png" alt="A day cell with several entries, some of them colored">
+            <figcaption>A day with several entries.</figcaption>
+        </figure>
+    </section>
+
+    <section id="undo">
+        <h2>5. Undo and redo</h2>
+        <p>Adding, editing (including changing the color), deleting, moving and copying entries can all be undone. Use <strong>Edit → Undo</strong> and <strong>Edit → Redo</strong>, or the shortcuts <kbd>Ctrl</kbd>+<kbd>Z</kbd> and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>.</p>
+        <p>The menu item names the operation, for example <em>Undo delete entry “Dentist”</em>, and is grayed out when there is nothing to undo or redo. The history keeps up to 100 steps. It is not saved when you close the application, and it is cleared when the version from the cloud replaces your local calendar (see <a href="#cloud">Stapik Cloud synchronization</a>).</p>
+        <figure>
+            <img src="screenshots/en/edit-menu.png" alt="The Edit menu with Undo and Redo naming the last operation">
+            <figcaption>The Edit menu.</figcaption>
+        </figure>
+    </section>
+
+    <section id="menus">
+        <h2>6. Menus</h2>
+        <table>
+            <tr><th>Menu</th><th>Item</th><th>What it does</th></tr>
+            <tr><td rowspan="3"><strong>File</strong></td><td>Connect to cloud</td><td>Opens the window for connecting to Stapik Cloud.</td></tr>
+            <tr><td>Sync</td><td>Synchronizes with the cloud right now.</td></tr>
+            <tr><td>Exit <kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Closes the application. Pending changes are sent to the cloud first.</td></tr>
+            <tr><td rowspan="2"><strong>Edit</strong></td><td>Undo <kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Reverts the last operation.</td></tr>
+            <tr><td>Redo <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Repeats an operation that was undone.</td></tr>
+            <tr><td rowspan="2"><strong>Settings</strong></td><td>Language</td><td>Polish, English or German.</td></tr>
+            <tr><td>Theme</td><td>Classic, Classic Pink or Modern.</td></tr>
+            <tr><td rowspan="2"><strong>Help</strong></td><td>About</td><td>Shows the version and author of the application.</td></tr>
+            <tr><td>Guide <kbd>F1</kbd></td><td>Opens this guide in your browser.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/en/file-menu.png" alt="The File menu">
+            <figcaption>The File menu.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/help-menu.png" alt="The Help menu with About and Guide">
+            <figcaption>The Help menu.</figcaption>
+        </figure>
+    </section>
+
+    <section id="shortcuts">
+        <h2>7. Shortcuts and mouse actions</h2>
+        <h3>Keyboard</h3>
+        <table>
+            <tr><th>Keys</th><th>Action</th></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Redo</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Exit</td></tr>
+            <tr><td><kbd>F1</kbd></td><td>Open this guide</td></tr>
+        </table>
+        <h3>Mouse</h3>
+        <table>
+            <tr><th>Where</th><th>Action</th><th>Result</th></tr>
+            <tr><td>Empty area of a day</td><td>double-click</td><td>new entry</td></tr>
+            <tr><td>Empty area of a day</td><td>right-click</td><td>quick add from a copied web address</td></tr>
+            <tr><td>Entry</td><td>click</td><td>opens its link (if it has one)</td></tr>
+            <tr><td>Entry</td><td>double-click</td><td>edit the entry</td></tr>
+            <tr><td>Entry</td><td>right-click</td><td>choose a color</td></tr>
+            <tr><td>Entry</td><td>drag to another day</td><td>move it</td></tr>
+            <tr><td>Entry</td><td><kbd>Ctrl</kbd> + drag to another day</td><td>copy it</td></tr>
+            <tr><td>✕ on an entry</td><td>click</td><td>delete the entry</td></tr>
+        </table>
+    </section>
+
+    <section id="look">
+        <h2>8. Language and theme</h2>
+        <p>Choose <strong>Settings → Language</strong> to switch between Polish, English and German. The whole application changes immediately, including the names of the months and weekdays.</p>
+        <p>Choose <strong>Settings → Theme</strong> to change the look: <strong>Classic</strong> (a retro look), <strong>Classic Pink</strong> (the same layout in pink and purple), <strong>Neoclassic</strong> or <strong>Modern</strong> (a light or dark). Your choices are remembered the next time you start the application.</p>
+        <figure>
+            <img src="screenshots/en/settings-menu.png" alt="The Settings menu with the Language and Theme submenus">
+            <figcaption>The Settings menu.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/theme-classic.png" alt="The Classic theme">
+            <figcaption>Classic theme.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/theme-classic-pink.png" alt="The Classic Pink theme">
+            <figcaption>Classic Pink theme.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/theme-neoclassic.png" alt="The Neoclassic theme">
+            <figcaption>Neoclassic theme.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/theme-modern.png" alt="The Modern theme">
+            <figcaption>Modern theme.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/theme-dark.png" alt="The Dark theme">
+            <figcaption>Dark theme.</figcaption>
+        </figure>
+    </section>
+
+    <section id="cloud">
+        <h2>9. Stapik Cloud synchronization</h2>
+        <p>Stapik Cloud is a server that you run yourself. It keeps one copy of your calendar so that all your computers show the same entries. The cloud is optional — without it the calendar simply works on one computer.</p>
+
+        <h3>9.1 What you need</h3>
+        <ul>
+            <li>A running Stapik Cloud server that your computer can reach, and its <strong>address</strong> (the API URL), for example <code>https://cloud.example.com</code>.</li>
+            <li>An <strong>API key</strong> issued for this device. In the Stapik Cloud admin panel every device gets its own key; there is no shared key.</li>
+        </ul>
+        <p>The calendar is stored in the document named <code>calendar.json</code> on the server.</p>
+
+        <h3>9.2 Connecting</h3>
+        <ol>
+            <li>Choose <strong>File → Connect to cloud</strong>.</li>
+            <li>Enter the <strong>API URL</strong>. It must start with <code>http://</code> or <code>https://</code>.</li>
+            <li>Enter the <strong>API key</strong>. Tick <strong>Show key</strong> if you want to check what you typed.</li>
+            <li>Click <strong>Connect</strong>.</li>
+            <li>After a moment a message tells you whether the connection worked (<em>Connected</em>) or not (<em>Could not connect</em>, with the reason).</li>
+        </ol>
+        <div class="warning">If the address starts with <code>http://</code>, the window warns you that the connection is not secure: the key and your calendar are sent unencrypted. Use <code>https://</code> whenever the server is reachable over the internet.</div>
+        <figure>
+            <img src="screenshots/en/connect-dialog.png" alt="The Connect to cloud window with the API URL and API key fields">
+            <figcaption>The Connect to cloud window.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/en/connect-success.png" alt="The message confirming a successful connection">
+            <figcaption>A successful connection.</figcaption>
+        </figure>
+        <p>The settings are remembered. Next time the application connects by itself, and the window you open from <em>Connect to cloud</em> is already filled in, so you can use it to change the server or the key.</p>
+        <p><strong>What happens at the first synchronization:</strong> if the cloud is still empty, your calendar is uploaded. If the copy in the cloud is newer than yours, it replaces your local calendar. Otherwise your local calendar is uploaded.</p>
+
+        <h3>9.3 The status bar</h3>
+        <p>When a cloud is configured, the bottom of the window shows the current state:</p>
+        <table>
+            <tr><th>Status</th><th>Meaning</th></tr>
+            <tr><td>Up to date</td><td>Your calendar and the cloud are the same.</td></tr>
+            <tr><td>Syncing…</td><td>A synchronization is in progress.</td></tr>
+            <tr><td>Offline</td><td>The server cannot be reached. Your changes are safe on this computer, and the application retries by itself (first after 2 seconds, then less and less often, at most every 5 minutes).</td></tr>
+            <tr><td>Conflict: server version kept</td><td>The cloud held a newer version, and it replaced your local one (see <a href="#conflicts">Conflicts</a>).</td></tr>
+            <tr><td>Sync error</td><td>The synchronization failed for another reason, for example the server rejected the request. Local data is not affected.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/en/sync-status.png" alt="The status bar at the bottom of the window showing the synchronization state">
+            <figcaption>The synchronization status.</figcaption>
+        </figure>
+
+        <h3>9.4 How synchronization works</h3>
+        <ul>
+            <li>Every change is saved on your computer immediately.</li>
+            <li>Sending to the cloud happens in the background, about 1.5 seconds after your last change, so the window never freezes. Several quick changes are sent together.</li>
+            <li>When you close the application, any change that has not been sent yet is sent first.</li>
+            <li><strong>File → Sync</strong> synchronizes immediately.</li>
+        </ul>
+
+        <h3 id="conflicts">9.5 Conflicts and several devices</h3>
+        <p>The whole calendar is compared as one document, and the newer version wins. Entries are never merged one by one. If you change the calendar on two computers while both are offline, the version that reaches the server later replaces the other.</p>
+        <p>When the server version wins, it replaces the calendar on your computer and the undo history is cleared. By default Stapik Cloud keeps the replaced version in the document history, so it can be restored from the admin panel; restore it there and synchronize again.</p>
+        <div class="note">Tip for several devices: after you finish editing, wait for <em>Up to date</em> (or use <em>Sync</em>) before you switch to another computer.</div>
+
+        <h3>9.6 Changing the server or stopping synchronization</h3>
+        <p>To use another server or key, open <strong>File → Connect to cloud</strong> again and enter the new values. There is no disconnect button: to stop using the cloud, close the application and delete the file <code>~/.local/share/stapikcalendar/config.json</code>. Your local calendar is not affected.</p>
+        <p>The API key is stored in that file in plain text, readable only by you, so keep your home directory protected.</p>
+    </section>
+
+    <section id="data">
+        <h2>10. Your data and backups</h2>
+        <p>The calendar lives in your home directory, in <code>~/.local/share/stapikcalendar/</code>:</p>
+        <table>
+            <tr><th>File</th><th>Content</th></tr>
+            <tr><td><code>calendar.json</code></td><td>your calendar</td></tr>
+            <tr><td><code>calendar.json.bak</code>, <code>.bak.2</code>, <code>.bak.3</code></td><td>the three previous versions, replaced every time you save</td></tr>
+            <tr><td><code>config.json</code></td><td>cloud address and key</td></tr>
+            <tr><td><code>cloud-baseline.json</code></td><td>technical data about the last synchronization</td></tr>
+        </table>
+        <p>Your language and theme are stored in <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <h3>Restoring a backup</h3>
+        <ol>
+            <li>Close the application.</li>
+            <li>Copy <code>calendar.json.bak</code> (or <code>.bak.2</code>, <code>.bak.3</code>) over <code>calendar.json</code>.</li>
+            <li>Start the application again.</li>
+        </ol>
+        <h3>Moving the calendar to another computer</h3>
+        <p>Copy <code>calendar.json</code> into the same folder on the other computer. With Stapik Cloud you can instead connect the new computer to the same server and the calendar will download by itself.</p>
+    </section>
+
+    <section id="upgrade">
+        <h2>11. Upgrading from version 1.1.x</h2>
+        <ul>
+            <li>The first start of version 1.2.0 converts your calendar to the new format automatically. The old file is kept as <code>calendar.json.bak</code>.</li>
+            <li>The format stored in the cloud has changed too. <strong>Upgrade every device before you connect them to the same cloud again</strong>: a device still running 1.1.x cannot read the new format and could overwrite your calendar.</li>
+            <li>A calendar written to the cloud by version 1.1.x is read correctly and is replaced with the new format at the next synchronization.</li>
+            <li>If you used a version that had a single shared API key, connect again with a key issued for this device (<strong>File → Connect to cloud</strong>).</li>
+        </ul>
+    </section>
+
+    <section id="troubleshooting">
+        <h2>12. Troubleshooting</h2>
+        <dl>
+            <dt>Clicking an entry does not open a page.</dt>
+            <dd>Check that the entry has a link. Only <code>http</code> and <code>https</code> links are opened, and your system needs a default web browser.</dd>
+            <dt>A double-click opens the page instead of the editor.</dt>
+            <dd>Click a little faster, or make the double-click time longer in your system's mouse settings.</dd>
+            <dt>Right-clicking a day does nothing.</dt>
+            <dd>The clipboard must contain a complete web address starting with <code>http://</code> or <code>https://</code>.</dd>
+            <dt>The status is “Offline”.</dt>
+            <dd>Check your internet connection and the server address (<strong>File → Connect to cloud</strong>). The application retries by itself, and <strong>File → Sync</strong> tries immediately.</dd>
+            <dt>The status is “Sync error”, or connecting fails.</dt>
+            <dd>Check that the address and the API key are correct and that the key was issued for this device and has not been revoked in the admin panel.</dd>
+            <dt>My changes disappeared after a synchronization.</dt>
+            <dd>You probably saw <em>Conflict: server version kept</em>: another device saved a newer version. Restore the replaced version from the document history in the Stapik Cloud admin panel (see <a href="#conflicts">Conflicts</a>), or restore a local backup (see <a href="#data">Your data</a>).</dd>
+            <dt>The application starts with an empty calendar.</dt>
+            <dd>The calendar file could not be read. Look in <code>~/.local/share/stapikcalendar/</code> for files named <code>calendar.json.corrupt-…</code> or <code>calendar.json.unreadable-…</code> (a copy of the unreadable file) and for the backups <code>calendar.json.bak</code>; restore one as described in <a href="#data">Your data and backups</a>.</dd>
+            <dt>The menu entry “Guide” does not open anything.</dt>
+            <dd>Make sure that a web browser is set as the default application for web pages. If the message says that the file was not found, the installation is incomplete; reinstall the application.</dd>
+        </dl>
+    </section>
+
+    <section id="about">
+        <h2>13. About the application</h2>
+        <p>Choose <strong>Help → About</strong> to see the version and the author.</p>
+        <figure>
+            <img src="screenshots/en/about-dialog.png" alt="The About window">
+            <figcaption>The About window.</figcaption>
+        </figure>
+        <p>Source code and reports of problems: <a href="https://github.com/Stapik-Group/stapik-calendar">github.com/Stapik-Group/stapik-calendar</a>. The synchronization server: <a href="https://github.com/Stapik-Group/stapik-cloud">github.com/Stapik-Group/stapik-cloud</a>.</p>
+    </section>
+</main>
+
+<footer>Stapik Calendar 1.2.0</footer>
+</body>
+</html>

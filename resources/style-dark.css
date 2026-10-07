@@ -1,0 +1,145 @@
+* {
+    font-family: "Inter", "SF Pro Display", "Segoe UI", "Cantarell", sans-serif;
+}
+
+windowcontrols button {
+    transition: background-color 120ms ease;
+}
+
+popover contents {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+button {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.calendar-navbar {
+    background: #2c2c2e;
+    border-bottom: 1px solid #3a3a3c;
+}
+.calendar-navbar label {
+    color: #f2f2f7;
+    font-weight: 600;
+}
+.calendar-navbar button {
+    background-color: #2c2c2e;
+    border-radius: 8px;
+}
+
+.calendar-header-cell {
+    background-color: transparent;
+    font-weight: 600;
+    border: none;
+    border-bottom: 1px solid #3a3a3c;
+}
+.calendar-header-cell label {
+    color: #98989f;
+    font-weight: 600;
+}
+
+frame {
+    background-color: #2c2c2e;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    margin: 4px;
+    transition: box-shadow 150ms ease, background-color 150ms ease;
+}
+frame:hover {
+    background-color: #323234;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+frame > border {
+    border: none;
+    border-radius: 0;
+}
+.today {
+    background-color: #1a2a40;
+    box-shadow: 0 0 0 2px #0a84ff inset;
+}
+.today label {
+    color: #409cff;
+    font-weight: 700;
+}
+.drag-over {
+    box-shadow: 0 0 0 2px #0a84ff;
+    background-color: #1a2a40;
+}
+
+.calendar-entry-label {
+    border-radius: 6px;
+}
+
+.calendar-entry {
+    border-radius: 6px;
+}
+
+.calendar-entry-delete {
+    color: #98989f;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    padding: 0 !important;
+    border-radius: 999px;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+}
+.calendar-entry-delete:hover,
+.calendar-entry-delete:active {
+    background-color: rgba(255, 69, 58, 0.2);
+    color: #ff453a;
+    padding: 0 !important;
+    box-shadow: none;
+}
+
+/* --- Typography and metrics: IDENTICAL in every style-*.css (edit all five together) --- */
+
+* {
+    font-size: 12px;
+}
+
+menubar > item {
+    padding: 3px 8px;
+}
+
+popover modelbutton {
+    padding: 4px 14px;
+}
+
+menubar > item,
+menubar > item *,
+popover modelbutton,
+popover modelbutton * {
+    font-size: 14px;
+}
+
+.calendar-navbar {
+    padding: 6px 10px;
+}
+
+.calendar-navbar label {
+    font-size: 16px;
+}
+
+.calendar-navbar button {
+    min-width: 28px;
+    min-height: 22px;
+    padding: 2px 8px;
+}
+
+.calendar-header-cell {
+    padding: 4px 0;
+}
+
+.calendar-entry {
+    padding: 0 2px;
+}
+
+.calendar-entry-label {
+    padding: 1px 4px;
+}
+
+.calendar-entry-delete {
+    font-size: 10px;
+}

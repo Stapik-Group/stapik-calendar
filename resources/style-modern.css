@@ -1,102 +1,28 @@
 * {
     font-family: "Inter", "SF Pro Display", "Segoe UI", "Cantarell", sans-serif;
-    font-size: 12px;
-}
-
-window {
-    background-color: #f5f5f7;
 }
 
 /* --- Title bar / window controls --- */
 
-headerbar {
-    background-color: #f5f5f7;
-    border-bottom: 1px solid #e2e2e5;
-    box-shadow: none;
-    min-height: 40px;
-    padding: 4px 8px;
-}
-headerbar .title,
-headerbar label {
-    color: #1c1c1e;
-    font-weight: 600;
-}
 windowcontrols button {
-    min-width: 24px;
-    min-height: 24px;
-    padding: 0;
-    border-radius: 999px;
-    border: none;
-    box-shadow: none;
-    background-color: #e2e2e5;
     transition: background-color 120ms ease;
-}
-windowcontrols button:hover {
-    background-color: #d4d4d8;
 }
 
 /* --- Menu bar --- */
 
-menubar {
-    background-color: #f5f5f7;
-    border-bottom: 1px solid #e2e2e5;
-    padding: 3px 4px;
-}
-menubar > item {
-    padding: 4px 10px;
-    border-radius: 6px;
-    color: #1c1c1e;
-    transition: background-color 120ms ease;
-}
-menubar > item:hover {
-    background-color: #e8e8ec;
-    color: #1c1c1e;
-}
 popover contents {
-    background-color: #ffffff;
-    border: none;
-    border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.16);
-    padding: 6px;
-}
-popover modelbutton {
-    padding: 6px 12px;
-    border-radius: 7px;
-    color: #1c1c1e;
-    transition: background-color 100ms ease;
-}
-popover modelbutton:hover {
-    background-color: #007aff;
-    color: #ffffff;
 }
 
 /* --- Buttons --- */
 
 button {
-    background-image: none;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #dcdce0;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    padding: 5px 12px;
-    color: #1c1c1e;
-    transition: background-color 120ms ease, box-shadow 120ms ease;
 }
-button:hover {
-    background-color: #f0f0f3;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-button:active {
-    background-color: #e4e4e8;
-    box-shadow: none;
-    padding: 5px 12px;
-}
-
 /* --- Nav bar --- */
 
 .calendar-navbar {
     background: #ffffff;
-    padding: 10px 12px;
     border-bottom: 1px solid #e2e2e5;
 }
 .calendar-navbar label {
@@ -105,8 +31,6 @@ button:active {
 }
 .calendar-navbar button {
     background-color: #ffffff;
-    min-width: 30px;
-    min-height: 26px;
     border-radius: 8px;
 }
 
@@ -117,7 +41,6 @@ button:active {
     font-weight: 600;
     border: none;
     border-bottom: 1px solid #e2e2e5;
-    padding: 6px 0;
 }
 .calendar-header-cell label {
     color: #6e6e73;
@@ -129,7 +52,7 @@ button:active {
 frame {
     background-color: #ffffff;
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     margin: 4px;
     transition: box-shadow 150ms ease, background-color 150ms ease;
@@ -139,6 +62,7 @@ frame:hover {
 }
 frame > border {
     border: none;
+    border-radius: 0;
 }
 .today {
     background-color: #eaf2ff;
@@ -156,8 +80,10 @@ frame > border {
 /* --- Entries --- */
 
 .calendar-entry-label {
-    color: #1c1c1e;
-    padding: 3px 6px;
+    border-radius: 6px;
+}
+
+.calendar-entry {
     border-radius: 6px;
 }
 
@@ -166,7 +92,6 @@ frame > border {
     min-width: 16px !important;
     min-height: 16px !important;
     padding: 0 !important;
-    font-size: 10px;
     border-radius: 999px;
     border: none;
     background-color: transparent;
@@ -180,80 +105,53 @@ frame > border {
     box-shadow: none;
 }
 
-/* --- Entry colors --- */
+/* --- Typography and metrics: IDENTICAL in every style-*.css (edit all five together) --- */
 
-.calendar-entry-color-red    { background-color: #ff453a; border-radius: 6px; }
-.calendar-entry-color-green  { background-color: #34c759; border-radius: 6px; }
-.calendar-entry-color-blue   { background-color: #007aff; border-radius: 6px; }
-.calendar-entry-color-yellow { background-color: #ffcc00; border-radius: 6px; }
-.calendar-entry-color-purple { background-color: #af52de; border-radius: 6px; }
-.calendar-entry-color-orange { background-color: #ff9500; border-radius: 6px; }
-
-.calendar-entry-color-red:hover,
-.calendar-entry-color-green:hover,
-.calendar-entry-color-blue:hover,
-.calendar-entry-color-purple:hover,
-.calendar-entry-color-orange:hover {
-    filter: brightness(0.92);
+* {
+    font-size: 12px;
 }
 
-.calendar-entry-color-red .calendar-entry-label,
-.calendar-entry-color-green .calendar-entry-label,
-.calendar-entry-color-blue .calendar-entry-label,
-.calendar-entry-color-purple .calendar-entry-label,
-.calendar-entry-color-orange .calendar-entry-label {
-    color: #ffffff;
+menubar > item {
+    padding: 3px 8px;
 }
 
-/* --- Color picker swatches --- */
-
-.color-swatch {
-    min-width: 18px;
-    min-height: 18px;
-    padding: 0;
-    border-radius: 999px;
-    border: 2px solid transparent;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    transition: transform 100ms ease;
-}
-.color-swatch:hover {
-    padding: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-.color-swatch:active {
-    padding: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-.color-swatch:checked {
-    border-color: #1c1c1e;
-    box-shadow: 0 0 0 1px #ffffff inset, 0 1px 2px rgba(0,0,0,0.2);
+popover modelbutton {
+    padding: 4px 14px;
 }
 
-/* --- Color picker swatches: kolor musi wygrać z button/:hover/:active/:checked --- */
-.color-swatch.calendar-entry-color-red    { background-color: #ff453a; }
-.color-swatch.calendar-entry-color-green  { background-color: #34c759; }
-.color-swatch.calendar-entry-color-blue   { background-color: #007aff; }
-.color-swatch.calendar-entry-color-yellow { background-color: #ffcc00; }
-.color-swatch.calendar-entry-color-purple { background-color: #af52de; }
-.color-swatch.calendar-entry-color-orange { background-color: #ff9500; }
-
-/* --- Dialogs / entries --- */
-
-dialog {
-    background-color: #f5f5f7;
+menubar > item,
+menubar > item *,
+popover modelbutton,
+popover modelbutton * {
+    font-size: 14px;
 }
-dialog .dialog-vbox {
-    background-color: #f5f5f7;
-}
-entry {
-    background-color: #ffffff;
-    border: 1px solid #dcdce0;
-    border-radius: 8px;
+
+.calendar-navbar {
     padding: 6px 10px;
-    color: #1c1c1e;
-    box-shadow: none;
-    transition: border-color 120ms ease;
 }
-entry:focus {
-    border-color: #007aff;
+
+.calendar-navbar label {
+    font-size: 16px;
+}
+
+.calendar-navbar button {
+    min-width: 28px;
+    min-height: 22px;
+    padding: 2px 8px;
+}
+
+.calendar-header-cell {
+    padding: 4px 0;
+}
+
+.calendar-entry {
+    padding: 0 2px;
+}
+
+.calendar-entry-label {
+    padding: 1px 4px;
+}
+
+.calendar-entry-delete {
+    font-size: 10px;
 }

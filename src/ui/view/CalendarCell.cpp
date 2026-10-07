@@ -38,8 +38,8 @@ void CalendarCell::initGesture()
     m_gestureClick = Gtk::GestureClick::create();
     m_gestureClick->set_button(LEFT_MOUSE_BUTTON);
     m_gestureClick->signal_pressed().connect(
-        [this](const int nPress, double, double) {
-            if (nPress == DOUBLE_CLICK_COUNT) m_signalDoubleClicked.emit();
+        [this](const int nPress, const double x, const double y) {
+            if (nPress == DOUBLE_CLICK_COUNT && !isOverEntry(x, y)) m_signalDoubleClicked.emit();
         });
 
     add_controller(m_gestureClick);
@@ -94,6 +94,17 @@ void CalendarCell::setEntries(const std::vector<CalendarEntry>& entries)
     refreshEntries(entries);
 }
 
+bool CalendarCell::isOverEntry(const double x, const double y)
+{
+    for (auto* widget = pick(x, y); widget != nullptr && widget != this; widget = widget->get_parent())
+    {
+        if (dynamic_cast<CalendarEntryWidget*>(widget) != nullptr)
+            return true;
+    }
+
+    return false;
+}
+
 void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
 {
     while (auto* child = m_entriesBox.get_first_child())
@@ -103,6 +114,7 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
     {
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 
+        widget->signalClicked().connect([this, i] { m_signalEntryClicked.emit(i); });
         widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
         widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
         widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
@@ -132,6 +144,11 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
 sigc::signal<void()>& CalendarCell::signalDoubleClicked()
 {
     return m_signalDoubleClicked;
+}
+
+sigc::signal<void(int)>& CalendarCell::signalEntryClicked()
+{
+    return m_signalEntryClicked;
 }
 
 sigc::signal<void(int)>& CalendarCell::signalEditRequested()

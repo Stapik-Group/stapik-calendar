@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stapik Calendar — Poradnik użytkownika</title>
+    <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<header>
+    <h1>Stapik Calendar</h1>
+    <p class="subtitle">Poradnik użytkownika · wersja 1.2.0</p>
+    <nav class="languages" aria-label="Język poradnika">
+        <a href="guide-pl.html" hreflang="pl" lang="pl" aria-current="page">Polski</a>
+        <a href="guide-en.html" hreflang="en" lang="en">English</a>
+        <a href="guide-de.html" hreflang="de" lang="de">Deutsch</a>
+    </nav>
+</header>
+
+<main>
+    <nav class="toc" aria-label="Spis treści">
+        <h2>Spis treści</h2>
+        <ol>
+            <li><a href="#start">Pierwsze kroki</a></li>
+            <li><a href="#window">Okno główne</a></li>
+            <li><a href="#navigation">Przechodzenie między miesiącami</a></li>
+            <li><a href="#entries">Wpisy</a></li>
+            <li><a href="#undo">Cofanie i ponawianie</a></li>
+            <li><a href="#menus">Menu</a></li>
+            <li><a href="#shortcuts">Skróty klawiszowe i działania myszą</a></li>
+            <li><a href="#look">Język i motyw</a></li>
+            <li><a href="#cloud">Synchronizacja ze Stapik Cloud</a></li>
+            <li><a href="#data">Twoje dane i kopie zapasowe</a></li>
+            <li><a href="#upgrade">Aktualizacja z wersji 1.1.x</a></li>
+            <li><a href="#troubleshooting">Rozwiązywanie problemów</a></li>
+            <li><a href="#about">O programie</a></li>
+        </ol>
+    </nav>
+
+    <section id="start">
+        <h2>1. Pierwsze kroki</h2>
+        <p>Stapik Calendar to kalendarz na komputer. Pokazuje jeden miesiąc naraz, a każdy dzień może zawierać dowolną liczbę <strong>wpisów</strong>. Wpis ma nazwę, opcjonalny link do strony internetowej i opcjonalny kolor.</p>
+        <p>Wszystko, co robisz, jest zapisywane automatycznie na Twoim komputerze. Jeśli masz własny serwer Stapik Cloud, kalendarz może być też synchronizowany między wszystkimi Twoimi urządzeniami (zobacz <a href="#cloud">Synchronizacja ze Stapik Cloud</a>).</p>
+        <p>Krótki przewodnik:</p>
+        <ol>
+            <li>Uruchom aplikację z menu aplikacji (<em>Stapik Calendar</em>). Otworzy się na bieżącym miesiącu.</li>
+            <li>Kliknij dwukrotnie puste miejsce w dowolnym dniu.</li>
+            <li>Wpisz nazwę i naciśnij <strong>OK</strong>. Wpis pojawi się w tym dniu.</li>
+            <li>Kliknij wpis prawym przyciskiem myszy, aby nadać mu kolor, przeciągnij go na inny dzień, aby go przenieść, albo kliknij <strong>✕</strong>, aby go usunąć.</li>
+        </ol>
+        <figure>
+            <img src="screenshots/pl/main-window.png" alt="Okno główne Stapik Calendar z miesiącem i kilkoma wpisami">
+            <figcaption>Okno główne.</figcaption>
+        </figure>
+    </section>
+
+    <section id="window">
+        <h2>2. Okno główne</h2>
+        <p>Okno składa się, od góry, z:</p>
+        <ul>
+            <li><strong>Paska menu</strong> — <em>Plik</em>, <em>Edycja</em>, <em>Ustawienia</em> i <em>Pomoc</em> (zobacz <a href="#menus">Menu</a>).</li>
+            <li><strong>Paska nawigacji</strong> — nazwa wyświetlanego miesiąca i roku oraz przyciski do ich zmiany.</li>
+            <li><strong>Nagłówka dni tygodnia</strong> — od poniedziałku do niedzieli. Tydzień zaczyna się w poniedziałek.</li>
+            <li><strong>Komórek dni</strong> — jedna komórka na każdy dzień. Numer dnia jest w rogu komórki, a dzisiejszy dzień jest wyróżniony. Komórki spoza wyświetlanego miesiąca pozostają puste.</li>
+            <li><strong>Paska stanu</strong> — widoczny tylko wtedy, gdy kalendarz jest połączony z chmurą; pokazuje stan synchronizacji (zobacz <a href="#cloud">Synchronizacja ze Stapik Cloud</a>).</li>
+        </ul>
+        <figure>
+            <img src="screenshots/pl/menu-bar.png" alt="Pasek menu z pozycjami Plik, Edycja, Ustawienia i Pomoc">
+            <figcaption>Pasek menu.</figcaption>
+        </figure>
+    </section>
+
+    <section id="navigation">
+        <h2>3. Przechodzenie między miesiącami</h2>
+        <p>Pasek nawigacji ma cztery przyciski wokół nazwy miesiąca:</p>
+        <table>
+            <tr><th>Przycisk</th><th>Działanie</th></tr>
+            <tr><td>◀</td><td>poprzedni miesiąc</td></tr>
+            <tr><td>▶</td><td>następny miesiąc</td></tr>
+            <tr><td>◀◀</td><td>poprzedni rok (ten sam miesiąc)</td></tr>
+            <tr><td>▶▶</td><td>następny rok (ten sam miesiąc)</td></tr>
+        </table>
+        <p>Aplikacja zawsze uruchamia się na bieżącym miesiącu. Wpisy są zachowywane dla każdego miesiąca i roku, bez żadnego limitu.</p>
+        <figure>
+            <img src="screenshots/pl/navigation-bar.png" alt="Pasek nawigacji z nazwą miesiąca i czterema przyciskami ze strzałkami">
+            <figcaption>Pasek nawigacji.</figcaption>
+        </figure>
+    </section>
+
+    <section id="entries">
+        <h2>4. Wpisy</h2>
+
+        <h3>4.1 Dodawanie wpisu</h3>
+        <p>Kliknij dwukrotnie puste miejsce w komórce dnia. Otworzy się okno <strong>Nowy wpis</strong>:</p>
+        <ul>
+            <li><strong>Nazwa</strong> — wymagana. Bez nazwy wpis nie zostanie utworzony.</li>
+            <li><strong>Link (opcjonalny)</strong> — adres strony internetowej, który później otworzysz jednym kliknięciem.</li>
+            <li><strong>Kolor</strong> — pierwszy, pusty kwadracik oznacza brak koloru; pozostałe to kolory (zobacz <a href="#colors">Kolory</a>).</li>
+        </ul>
+        <p>Zatwierdź przyciskiem <strong>OK</strong> albo wybierz <strong>Anuluj</strong>, aby odrzucić.</p>
+        <figure>
+            <img src="screenshots/pl/new-entry-dialog.png" alt="Okno Nowy wpis z polami nazwy, linku i koloru">
+            <figcaption>Okno Nowy wpis.</figcaption>
+        </figure>
+
+        <h3>4.2 Szybkie dodawanie ze schowka</h3>
+        <p>Jeśli skopiujesz adres strony (zaczynający się od <code>http://</code> lub <code>https://</code>), kliknij dzień <strong>prawym przyciskiem myszy</strong>. Aplikacja utworzy w tym dniu wpis z tym adresem jako linkiem i tytułem strony jako nazwą. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpis dostanie nazwę <em>Bez nazwy</em>. Gdy w schowku nie ma adresu strony, nic się nie dzieje.</p>
+
+        <h3>4.3 Otwieranie linku</h3>
+        <p>Gdy wpis ma link, wskaźnik myszy nad jego nazwą zmienia się w rączkę. <strong>Kliknij wpis jeden raz</strong>, aby otworzyć link w domyślnej przeglądarce. Aplikacja czeka chwilę (czas dwukliku ustawiony w systemie), żeby upewnić się, że nie chodziło o dwuklik, więc strona otwiera się z lekkim opóźnieniem.</p>
+        <div class="note">Otwierane są wyłącznie linki <code>http</code> i <code>https</code>. Link wpisany bez schematu, na przykład <code>example.com</code>, zostanie otwarty jako <code>https://example.com</code>.</div>
+
+        <h3>4.4 Edycja wpisu</h3>
+        <p><strong>Kliknij wpis dwukrotnie</strong>, aby otworzyć okno <strong>Edytuj wpis</strong>, w którym możesz zmienić nazwę, link i kolor.</p>
+
+        <h3>4.5 Usuwanie wpisu</h3>
+        <p>Kliknij przycisk <strong>✕</strong> przy prawej krawędzi wpisu. Usunięty wpis można przywrócić poleceniem <a href="#undo">Cofnij</a>.</p>
+
+        <h3 id="colors">4.6 Kolory</h3>
+        <p>Kliknij wpis prawym przyciskiem myszy, aby otworzyć rząd kwadracików, i wybierz kolor. Kolor można też wybrać w oknach Nowy wpis i Edytuj wpis. Dostępne kolory: czerwony, pomarańczowy, żółty, zielony, morski, niebieski, fioletowy, różowy, brązowy i szary oraz wygląd domyślny bez koloru.</p>
+        <figure>
+            <img src="screenshots/pl/entry-color-popover.png" alt="Wybór koloru po kliknięciu wpisu prawym przyciskiem myszy">
+            <figcaption>Zmiana koloru wpisu.</figcaption>
+        </figure>
+
+        <h3>4.7 Przenoszenie i kopiowanie</h3>
+        <p>Przeciągnij wpis i upuść go na innym dniu, aby go <strong>przenieść</strong>. Przytrzymaj <kbd>Ctrl</kbd> podczas przeciągania, aby zamiast tego go <strong>skopiować</strong>. Upuszczenie wpisu na jego własnym dniu niczego nie zmienia.</p>
+        <figure>
+            <img src="screenshots/pl/drag-and-drop.png" alt="Wpis przeciągany z jednego dnia na drugi">
+            <figcaption>Przeciąganie wpisu na inny dzień.</figcaption>
+        </figure>
+
+        <h3>4.8 Dni z wieloma wpisami</h3>
+        <p>Gdy dzień ma więcej wpisów, niż mieści się w komórce, komórkę można przewijać. Wpisy są wyświetlane w kolejności dodawania.</p>
+
+        <figure>
+            <img src="screenshots/pl/entries-in-cell.png" alt="Komórka dnia z kilkoma wpisami, część z nich kolorowa">
+            <figcaption>Dzień z kilkoma wpisami.</figcaption>
+        </figure>
+    </section>
+
+    <section id="undo">
+        <h2>5. Cofanie i ponawianie</h2>
+        <p>Dodawanie, edycję (także zmianę koloru), usuwanie, przenoszenie i kopiowanie wpisów można cofnąć. Użyj <strong>Edycja → Cofnij</strong> i <strong>Edycja → Ponów</strong> albo skrótów <kbd>Ctrl</kbd>+<kbd>Z</kbd> i <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>.</p>
+        <p>Pozycja menu podaje nazwę operacji, na przykład <em>Cofnij: usunięcie wpisu „Dentysta”</em>, i jest wyszarzona, gdy nie ma niczego do cofnięcia lub ponowienia. Historia obejmuje do 100 kroków. Nie jest zapisywana po zamknięciu aplikacji i jest czyszczona, gdy wersja z chmury zastąpi Twój lokalny kalendarz (zobacz <a href="#cloud">Synchronizacja ze Stapik Cloud</a>).</p>
+        <figure>
+            <img src="screenshots/pl/edit-menu.png" alt="Menu Edycja z poleceniami Cofnij i Ponów nazywającymi ostatnią operację">
+            <figcaption>Menu Edycja.</figcaption>
+        </figure>
+    </section>
+
+    <section id="menus">
+        <h2>6. Menu</h2>
+        <table>
+            <tr><th>Menu</th><th>Pozycja</th><th>Działanie</th></tr>
+            <tr><td rowspan="3"><strong>Plik</strong></td><td>Połącz z chmurą</td><td>Otwiera okno łączenia ze Stapik Cloud.</td></tr>
+            <tr><td>Synchronizuj</td><td>Synchronizuje z chmurą od razu.</td></tr>
+            <tr><td>Wyjście <kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Zamyka aplikację. Wcześniej wysyła do chmury oczekujące zmiany.</td></tr>
+            <tr><td rowspan="2"><strong>Edycja</strong></td><td>Cofnij <kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Cofa ostatnią operację.</td></tr>
+            <tr><td>Ponów <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Powtarza cofniętą operację.</td></tr>
+            <tr><td rowspan="2"><strong>Ustawienia</strong></td><td>Język</td><td>Polski, angielski lub niemiecki.</td></tr>
+            <tr><td>Motyw</td><td>Klasyczny, Klasyczny różowy lub Nowoczesny.</td></tr>
+            <tr><td rowspan="2"><strong>Pomoc</strong></td><td>O programie</td><td>Pokazuje wersję i autora aplikacji.</td></tr>
+            <tr><td>Poradnik <kbd>F1</kbd></td><td>Otwiera ten poradnik w przeglądarce.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/pl/file-menu.png" alt="Menu Plik">
+            <figcaption>Menu Plik.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/help-menu.png" alt="Menu Pomoc z pozycjami O programie i Poradnik">
+            <figcaption>Menu Pomoc.</figcaption>
+        </figure>
+    </section>
+
+    <section id="shortcuts">
+        <h2>7. Skróty klawiszowe i działania myszą</h2>
+        <h3>Klawiatura</h3>
+        <table>
+            <tr><th>Klawisze</th><th>Działanie</th></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Cofnij</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Ponów</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Wyjście</td></tr>
+            <tr><td><kbd>F1</kbd></td><td>Otwórz ten poradnik</td></tr>
+        </table>
+        <h3>Mysz</h3>
+        <table>
+            <tr><th>Gdzie</th><th>Działanie</th><th>Skutek</th></tr>
+            <tr><td>Puste miejsce w dniu</td><td>dwuklik</td><td>nowy wpis</td></tr>
+            <tr><td>Puste miejsce w dniu</td><td>prawy przycisk</td><td>szybkie dodanie ze skopiowanego adresu strony</td></tr>
+            <tr><td>Wpis</td><td>kliknięcie</td><td>otwiera jego link (jeśli go ma)</td></tr>
+            <tr><td>Wpis</td><td>dwuklik</td><td>edycja wpisu</td></tr>
+            <tr><td>Wpis</td><td>prawy przycisk</td><td>wybór koloru</td></tr>
+            <tr><td>Wpis</td><td>przeciągnięcie na inny dzień</td><td>przeniesienie</td></tr>
+            <tr><td>Wpis</td><td><kbd>Ctrl</kbd> + przeciągnięcie na inny dzień</td><td>skopiowanie</td></tr>
+            <tr><td>✕ przy wpisie</td><td>kliknięcie</td><td>usunięcie wpisu</td></tr>
+        </table>
+    </section>
+
+    <section id="look">
+        <h2>8. Język i motyw</h2>
+        <p>Wybierz <strong>Ustawienia → Język</strong>, aby przełączać się między polskim, angielskim i niemieckim. Cała aplikacja zmienia się od razu, razem z nazwami miesięcy i dni tygodnia.</p>
+        <p>Wybierz <strong>Ustawienia → Motyw</strong>, aby zmienić wygląd: <strong>Klasyczny</strong> (retro), <strong>Klasyczny różowy</strong> (ten sam układ w różach i fioletach), <strong>Neoklasyczny</strong> lub <strong>Nowoczesny</strong> (jasny lub ciemny). Twoje wybory są zapamiętywane przy kolejnym uruchomieniu aplikacji.</p>
+        <figure>
+            <img src="screenshots/pl/settings-menu.png" alt="Menu Ustawienia z podmenu Język i Motyw">
+            <figcaption>Menu Ustawienia.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/theme-classic.png" alt="Motyw Klasyczny">
+            <figcaption>Motyw Klasyczny.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/theme-classic-pink.png" alt="Motyw Klasyczny różowy">
+            <figcaption>Motyw Klasyczny różowy.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/theme-neoclassic.png" alt="Motyw Neoklasyczny">
+            <figcaption>Motyw Neoklasyczny.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/theme-modern.png" alt="Motyw Nowoczesny">
+            <figcaption>Motyw Nowoczesny.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/theme-dark.png" alt="Motyw Ciemny">
+            <figcaption>Motyw Ciemny.</figcaption>
+        </figure>
+    </section>
+
+    <section id="cloud">
+        <h2>9. Synchronizacja ze Stapik Cloud</h2>
+        <p>Stapik Cloud to serwer, który uruchamiasz samodzielnie. Przechowuje jedną kopię Twojego kalendarza, dzięki czemu wszystkie Twoje komputery pokazują te same wpisy. Chmura jest opcjonalna — bez niej kalendarz po prostu działa na jednym komputerze.</p>
+
+        <h3>9.1 Czego potrzebujesz</h3>
+        <ul>
+            <li>Działającego serwera Stapik Cloud, do którego Twój komputer ma dostęp, oraz jego <strong>adresu</strong> (adresu API), na przykład <code>https://cloud.example.com</code>.</li>
+            <li><strong>Klucza API</strong> wystawionego dla tego urządzenia. W panelu administracyjnym Stapik Cloud każde urządzenie dostaje własny klucz; nie ma klucza wspólnego.</li>
+        </ul>
+        <p>Kalendarz jest przechowywany na serwerze w dokumencie o nazwie <code>calendar.json</code>.</p>
+
+        <h3>9.2 Łączenie</h3>
+        <ol>
+            <li>Wybierz <strong>Plik → Połącz z chmurą</strong>.</li>
+            <li>Wpisz <strong>Adres API</strong>. Musi zaczynać się od <code>http://</code> lub <code>https://</code>.</li>
+            <li>Wpisz <strong>Klucz API</strong>. Zaznacz <strong>Pokaż klucz</strong>, jeśli chcesz sprawdzić, co wpisałeś.</li>
+            <li>Kliknij <strong>Połącz</strong>.</li>
+            <li>Po chwili komunikat poinformuje, czy połączenie się udało (<em>Połączono</em>), czy nie (<em>Nie udało się połączyć</em>, wraz z przyczyną).</li>
+        </ol>
+        <div class="warning">Jeśli adres zaczyna się od <code>http://</code>, okno ostrzeże, że połączenie nie jest bezpieczne: klucz i kalendarz są wysyłane bez szyfrowania. Używaj <code>https://</code>, gdy serwer jest dostępny przez internet.</div>
+        <figure>
+            <img src="screenshots/pl/connect-dialog.png" alt="Okno Połącz z chmurą z polami Adres API i Klucz API">
+            <figcaption>Okno Połącz z chmurą.</figcaption>
+        </figure>
+        <figure>
+            <img src="screenshots/pl/connect-success.png" alt="Komunikat potwierdzający udane połączenie">
+            <figcaption>Udane połączenie.</figcaption>
+        </figure>
+        <p>Ustawienia są zapamiętywane. Przy następnym uruchomieniu aplikacja łączy się sama, a okno otwierane z <em>Połącz z chmurą</em> jest już wypełnione, więc możesz go użyć do zmiany serwera lub klucza.</p>
+        <p><strong>Co dzieje się przy pierwszej synchronizacji:</strong> jeśli chmura jest jeszcze pusta, Twój kalendarz zostaje wysłany. Jeśli kopia w chmurze jest nowsza od Twojej, zastępuje Twój lokalny kalendarz. W pozostałych przypadkach wysyłany jest Twój lokalny kalendarz.</p>
+
+        <h3>9.3 Pasek stanu</h3>
+        <p>Gdy chmura jest skonfigurowana, u dołu okna widać bieżący stan:</p>
+        <table>
+            <tr><th>Stan</th><th>Znaczenie</th></tr>
+            <tr><td>Aktualne</td><td>Twój kalendarz i chmura są takie same.</td></tr>
+            <tr><td>Synchronizacja…</td><td>Trwa synchronizacja.</td></tr>
+            <tr><td>Offline</td><td>Nie można połączyć się z serwerem. Twoje zmiany są bezpieczne na tym komputerze, a aplikacja ponawia próby sama (pierwszą po 2 sekundach, potem coraz rzadziej, najwyżej co 5 minut).</td></tr>
+            <tr><td>Konflikt: zachowano wersję z serwera</td><td>W chmurze była nowsza wersja i zastąpiła Twoją lokalną (zobacz <a href="#conflicts">Konflikty</a>).</td></tr>
+            <tr><td>Błąd synchronizacji</td><td>Synchronizacja nie powiodła się z innego powodu, na przykład serwer odrzucił żądanie. Dane lokalne pozostają nienaruszone.</td></tr>
+        </table>
+        <figure>
+            <img src="screenshots/pl/sync-status.png" alt="Pasek stanu u dołu okna pokazujący stan synchronizacji">
+            <figcaption>Stan synchronizacji.</figcaption>
+        </figure>
+
+        <h3>9.4 Jak działa synchronizacja</h3>
+        <ul>
+            <li>Każda zmiana jest od razu zapisywana na Twoim komputerze.</li>
+            <li>Wysyłanie do chmury odbywa się w tle, około 1,5 sekundy po ostatniej zmianie, więc okno nigdy się nie zawiesza. Kilka szybkich zmian jest wysyłanych razem.</li>
+            <li>Przy zamykaniu aplikacji najpierw wysyłana jest każda zmiana, która jeszcze nie trafiła do chmury.</li>
+            <li><strong>Plik → Synchronizuj</strong> synchronizuje od razu.</li>
+        </ul>
+
+        <h3 id="conflicts">9.5 Konflikty i kilka urządzeń</h3>
+        <p>Cały kalendarz jest porównywany jako jeden dokument i wygrywa nowsza wersja. Wpisy nigdy nie są łączone pojedynczo. Jeśli zmienisz kalendarz na dwóch komputerach, gdy oba są offline, wersja, która później dotrze do serwera, zastąpi drugą.</p>
+        <p>Gdy wygrywa wersja z serwera, zastępuje kalendarz na Twoim komputerze, a historia cofania jest czyszczona. Domyślnie Stapik Cloud zachowuje zastąpioną wersję w historii dokumentu, więc można ją przywrócić z panelu administracyjnego; przywróć ją tam i zsynchronizuj ponownie.</p>
+        <div class="note">Wskazówka dla kilku urządzeń: po zakończeniu edycji poczekaj na stan <em>Aktualne</em> (albo użyj <em>Synchronizuj</em>), zanim przejdziesz na inny komputer.</div>
+
+        <h3>9.6 Zmiana serwera lub zakończenie synchronizacji</h3>
+        <p>Aby użyć innego serwera lub klucza, otwórz ponownie <strong>Plik → Połącz z chmurą</strong> i wpisz nowe wartości. Nie ma przycisku rozłączania: aby przestać korzystać z chmury, zamknij aplikację i usuń plik <code>~/.local/share/stapikcalendar/config.json</code>. Twój lokalny kalendarz nie zostanie naruszony.</p>
+        <p>Klucz API jest zapisany w tym pliku jawnym tekstem i odczytać go możesz tylko Ty, więc dbaj o ochronę swojego katalogu domowego.</p>
+    </section>
+
+    <section id="data">
+        <h2>10. Twoje dane i kopie zapasowe</h2>
+        <p>Kalendarz znajduje się w Twoim katalogu domowym, w <code>~/.local/share/stapikcalendar/</code>:</p>
+        <table>
+            <tr><th>Plik</th><th>Zawartość</th></tr>
+            <tr><td><code>calendar.json</code></td><td>Twój kalendarz</td></tr>
+            <tr><td><code>calendar.json.bak</code>, <code>.bak.2</code>, <code>.bak.3</code></td><td>trzy poprzednie wersje, odświeżane przy każdym zapisie</td></tr>
+            <tr><td><code>config.json</code></td><td>adres i klucz chmury</td></tr>
+            <tr><td><code>cloud-baseline.json</code></td><td>dane techniczne o ostatniej synchronizacji</td></tr>
+        </table>
+        <p>Język i motyw są zapisane w <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <h3>Przywracanie kopii zapasowej</h3>
+        <ol>
+            <li>Zamknij aplikację.</li>
+            <li>Skopiuj <code>calendar.json.bak</code> (albo <code>.bak.2</code>, <code>.bak.3</code>) na <code>calendar.json</code>.</li>
+            <li>Uruchom aplikację ponownie.</li>
+        </ol>
+        <h3>Przenoszenie kalendarza na inny komputer</h3>
+        <p>Skopiuj <code>calendar.json</code> do tego samego katalogu na drugim komputerze. Ze Stapik Cloud możesz zamiast tego połączyć nowy komputer z tym samym serwerem, a kalendarz pobierze się sam.</p>
+    </section>
+
+    <section id="upgrade">
+        <h2>11. Aktualizacja z wersji 1.1.x</h2>
+        <ul>
+            <li>Pierwsze uruchomienie wersji 1.2.0 automatycznie przekształca kalendarz do nowego formatu. Stary plik zostaje zachowany jako <code>calendar.json.bak</code>.</li>
+            <li>Format przechowywany w chmurze też się zmienił. <strong>Zaktualizuj wszystkie urządzenia, zanim ponownie połączysz je z tą samą chmurą</strong>: urządzenie z wersją 1.1.x nie odczyta nowego formatu i mogłoby nadpisać Twój kalendarz.</li>
+            <li>Kalendarz zapisany w chmurze przez wersję 1.1.x jest odczytywany poprawnie i zostanie zastąpiony nowym formatem przy następnej synchronizacji.</li>
+            <li>Jeśli używałeś wersji z jednym wspólnym kluczem API, połącz się ponownie kluczem wystawionym dla tego urządzenia (<strong>Plik → Połącz z chmurą</strong>).</li>
+        </ul>
+    </section>
+
+    <section id="troubleshooting">
+        <h2>12. Rozwiązywanie problemów</h2>
+        <dl>
+            <dt>Kliknięcie wpisu nie otwiera strony.</dt>
+            <dd>Sprawdź, czy wpis ma link. Otwierane są tylko linki <code>http</code> i <code>https</code>, a system musi mieć ustawioną domyślną przeglądarkę.</dd>
+            <dt>Dwuklik otwiera stronę zamiast edytora.</dt>
+            <dd>Kliknij trochę szybciej albo wydłuż czas dwukliku w ustawieniach myszy w systemie.</dd>
+            <dt>Prawy przycisk na dniu nic nie robi.</dt>
+            <dd>W schowku musi być pełny adres strony zaczynający się od <code>http://</code> lub <code>https://</code>.</dd>
+            <dt>Stan to „Offline”.</dt>
+            <dd>Sprawdź połączenie z internetem i adres serwera (<strong>Plik → Połącz z chmurą</strong>). Aplikacja ponawia próby sama, a <strong>Plik → Synchronizuj</strong> próbuje od razu.</dd>
+            <dt>Stan to „Błąd synchronizacji” albo łączenie się nie udaje.</dt>
+            <dd>Sprawdź, czy adres i klucz API są poprawne oraz czy klucz został wystawiony dla tego urządzenia i nie został unieważniony w panelu administracyjnym.</dd>
+            <dt>Moje zmiany zniknęły po synchronizacji.</dt>
+            <dd>Prawdopodobnie widziałeś <em>Konflikt: zachowano wersję z serwera</em>: inne urządzenie zapisało nowszą wersję. Przywróć zastąpioną wersję z historii dokumentu w panelu administracyjnym Stapik Cloud (zobacz <a href="#conflicts">Konflikty</a>) albo przywróć lokalną kopię zapasową (zobacz <a href="#data">Twoje dane</a>).</dd>
+            <dt>Aplikacja uruchamia się z pustym kalendarzem.</dt>
+            <dd>Nie udało się odczytać pliku kalendarza. Poszukaj w <code>~/.local/share/stapikcalendar/</code> plików o nazwach <code>calendar.json.corrupt-…</code> lub <code>calendar.json.unreadable-…</code> (kopia nieczytelnego pliku) oraz kopii zapasowych <code>calendar.json.bak</code>; przywróć jedną z nich zgodnie z opisem w rozdziale <a href="#data">Twoje dane i kopie zapasowe</a>.</dd>
+            <dt>Pozycja menu „Poradnik” nic nie otwiera.</dt>
+            <dd>Upewnij się, że przeglądarka jest ustawiona jako domyślna aplikacja do stron internetowych. Jeśli komunikat mówi, że nie znaleziono pliku, instalacja jest niekompletna; zainstaluj aplikację ponownie.</dd>
+        </dl>
+    </section>
+
+    <section id="about">
+        <h2>13. O programie</h2>
+        <p>Wybierz <strong>Pomoc → O programie</strong>, aby zobaczyć wersję i autora.</p>
+        <figure>
+            <img src="screenshots/pl/about-dialog.png" alt="Okno O programie">
+            <figcaption>Okno O programie.</figcaption>
+        </figure>
+        <p>Kod źródłowy i zgłaszanie problemów: <a href="https://github.com/Stapik-Group/stapik-calendar">github.com/Stapik-Group/stapik-calendar</a>. Serwer synchronizacji: <a href="https://github.com/Stapik-Group/stapik-cloud">github.com/Stapik-Group/stapik-cloud</a>.</p>
+    </section>
+</main>
+
+<footer>Stapik Calendar 1.2.0</footer>
+</body>
+</html>
