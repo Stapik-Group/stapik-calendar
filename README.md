@@ -1,8 +1,9 @@
 # Stapik Calendar
 
-A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Supports multiple visual themes, from a retro look to a modern one.
+A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports multiple visual themes, from a retro look to a modern one.
 
 ![Screenshot](screenshots/screenshot_1.png)
+![Screenshot](screenshots/screenshot_2.png)
 
 ## Features
 
@@ -16,7 +17,7 @@ A desktop calendar application for Linux, written in C++20 using GTK4/gtkmm. Sup
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **User guide** - **Help → Guide** (or `F1`) opens a full illustrated guide in your browser, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
-- **Themes** - switch between **Classic** (retro Win98), **Neoclassic** (a softer, XP-inspired take on the classic look), **Modern** (light, rounded, macOS-inspired), **Dark** (the modern look on a dark palette) and **Classic Pink** (Win98 layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
+- **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
 - **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups
 
 ## Dependencies
@@ -193,21 +194,3 @@ note for testers that goes into the zip.
 
 `--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the user guide, translations and a
 writable data directory, logs every check and exits with 1 when one of them fails.
-
-## Themes
-
-![Screenshot](screenshots/screenshot_2.png)
-![Screenshot](screenshots/screenshot_3.png)
-
-## TODO
-
-- [x] General refactor
-- [x] Cloud sync with conflict resolution
-- [x] `.deb` package for easier distribution
-- [x] Entry colors — assign a color to each entry
-- [x] Drag and drop entries between cells (with copy via Ctrl)
-- [x] Theme switcher — Classic / Neoclassic / Modern / Dark / Classic Pink
-- [x] Migration to stapik-common 1.2.0 — background sync, versioned storage, shared colors and menu
-- [ ] Export to iCal format (.ics)
-- [ ] Entry search
-- [ ] Flatpak package
