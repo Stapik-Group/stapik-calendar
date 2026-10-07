@@ -168,6 +168,32 @@ Shared building blocks (settings, localization, themes, menu, dialogs, undo stac
 
 GitHub Actions (`.github/workflows/ci.yml`) builds every pull request into `master` and every branch except `develop`. Pushing a tag `vX.Y.Z` on `master` (the tag must match the version in `CMakeLists.txt`) builds the `.deb` package and publishes it, with a SHA-256 checksum, as a GitHub release.
 
+## Windows
+
+The Windows build is a folder with the program and everything it needs (GTK, its data, the application resources),
+distributed as a zip. There is no installer.
+
+- **From CI:** the *Windows* workflow builds the zip on every push and pull request, runs the program once on the
+unpacked zip with only the Windows directories in `PATH` (`stapikcalendar.exe --self-test`), and uploads it as an
+artifact. Run it by hand (Actions > Windows > Run workflow) to get a build of any branch for testers; a `v*` tag
+publishes the zip as a GitHub release.
+
+- **Locally**, in an MSYS2 UCRT64 shell (packages: `gcc cmake ninja pkgconf gtkmm-4.0 curl adwaita-icon-theme hicolor-icon-theme librsvg`, prefixed `mingw-w64-ucrt-x86_64-`):
+
+```
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target stapikcalendar_windows_bundle
+```
+
+    The folder is `build/stapikcalendar-windows/`. Add `-DSTAPIK_WINDOWS_CONSOLE=ON` to keep a console window.
+
+Data lives in `%APPDATA%\stapikcalendar\data\calendar.json`, settings in `%APPDATA%\stapikcalendar\config` and the log
+(stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. `packaging/windows/README.txt` is the
+note for testers that goes into the zip.
+
+`--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the user guide, translations and a
+writable data directory, logs every check and exits with 1 when one of them fails.
+
 ## Themes
 
 ![Screenshot](screenshots/screenshot_2.png)

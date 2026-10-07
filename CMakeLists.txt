@@ -49,6 +49,7 @@ stapik_add_application(
                 src/core/util/EntryDragPayload.cpp
                 src/infrastructure/help/UserGuide.cpp
                 src/infrastructure/storage/CalendarDocumentStore.cpp
+                src/ui/SelfTest.cpp
                 src/ui/window/MainWindow.cpp
                 src/ui/action/MenuActionHandler.cpp
                 src/ui/dialog/CalendarEntryDialog.cpp
