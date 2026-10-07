@@ -1,7 +1,7 @@
 #include "UrlTitleFetcher.hpp"
 
-#include <curl/curl.h>
 #include <glibmm/main.h>
+#include <curl/curl.h>
 #include <regex>
 #include <thread>
 
