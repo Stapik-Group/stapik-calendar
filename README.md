@@ -19,6 +19,10 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from the settings window; the choice is remembered between launches
 - **Settings window** - **Settings → Settings…** opens one window with the language, the theme and the font size (70–200 %); a change is applied and saved at once
+- **Window memory** - the size, the position and the maximized state of the window are remembered between launches (the position is not remembered on Wayland)
+- **Single instance** - starting the program again shows the running window instead of opening another one
+- **Update notice** - once a day the application asks GitHub for the latest release and, when it is newer than the one you run, offers to open its page; nothing is downloaded or installed. It can be switched off in **Settings → Settings…**
+- **Command line** - `--version`, `--portable`, `--data-dir`, `--safe-mode`, `--reset-settings` and `--log-level`, see [Command line](#command-line)
 - **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups
 
 ## Dependencies
@@ -130,6 +134,18 @@ The app talks to a Stapik Cloud server (or any server implementing the same cont
 
 Authentication: `x-api-key` header with a per-device key from the admin panel. The old `/read`/`/write` endpoints and the single shared API key are no longer supported — existing installations need to be reconnected in **File → Connect** with a newly issued key.
 
+## Command line
+
+| Flag | Effect |
+| --- | --- |
+| `--version` | Prints the name and the version and exits. |
+| `--log-level=LEVEL` | `debug`, `info`, `warning` or `error`. Overrides `STAPIK_LOG_LEVEL`. |
+| `--data-dir=DIR` | Keeps data, settings and cache in `DIR/{data,config,cache}`. |
+| `--portable` | Same as `--data-dir`, with a `portable/` folder next to the executable. Cannot be combined with `--data-dir`. |
+| `--reset-settings` | Moves `settings.json` (and the old `locale.txt` and `theme.txt`) aside as `*.bak` before the application starts. |
+| `--safe-mode` | The window size and position are neither restored nor saved. |
+| `--self-test` | Checks the installation (see [Windows](#windows)) and exits with 1 when a check fails. |
+
 ## Data Storage
 
 Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json` as a versioned document:
@@ -154,7 +170,7 @@ Next to it:
 - `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
 - `config.json` - cloud configuration (server URL and API key)
 
-Language, theme and font size preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start.
+Language, theme and font size preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
 
 ## Architecture
 

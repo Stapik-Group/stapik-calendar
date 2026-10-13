@@ -19,6 +19,7 @@
   "command.entry.delete": "usunięcie wpisu „{name}”",
   "command.entry.move": "przeniesienie wpisu „{name}”",
   "menu.help.guide": "Poradnik",
+  "menu.settings.checkForUpdates": "Sprawdzaj aktualizacje przy uruchomieniu",
   "guide.error.title": "Nie udało się otworzyć poradnika",
   "guide.error.text": "Nie znaleziono pliku poradnika dla tego języka albo nie udało się uruchomić przeglądarki."
 }

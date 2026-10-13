@@ -14,6 +14,8 @@ Where the data is
   Settings:    %APPDATA%\stapikcalendar\config
   Log:         %LOCALAPPDATA%\stapikcalendar\cache\stapik.log
   (paste these into the Explorer address bar). To back up, copy calendar.json.
+  To keep the data, settings and cache next to the program instead, start it with
+  stapikcalendar.exe --portable (they go to the "portable" folder there; the log stays in %LOCALAPPDATA%).
 
 Removing
   Delete the program folder and %APPDATA%\stapikcalendar (this also deletes the calendar).

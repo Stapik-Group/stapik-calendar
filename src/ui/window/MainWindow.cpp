@@ -2,7 +2,9 @@
 
 #include "../../application/CalendarCloudHooks.hpp"
 
+#include "stapik/app/AppContext.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/update/UpdateChecker.hpp"
 
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
@@ -10,10 +12,12 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_calendarView(m_controller),
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
     m_actionHandler(*this, m_controller),
+    m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
     m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
     m_actionHandler.registerActions();
     initHelpMenu();
+    initSettings();
     init();
     initLayout();
     initSyncStatus();
@@ -53,6 +57,12 @@ void MainWindow::initHelpMenu()
         guideSection->append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
         menu.prepend_section(guideSection);
     });
+}
+
+void MainWindow::initSettings()
+{
+    // The check runs once, at startup, so a change takes effect on the next start.
+    m_menu.settings().addBool("menu.settings.checkForUpdates", m_checkForUpdates);
 }
 
 void MainWindow::initSyncStatus()

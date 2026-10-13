@@ -4,6 +4,7 @@
 #include <gtkmm/box.h>
 #include <sigc++/connection.h>
 
+#include "stapik/settings/ObservableSetting.hpp"
 #include "stapik/theme/ThemeRegistry.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
 #include "stapik/ui/widget/StatusIndicator.hpp"
@@ -29,12 +30,14 @@ private:
     Gtk::Box m_statusBar;
     StatusIndicator m_statusIndicator;
     MenuActionHandler m_actionHandler;
+    stapik::settings::ObservableSetting<bool> m_checkForUpdates;
     StandardMenu m_menu;
     sigc::connection m_statusConnection;
 
     void init();
     void initLayout();
     void initHelpMenu();
+    void initSettings();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

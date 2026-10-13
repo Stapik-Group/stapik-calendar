@@ -7,13 +7,8 @@
 #include <algorithm>
 #include <cstring>
 
-#include "stapik/app/AppContext.hpp"
+#include "stapik/app/StapikApplication.hpp"
 #include "stapik/app/version.hpp"
-#include "stapik/storage/AppPaths.hpp"
-#include "stapik/theme/FontSizeManager.hpp"
-#include "stapik/theme/ThemeManager.hpp"
-#include "stapik/ui/menu/StandardMenu.hpp"
-#include "stapik/ui/style/AppStyleProvider.hpp"
 #include "stapik/log/Log.hpp"
 #include "ui/SelfTest.hpp"
 #include "ui/window/MainWindow.hpp"
@@ -49,6 +44,12 @@ namespace
             .repositoryUrl = REPOSITORY_URL
         };
     }
+
+    void showExistingWindow(Gtk::Window& window)
+    {
+        window.unminimize();
+        window.present();
+    }
 }
 
 int main(int argumentCount, char *argv[])
@@ -58,34 +59,32 @@ int main(int argumentCount, char *argv[])
     if (selfTest)
         g_setenv("G_MESSAGES_DEBUG", "all", FALSE);
 
-    stapik::app::AppContext::initialize(createAppInfo());
+    // Creating the application initializes the application context. Settings, AppPaths and LocaleManager must not
+    // be touched before run(): the command line flags (--data-dir, --portable, --reset-settings) are applied there.
+    stapik::app::StapikApplicationOptions options;
+    options.checkForUpdates = !selfTest;
+
+    const auto app = stapik::app::StapikApplication::create(createAppInfo(), options);
 
     if (selfTest)
         stapik::log::setLevel(stapik::log::Level::Info);
 
-    const auto app = Gtk::Application::create(APPLICATION_ID);
-
-    auto styleProvider = AppStyleProvider::withCommonThemes(AppPaths::resourcesDir());
     int selfTestFailures = 0;
 
     app->signal_activate().connect([&]
     {
-        // The settings window changes the theme and the font size, and both end up in the same style sheet.
-        const auto applyStyle = [&styleProvider]
+        // Starting the program again activates the running one, which must not open a second window.
+        if (const auto windows = app->get_windows(); !windows.empty())
         {
-            styleProvider.apply(ThemeManager::instance().themeId(), FontSizeManager::instance().scalePercent());
-        };
+            showExistingWindow(*windows.front());
+            return;
+        }
 
-        applyStyle();
-        ThemeManager::instance().signalThemeChanged().connect(applyStyle);
-        FontSizeManager::instance().signalFontSizeChanged().connect(applyStyle);
-
-        StandardMenu::installShortcuts(*app);
-        // installShortcuts() gives F1 to the tutorial, which the calendar does not have yet: F1 opens the guide.
+        // StapikApplication binds F1 to the tutorial, which the calendar does not have yet: F1 opens the guide.
         app->set_accels_for_action("win.tutorial", {});
         app->set_accels_for_action("win.guide", { "F1" });
 
-        auto* window = new MainWindow(styleProvider.themes());
+        auto* window = new MainWindow(app->themes());
         app->add_window(*window);
         window->show();
 
