@@ -122,6 +122,31 @@ bool CalendarController::restoreBackup(const stapik::document::BackupInfo& backu
     return true;
 }
 
+stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController::exportArchive(const std::filesystem::path& target) const
+{
+    return m_store.exportArchive(m_document, target);
+}
+
+stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController::importArchive(const std::filesystem::path& source)
+{
+    auto imported = m_store.importArchive(source);
+    if (!imported)
+        return stapik::Failure(std::move(imported).error());
+
+    // Commands hold indices into the old entries, so the history cannot outlive them.
+    clearHistorySilently();
+
+    auto restored = std::move(imported->document);
+    if (const auto baseline = m_document.lastKnownCloudUpdate())
+        restored.setLastKnownCloudUpdate(*baseline);
+
+    m_document = std::move(restored);
+
+    // The same as after restoring a backup: from here the imported calendar is a change like any other.
+    onHistoryChanged();
+    return imported->info;
+}
+
 void CalendarController::connect(const CloudStorageConfig& config)
 {
     m_awaitingConnectionResult = true;

@@ -3,6 +3,7 @@
 #include "../core/model/CalendarDocument.hpp"
 #include "../infrastructure/storage/CalendarDocumentStore.hpp"
 
+#include "stapik/archive/AppArchive.hpp"
 #include "stapik/cloud/CloudStorageConfig.hpp"
 #include "stapik/command/UndoStack.hpp"
 #include "stapik/document/BackupInfo.hpp"
@@ -13,6 +14,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <filesystem>
 #include <functional>
 #include <optional>
 #include <string>
@@ -50,6 +52,8 @@ public:
     [[nodiscard]] std::vector<stapik::document::BackupInfo> listBackups() const;
     // Replaces the calendar with a backup. Returns false, and changes nothing, when the backup cannot be used.
     [[nodiscard]] bool restoreBackup(const stapik::document::BackupInfo& backup);
+    [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> exportArchive(const std::filesystem::path& target) const;
+    [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> importArchive(const std::filesystem::path& source);
 
     void connect(const CloudStorageConfig& config);
     void syncNow();

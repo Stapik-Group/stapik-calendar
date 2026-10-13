@@ -2,6 +2,7 @@
 
 #include "../../core/model/CalendarDocument.hpp"
 
+#include "stapik/archive/AppArchive.hpp"
 #include "stapik/document/BackupInfo.hpp"
 #include "stapik/document/DocumentFile.hpp"
 #include "stapik/storage/FileError.hpp"
@@ -23,6 +24,14 @@ public:
     [[nodiscard]] stapik::storage::FileResult save(const CalendarDocument& document) const;
     [[nodiscard]] std::vector<stapik::document::BackupInfo> listBackups() const;
     [[nodiscard]] std::optional<CalendarDocument> loadBackup(const stapik::document::BackupInfo& backup) const;
+
+    // Writes the calendar and the application settings into one archive file at `target`.
+    [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> exportArchive(
+        const CalendarDocument& document, const std::filesystem::path& target) const;
+    // Reads an archive made by exportArchive. On success the calendar is already saved to disk and the settings
+    // are replaced in the settings store; nothing is changed when it fails.
+    [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::RestoredApp<CalendarDocument>> importArchive(
+        const std::filesystem::path& source) const;
 
 private:
     [[nodiscard]] std::optional<CalendarDocument::TimePoint> loadBaseline() const;

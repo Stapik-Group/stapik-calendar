@@ -14,7 +14,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
     m_calendarView(m_controller),
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
-    m_actionHandler(*this, m_controller),
+    m_actionHandler(*this, m_controller, [this] { m_checkForUpdates.reload(); }),
     m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
     m_menu(*this, StandardMenuOptions{ .tutorialDirectory = AppPaths::resourcesDir() / TUTORIAL_DIRECTORY, .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
@@ -62,6 +62,11 @@ void MainWindow::initFileMenu()
         const auto backupSection = Gio::Menu::create();
         backupSection->append(LocaleManager::instance().translate("menu.file.restoreBackup"), "win.restoreBackup");
         menu.append_section(backupSection);
+
+        const auto archiveSection = Gio::Menu::create();
+        archiveSection->append(LocaleManager::instance().translate("menu.file.exportArchive"), "win.exportArchive");
+        archiveSection->append(LocaleManager::instance().translate("menu.file.importArchive"), "win.importArchive");
+        menu.append_section(archiveSection);
     });
 }
 

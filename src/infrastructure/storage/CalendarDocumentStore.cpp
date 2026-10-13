@@ -52,6 +52,19 @@ namespace
         file.setBackupCount(BACKUP_COUNT);
         return file;
     }
+
+    // The calendar has no files in the cloud besides the document itself, so only the settings come along.
+    stapik::archive::AppArchiveContext archiveContext()
+    {
+        const auto& context = stapik::app::AppContext::instance();
+
+        return {
+            .appName = context.info().internalName,
+            .appVersion = context.info().version,
+            .settings = &context.settings(),
+            .assets = nullptr
+        };
+    }
 }
 
 CalendarDocumentStore::CalendarDocumentStore(const std::filesystem::path& directory) :
@@ -121,6 +134,18 @@ std::optional<CalendarDocument> CalendarDocumentStore::loadBackup(const stapik::
     }
 
     return std::move(*result.document);
+}
+
+stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentStore::exportArchive(
+    const CalendarDocument& document, const std::filesystem::path& target) const
+{
+    return stapik::archive::exportAppArchive(m_file, document, archiveContext(), target);
+}
+
+stapik::archive::ArchiveResult<stapik::archive::RestoredApp<CalendarDocument>> CalendarDocumentStore::importArchive(
+    const std::filesystem::path& source) const
+{
+    return stapik::archive::importAppArchive(m_file, source, archiveContext());
 }
 
 std::optional<TimePoint> CalendarDocumentStore::loadBaseline() const
