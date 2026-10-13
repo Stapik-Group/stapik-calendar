@@ -59,7 +59,7 @@ cmake --build cmake-build-release
 
 ### Option 1 — Download prebuilt `.deb` (recommended)
 
-Download the latest `.deb` package for your distribution (Ubuntu 22.04 or 24.04, Debian 12 or 13; the name ends with the distribution) from the [Releases page](https://github.com/Stapik-Group/stapik-calendar/releases), then install it:
+Download the latest `.deb` package for your distribution (Ubuntu 24.04 or Debian 13; the name ends with the distribution) from the [Releases page](https://github.com/Stapik-Group/stapik-calendar/releases), then install it:
 
 ```bash
 sudo dpkg -i stapikcalendar_*.deb
@@ -206,7 +206,7 @@ GitHub Actions call the reusable workflows of [stapik-common](https://github.com
 
 - a pull request from `develop` into `master` builds the application on Linux (in a Docker image) and on Windows (`.github/workflows/pull-request.yml`),
 - nothing runs on pushes to a branch or on a merge into `master`,
-- publishing a release, which creates its tag, builds and attaches a `.deb` for Ubuntu 22.04, Ubuntu 24.04, Debian 12 and Debian 13, the Windows installer and the portable ZIP (`.github/workflows/release.yml`). The version of the packages is `VERSION` in `CMakeLists.txt`, so bump it before the release is created. The Windows files are signed when the repository has the secrets `WINDOWS_SIGN_PFX_BASE64` and `WINDOWS_SIGN_PFX_PASSWORD`.
+- publishing a release, which creates its tag, builds and attaches a `.deb` for Ubuntu 24.04 and Debian 13, the Windows installer and the portable ZIP (`.github/workflows/release.yml`). The version of the packages is `VERSION` in `CMakeLists.txt`, so bump it before the release is created. The Windows files are signed when the repository has the secrets `WINDOWS_SIGN_PFX_BASE64` and `WINDOWS_SIGN_PFX_PASSWORD`.
 
 ## Windows
 
