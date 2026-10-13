@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include "stapik/app/AppContext.hpp"
+#include "stapik/app/version.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
@@ -40,9 +41,9 @@ namespace
     {
         return {
             .applicationId = APPLICATION_ID,
-            .internalName = STAPIK_APP_NAME,
-            .displayName = STAPIK_APP_DISPLAY_NAME,
-            .version = STAPIK_APP_VERSION,
+            .internalName = std::string{ stapik::app::build::NAME },
+            .displayName = std::string{ stapik::app::build::DISPLAY_NAME },
+            .version = std::string{ stapik::app::build::VERSION },
             .author = AUTHOR,
             .repositoryUrl = REPOSITORY_URL
         };

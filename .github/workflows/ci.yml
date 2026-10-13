@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 env:
-  DEPENDENCIES: g++ ninja-build pkg-config dpkg-dev libgtkmm-4.0-dev libsigc++-3.0-dev libcurl4-openssl-dev
+  DEPENDENCIES: g++ ninja-build pkg-config dpkg-dev libgtkmm-4.0-dev libsigc++-3.0-dev libcurl4-openssl-dev libsodium-dev zlib1g-dev libsecret-1-dev libx11-dev
 
 jobs:
   build:

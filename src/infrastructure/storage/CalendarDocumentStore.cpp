@@ -83,8 +83,8 @@ CalendarDocument CalendarDocumentStore::load() const
     {
         // Saving rotates the backups first, so the pre-migration file stays available as calendar.json.bak.
         stapik::log::info("Migrated {} from schema version {}", m_file.filePath().string(), result.fileVersion);
-        if (!m_file.save(document))
-            stapik::log::warning("Cannot save the migrated calendar to {}", m_file.filePath().string());
+        if (const auto saved = m_file.save(document); !saved)
+            stapik::log::warning("Cannot save the migrated calendar: {}", saved.error().message());
     }
 
     if (const auto baseline = loadBaseline(); baseline.has_value())
@@ -95,7 +95,11 @@ CalendarDocument CalendarDocumentStore::load() const
 
 bool CalendarDocumentStore::save(const CalendarDocument& document) const
 {
-    const bool documentSaved = m_file.save(document);
+    const auto saved = m_file.save(document);
+    if (!saved)
+        stapik::log::warning("Cannot save the calendar: {}", saved.error().message());
+
+    const bool documentSaved = static_cast<bool>(saved);
     const bool baselineSaved = saveBaseline(document.lastKnownCloudUpdate());
     return documentSaved && baselineSaved;
 }
@@ -129,7 +133,11 @@ bool CalendarDocumentStore::saveBaseline(const std::optional<TimePoint>& baselin
         { BASELINE_KEY, stapik::sync::toIso8601(*baseline, stapik::sync::TimestampPrecision::Microseconds) }
     };
 
-    return stapik::storage::writeFileAtomically(m_baselinePath, json.dump(2) + "\n");
+    const auto written = stapik::storage::writeFileAtomically(m_baselinePath, json.dump(2) + "\n");
+    if (!written)
+        stapik::log::warning("Cannot save the cloud baseline: {}", written.error().message());
+
+    return static_cast<bool>(written);
 }
 
 void CalendarDocumentStore::preserveUnreadableFile() const

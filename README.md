@@ -24,13 +24,15 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 
 - `gtkmm-4.0` and `sigc++-3.0`
 - `libcurl`
+- `libsodium` and `zlib` (required by `stapik-common`)
+- `libsecret` and `libx11` (Linux, optional: the cloud API key is kept in the system keyring and the window position is remembered)
 - CMake 4.2 or newer
-- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.3.2 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
+- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.5.1 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
 - `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
 ```bash
-sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev
+sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev libsodium-dev zlib1g-dev libsecret-1-dev libx11-dev
 ```
 
 Building a `.deb` package additionally requires `dpkg-dev` (used to auto-detect runtime dependencies):

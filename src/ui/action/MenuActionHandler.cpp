@@ -52,7 +52,7 @@ void MenuActionHandler::onActionGuide() const
     if (UserGuide::open(loc.languageCode()))
         return;
 
-    showMessageDialog(m_window, loc.translate("guide.error.title"), loc.translate("guide.error.text"), Gtk::MessageType::ERROR);
+    showMessageDialog(m_window, loc.translate("guide.error.title"), loc.translate("guide.error.text"));
 }
 
 void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
@@ -60,7 +60,7 @@ void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
     const auto& loc = LocaleManager::instance();
 
     if (result.connected)
-        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"), Gtk::MessageType::INFO);
+        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
     else
-        showMessageDialog(m_window, loc.translate("cloud.failed.header"), result.message, Gtk::MessageType::ERROR);
+        showMessageDialog(m_window, loc.translate("cloud.failed.header"), result.message);
 }
