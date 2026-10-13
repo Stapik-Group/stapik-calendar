@@ -153,8 +153,9 @@
         <h2>6. Menüs</h2>
         <table>
             <tr><th>Menü</th><th>Eintrag</th><th>Wirkung</th></tr>
-            <tr><td rowspan="3"><strong>Datei</strong></td><td>Mit Cloud verbinden</td><td>Öffnet das Fenster zum Verbinden mit Stapik Cloud.</td></tr>
+            <tr><td rowspan="4"><strong>Datei</strong></td><td>Mit Cloud verbinden</td><td>Öffnet das Fenster zum Verbinden mit Stapik Cloud.</td></tr>
             <tr><td>Synchronisieren</td><td>Synchronisiert sofort mit der Cloud.</td></tr>
+            <tr><td>Aus Sicherung wiederherstellen…</td><td>Zeigt die gespeicherten Kopien des Kalenders nach Datum und Uhrzeit und kehrt zu der gewählten zurück. Der bisherige Stand wird zur neuesten Kopie, die Wiederherstellung lässt sich also auf demselben Weg zurücknehmen. Der Rückgängig-Verlauf wird geleert, und bei bestehender Verbindung wird der wiederhergestellte Kalender in die Cloud gesendet.</td></tr>
             <tr><td>Beenden <kbd>Strg</kbd>+<kbd>Q</kbd></td><td>Schließt die Anwendung. Ausstehende Änderungen werden zuvor an die Cloud gesendet.</td></tr>
             <tr><td rowspan="2"><strong>Bearbeiten</strong></td><td>Rückgängig <kbd>Strg</kbd>+<kbd>Z</kbd></td><td>Macht die letzte Aktion rückgängig.</td></tr>
             <tr><td>Wiederholen <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>Z</kbd></td><td>Wiederholt eine rückgängig gemachte Aktion.</td></tr>
@@ -299,8 +300,11 @@
             <tr><td><code>config.json</code></td><td>Cloud-Adresse und Schlüssel</td></tr>
             <tr><td><code>cloud-baseline.json</code></td><td>technische Daten zur letzten Synchronisierung</td></tr>
         </table>
-        <p>Sprache und Thema werden in <code>~/.config/stapikcalendar/settings.json</code> gespeichert.</p>
+        <p>Sprache, Thema, Schriftgröße und Fenstergröße werden in <code>~/.config/stapikcalendar/settings.json</code> gespeichert.</p>
+        <p>Lässt sich der Kalender nicht auf der Festplatte speichern (zum Beispiel weil sie voll ist), zeigt die Anwendung eine Meldung mit der Ursache. Beheben Sie das Problem und nehmen Sie irgendeine Änderung vor: Der gesamte Kalender wird erneut gespeichert.</p>
         <h3>Eine Sicherung wiederherstellen</h3>
+        <p>Wählen Sie <strong>Datei → Aus Sicherung wiederherstellen…</strong>, suchen Sie eine der gespeicherten Kopien nach Datum und Uhrzeit aus und bestätigen Sie. Der bisherige Stand wird zur neuesten Kopie, die Wiederherstellung lässt sich also auf demselben Weg zurücknehmen. Der Rückgängig-Verlauf wird geleert, und bei bestehender Verbindung zu Stapik Cloud wird der wiederhergestellte Kalender wie jede andere Änderung dorthin gesendet.</p>
+        <p>Startet die Anwendung nicht oder ist die Kalenderdatei beschädigt, können Sie auch von Hand wiederherstellen:</p>
         <ol>
             <li>Schließen Sie die Anwendung.</li>
             <li>Kopieren Sie <code>calendar.json.bak</code> (oder <code>.bak.2</code>, <code>.bak.3</code>) über <code>calendar.json</code>.</li>

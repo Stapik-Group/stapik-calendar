@@ -23,7 +23,8 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Single instance** - starting the program again shows the running window instead of opening another one
 - **Update notice** - once a day the application asks GitHub for the latest release and, when it is newer than the one you run, offers to open its page; nothing is downloaded or installed. It can be switched off in **Settings → Settings…**
 - **Command line** - `--version`, `--portable`, `--data-dir`, `--safe-mode`, `--reset-settings` and `--log-level`, see [Command line](#command-line)
-- **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups
+- **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups; if a save fails, a message tells you why
+- **Restore from backup** - **File → Restore from backup…** lists the saved copies by date and time and goes back to the one you pick; the calendar you had before becomes the newest copy, so a restore can be taken back the same way
 
 ## Dependencies
 

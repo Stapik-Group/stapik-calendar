@@ -5,6 +5,7 @@
 
 #include "stapik/cloud/CloudStorageConfig.hpp"
 #include "stapik/command/UndoStack.hpp"
+#include "stapik/document/BackupInfo.hpp"
 #include "stapik/sync/CloudSession.hpp"
 
 #include <sigc++/connection.h>
@@ -46,6 +47,10 @@ public:
     void copyEntry(Date sourceDate, std::size_t index, Date destDate);
     void changeEntryColor(Date date, std::size_t index, EntryColor color);
 
+    [[nodiscard]] std::vector<stapik::document::BackupInfo> listBackups() const;
+    // Replaces the calendar with a backup. Returns false, and changes nothing, when the backup cannot be used.
+    [[nodiscard]] bool restoreBackup(const stapik::document::BackupInfo& backup);
+
     void connect(const CloudStorageConfig& config);
     void syncNow();
     void flush();
@@ -56,6 +61,8 @@ public:
     sigc::signal<void()>& signalDocumentChanged();
     sigc::signal<void(stapik::sync::SyncStatus)>& signalSyncStatusChanged();
     sigc::signal<void(const ConnectionResult&)>& signalConnectionResult();
+    // Emitted with the reason when saving to disk starts to fail; not repeated until a save succeeds again.
+    sigc::signal<void(const std::string&)>& signalSaveFailed();
 
 private:
     using Session = stapik::sync::CloudSession<CalendarDocument>;
@@ -65,7 +72,7 @@ private:
     void onBaselineChanged(CalendarDocument::TimePoint baseline);
     void onSyncOutcome(const stapik::sync::SyncOutcome<CalendarDocument>& outcome);
     void clearHistorySilently();
-    void persist() const;
+    void persist();
 
     CalendarDocumentStore m_store;
     CalendarDocument m_document;
@@ -74,7 +81,9 @@ private:
     sigc::connection m_historyConnection;
     Session m_session;
     bool m_awaitingConnectionResult = false;
+    bool m_saveFailed = false;
 
     sigc::signal<void()> m_signalDocumentChanged;
     sigc::signal<void(const ConnectionResult&)> m_signalConnectionResult;
+    sigc::signal<void(const std::string&)> m_signalSaveFailed;
 };

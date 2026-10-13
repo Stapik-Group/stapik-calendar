@@ -153,8 +153,9 @@
         <h2>6. Menu</h2>
         <table>
             <tr><th>Menu</th><th>Pozycja</th><th>Działanie</th></tr>
-            <tr><td rowspan="3"><strong>Plik</strong></td><td>Połącz z chmurą</td><td>Otwiera okno łączenia ze Stapik Cloud.</td></tr>
+            <tr><td rowspan="4"><strong>Plik</strong></td><td>Połącz z chmurą</td><td>Otwiera okno łączenia ze Stapik Cloud.</td></tr>
             <tr><td>Synchronizuj</td><td>Synchronizuje z chmurą od razu.</td></tr>
+            <tr><td>Przywróć z kopii zapasowej…</td><td>Pokazuje zapisane kopie kalendarza według daty i godziny i wraca do wybranej. To, co było wcześniej, staje się najnowszą kopią, więc przywrócenie można cofnąć w ten sam sposób. Historia cofania jest czyszczona, a po połączeniu z chmurą przywrócony kalendarz jest do niej wysyłany.</td></tr>
             <tr><td>Wyjście <kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Zamyka aplikację. Wcześniej wysyła do chmury oczekujące zmiany.</td></tr>
             <tr><td rowspan="2"><strong>Edycja</strong></td><td>Cofnij <kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Cofa ostatnią operację.</td></tr>
             <tr><td>Ponów <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Powtarza cofniętą operację.</td></tr>
@@ -299,8 +300,11 @@
             <tr><td><code>config.json</code></td><td>adres i klucz chmury</td></tr>
             <tr><td><code>cloud-baseline.json</code></td><td>dane techniczne o ostatniej synchronizacji</td></tr>
         </table>
-        <p>Język i motyw są zapisane w <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <p>Język, motyw, rozmiar czcionki i rozmiar okna są zapisane w <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <p>Jeśli kalendarza nie da się zapisać na dysku (na przykład przez brak miejsca), aplikacja pokazuje komunikat z przyczyną. Usuń problem i wprowadź dowolną zmianę: cały kalendarz zostanie zapisany ponownie.</p>
         <h3>Przywracanie kopii zapasowej</h3>
+        <p>Wybierz <strong>Plik → Przywróć z kopii zapasowej…</strong>, wskaż jedną z zapisanych kopii według daty i godziny i potwierdź. To, co było wcześniej, staje się najnowszą kopią, więc przywrócenie można cofnąć w ten sam sposób. Historia cofania jest czyszczona, a po połączeniu ze Stapik Cloud przywrócony kalendarz jest tam wysyłany jak każda inna zmiana.</p>
+        <p>Jeśli aplikacja nie startuje albo plik kalendarza jest uszkodzony, możesz przywrócić kopię ręcznie:</p>
         <ol>
             <li>Zamknij aplikację.</li>
             <li>Skopiuj <code>calendar.json.bak</code> (albo <code>.bak.2</code>, <code>.bak.3</code>) na <code>calendar.json</code>.</li>

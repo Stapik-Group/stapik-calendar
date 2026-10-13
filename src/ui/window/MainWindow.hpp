@@ -33,11 +33,14 @@ private:
     stapik::settings::ObservableSetting<bool> m_checkForUpdates;
     StandardMenu m_menu;
     sigc::connection m_statusConnection;
+    sigc::connection m_saveFailedConnection;
 
     void init();
     void initLayout();
+    void initFileMenu();
     void initHelpMenu();
     void initSettings();
+    void initSaveErrors();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

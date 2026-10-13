@@ -5,6 +5,7 @@
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
+#include "stapik/ui/dialog/RestoreBackupDialog.hpp"
 
 MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, CalendarController& controller):
     m_window(window),
@@ -25,6 +26,7 @@ void MenuActionHandler::registerActions()
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
     m_window.add_action("guide", sigc::mem_fun(*this, &MenuActionHandler::onActionGuide));
+    m_window.add_action("restoreBackup", sigc::mem_fun(*this, &MenuActionHandler::onActionRestoreBackup));
 }
 
 void MenuActionHandler::onActionConnect() const
@@ -53,6 +55,18 @@ void MenuActionHandler::onActionGuide() const
         return;
 
     showMessageDialog(m_window, loc.translate("guide.error.title"), loc.translate("guide.error.text"));
+}
+
+void MenuActionHandler::onActionRestoreBackup() const
+{
+    showRestoreBackupDialog(m_window, m_controller.listBackups(), [this](const stapik::document::BackupInfo& backup)
+    {
+        if (m_controller.restoreBackup(backup))
+            return;
+
+        const auto& loc = LocaleManager::instance();
+        showMessageDialog(m_window, loc.translate("backup.restore.failed.title"), loc.translate("backup.restore.failed.text"));
+    });
 }
 
 void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const

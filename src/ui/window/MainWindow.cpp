@@ -4,6 +4,7 @@
 
 #include "stapik/app/AppContext.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
@@ -16,8 +17,10 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
     m_actionHandler.registerActions();
+    initFileMenu();
     initHelpMenu();
     initSettings();
+    initSaveErrors();
     init();
     initLayout();
     initSyncStatus();
@@ -26,6 +29,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
 MainWindow::~MainWindow()
 {
     m_statusConnection.disconnect();
+    m_saveFailedConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -48,6 +52,16 @@ void MainWindow::initLayout()
     m_mainBox.append(m_statusBar);
 }
 
+void MainWindow::initFileMenu()
+{
+    m_menu.addToMenu(StandardMenu::Target::File, [](Gio::Menu& menu)
+    {
+        const auto backupSection = Gio::Menu::create();
+        backupSection->append(LocaleManager::instance().translate("menu.file.restoreBackup"), "win.restoreBackup");
+        menu.append_section(backupSection);
+    });
+}
+
 void MainWindow::initHelpMenu()
 {
     m_menu.addToMenu(StandardMenu::Target::Help, [](Gio::Menu& menu)
@@ -63,6 +77,15 @@ void MainWindow::initSettings()
 {
     // The check runs once, at startup, so a change takes effect on the next start.
     m_menu.settings().addBool("menu.settings.checkForUpdates", m_checkForUpdates);
+}
+
+void MainWindow::initSaveErrors()
+{
+    m_saveFailedConnection = m_controller.signalSaveFailed().connect([this](const std::string& reason)
+    {
+        const auto& loc = LocaleManager::instance();
+        showMessageDialog(*this, loc.translate("save.failed.title"), loc.translate("save.failed.text", { { "reason", reason } }));
+    });
 }
 
 void MainWindow::initSyncStatus()

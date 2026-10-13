@@ -98,6 +98,30 @@ void CalendarController::changeEntryColor(const Date date, const std::size_t ind
     editEntry(date, index, std::move(updated));
 }
 
+std::vector<stapik::document::BackupInfo> CalendarController::listBackups() const
+{
+    return m_store.listBackups();
+}
+
+bool CalendarController::restoreBackup(const stapik::document::BackupInfo& backup)
+{
+    auto restored = m_store.loadBackup(backup);
+    if (!restored)
+        return false;
+
+    // Commands hold indices into the old entries, so the history cannot outlive them.
+    clearHistorySilently();
+
+    if (const auto baseline = m_document.lastKnownCloudUpdate())
+        restored->setLastKnownCloudUpdate(*baseline);
+
+    m_document = std::move(*restored);
+
+    // From here the restored calendar is a change like any other: stamped as the newest, saved, sent and shown.
+    onHistoryChanged();
+    return true;
+}
+
 void CalendarController::connect(const CloudStorageConfig& config)
 {
     m_awaitingConnectionResult = true;
@@ -149,6 +173,11 @@ sigc::signal<void(const ConnectionResult&)>& CalendarController::signalConnectio
     return m_signalConnectionResult;
 }
 
+sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
+{
+    return m_signalSaveFailed;
+}
+
 void CalendarController::onHistoryChanged()
 {
     m_document.markUpdated();
@@ -191,8 +220,16 @@ void CalendarController::clearHistorySilently()
     m_historyConnection.unblock();
 }
 
-void CalendarController::persist() const
+void CalendarController::persist()
 {
-    if (!m_store.save(m_document))
-        stapik::log::warning("Cannot save the calendar to disk");
+    const auto saved = m_store.save(m_document);
+    if (saved)
+    {
+        m_saveFailed = false;
+        return;
+    }
+
+    // The store has logged the reason. The user hears about it once per streak of failures, not after every edit.
+    if (!std::exchange(m_saveFailed, true))
+        m_signalSaveFailed.emit(saved.error().message());
 }

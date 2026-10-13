@@ -4,6 +4,7 @@
 #include "stapik/log/Log.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/storage/AtomicFile.hpp"
+#include "stapik/storage/PathText.hpp"
 #include "stapik/sync/Timestamp.hpp"
 
 #include <chrono>
@@ -93,15 +94,33 @@ CalendarDocument CalendarDocumentStore::load() const
     return document;
 }
 
-bool CalendarDocumentStore::save(const CalendarDocument& document) const
+stapik::storage::FileResult CalendarDocumentStore::save(const CalendarDocument& document) const
 {
-    const auto saved = m_file.save(document);
-    if (!saved)
-        stapik::log::warning("Cannot save the calendar: {}", saved.error().message());
+    const auto documentSaved = m_file.save(document);
+    if (!documentSaved)
+        stapik::log::warning("Cannot save the calendar: {}", documentSaved.error().message());
 
-    const bool documentSaved = static_cast<bool>(saved);
-    const bool baselineSaved = saveBaseline(document.lastKnownCloudUpdate());
-    return documentSaved && baselineSaved;
+    // Both files are always written; when both fail, the calendar itself is the failure worth reporting.
+    const auto baselineSaved = saveBaseline(document.lastKnownCloudUpdate());
+    return documentSaved ? baselineSaved : documentSaved;
+}
+
+std::vector<stapik::document::BackupInfo> CalendarDocumentStore::listBackups() const
+{
+    return m_file.listBackups();
+}
+
+std::optional<CalendarDocument> CalendarDocumentStore::loadBackup(const stapik::document::BackupInfo& backup) const
+{
+    auto result = m_file.loadBackup(backup);
+    if (result.status != LoadStatus::Loaded || !result.document.has_value())
+    {
+        stapik::log::warning("Cannot restore {}: the backup cannot be used (status {})",
+            stapik::storage::pathText(backup.path), static_cast<int>(result.status));
+        return std::nullopt;
+    }
+
+    return std::move(*result.document);
 }
 
 std::optional<TimePoint> CalendarDocumentStore::loadBaseline() const
@@ -120,13 +139,13 @@ std::optional<TimePoint> CalendarDocumentStore::loadBaseline() const
     }
 }
 
-bool CalendarDocumentStore::saveBaseline(const std::optional<TimePoint>& baseline) const
+stapik::storage::FileResult CalendarDocumentStore::saveBaseline(const std::optional<TimePoint>& baseline) const
 {
     if (!baseline.has_value())
     {
         std::error_code errorCode;
         std::filesystem::remove(m_baselinePath, errorCode);
-        return true;
+        return {};
     }
 
     const nlohmann::json json = {
@@ -137,7 +156,7 @@ bool CalendarDocumentStore::saveBaseline(const std::optional<TimePoint>& baselin
     if (!written)
         stapik::log::warning("Cannot save the cloud baseline: {}", written.error().message());
 
-    return static_cast<bool>(written);
+    return written;
 }
 
 void CalendarDocumentStore::preserveUnreadableFile() const
