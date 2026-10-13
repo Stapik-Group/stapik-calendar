@@ -14,9 +14,9 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v1.5.1
+        GIT_TAG v1.5.2
         # Lets an installed stapik-common be used instead of a download; the Flatpak build has no network.
-        FIND_PACKAGE_ARGS 1.5.1
+        FIND_PACKAGE_ARGS 1.5.2
 )
 FetchContent_MakeAvailable(stapikcommon)
 

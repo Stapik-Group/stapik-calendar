@@ -6,7 +6,7 @@ Der Kalender liegt in Ihrem Home-Verzeichnis unter `~/.local/share/stapikcalenda
 - `calendar.json.bak`, `.bak.2`, `.bak.3` — die drei vorherigen Versionen, bei jedem Speichern aufgefrischt
 - `cloud-baseline.json` — technische Daten zur letzten Synchronisierung
 
-Sprache, Thema, Schriftgröße und Fenstergröße werden in `~/.config/stapikcalendar/settings.json` gespeichert. Die Cloud-Adresse steht in `~/.config/stapikcalendar/config.json`, der API-Schlüssel im System-Schlüsselbund.
+Sprache, Thema, Schriftart und Fenstergröße werden in `~/.config/stapikcalendar/settings.json` gespeichert. Die Cloud-Adresse steht in `~/.config/stapikcalendar/config.json`, der API-Schlüssel im System-Schlüsselbund.
 
 Lässt sich der Kalender nicht auf der Festplatte speichern (zum Beispiel weil sie voll ist), zeigt die Anwendung eine Meldung mit der Ursache. Beheben Sie das Problem und nehmen Sie irgendeine Änderung vor: Der gesamte Kalender wird erneut gespeichert.
 

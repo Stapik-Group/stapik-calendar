@@ -7,7 +7,7 @@ Kalendarz znajduje się w Twoim katalogu domowym, w `~/.local/share/stapikcalend
 - `config.json` — adres i klucz chmury
 - `cloud-baseline.json` — dane techniczne o ostatniej synchronizacji
 
-Język, motyw, rozmiar czcionki i rozmiar okna są zapisane w `~/.config/stapikcalendar/settings.json`. Adres chmury jest w `~/.config/stapikcalendar/config.json`, a klucz API w systemowym pęku kluczy.
+Język, motyw, czcionka i rozmiar okna są zapisane w `~/.config/stapikcalendar/settings.json`. Adres chmury jest w `~/.config/stapikcalendar/config.json`, a klucz API w systemowym pęku kluczy.
 
 Jeśli kalendarza nie da się zapisać na dysku (na przykład przez brak miejsca), aplikacja pokazuje komunikat z przyczyną. Usuń problem i wprowadź dowolną zmianę: cały kalendarz zostanie zapisany ponownie.
 

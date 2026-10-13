@@ -4,7 +4,7 @@
 #include "stapik/locale/DateFormatter.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/storage/PathText.hpp"
-#include "stapik/theme/FontSizeManager.hpp"
+#include "stapik/theme/FontManager.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 #include "stapik/ui/dialog/ConfirmDialog.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
@@ -48,7 +48,7 @@ namespace
     void reloadSharedSettings()
     {
         ThemeManager::instance().themeSetting().reload();
-        FontSizeManager::instance().scaleSetting().reload();
+        FontManager::instance().fontSetting().reload();
         LocaleManager::instance().languageSetting().reload();
     }
 }

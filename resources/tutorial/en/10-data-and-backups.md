@@ -7,7 +7,7 @@ The calendar lives in your home directory, in `~/.local/share/stapikcalendar/`:
 - `config.json` — cloud address and key
 - `cloud-baseline.json` — technical data about the last synchronization
 
-Your language, theme, font size and window size are stored in `~/.config/stapikcalendar/settings.json`. The cloud address is in `~/.config/stapikcalendar/config.json`; the API key is kept in the system keyring.
+Your language, theme, font and window size are stored in `~/.config/stapikcalendar/settings.json`. The cloud address is in `~/.config/stapikcalendar/config.json`; the API key is kept in the system keyring.
 
 If the calendar cannot be saved to disk (for example because the disk is full), the application shows a message with the reason. Fix the problem and make any change: the whole calendar is saved again.
 

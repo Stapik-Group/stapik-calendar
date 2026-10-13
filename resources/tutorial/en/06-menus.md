@@ -14,7 +14,7 @@
 
 **Settings**
 
-- Settings… — Opens the settings window with the language (Polish, English or German), the theme and the font size. A change is applied at once.
+- Settings… — Opens the settings window with the language (Polish, English or German), the theme and the font. A change is applied at once.
 
 **Help**
 

@@ -6,7 +6,7 @@ Choose **Settings → Settings…** to open the settings window. Every change is
 
 **Theme** changes the look: **Classic** (a retro look), **Classic Pink** (the same layout in pink and purple), **Neoclassic**, **Modern** (light) or **Dark**.
 
-**Font size (%)** scales the text of the whole application, from 70 % to 200 %. The default is 100 %.
+**Font** opens the font chooser for a font and its size (from 6 to 40 pt). The chosen font is used in the whole application, and the proportions between the text sizes of the theme are kept. The **Default** button goes back to the font of the theme.
 
 ![The Classic theme](images/theme-classic.png)
 

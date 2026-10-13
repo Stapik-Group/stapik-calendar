@@ -6,7 +6,7 @@ Wählen Sie **Einstellungen → Einstellungen…**, um das Einstellungsfenster z
 
 **Thema** ändert das Aussehen: **Klassisch** (ein Retro-Look), **Klassisch Pink** (dasselbe Layout in Rosa und Lila), **Neoklassisch**, **Modern** (hell) oder **Dunkel**.
 
-**Schriftgröße (%)** skaliert den Text der gesamten Anwendung von 70 % bis 200 %. Standard sind 100 %.
+**Schriftart** öffnet die Schriftauswahl für eine Schriftart und ihre Größe (von 6 bis 40 pt). Die gewählte Schriftart gilt in der gesamten Anwendung, und die Größenverhältnisse der Texte im Thema bleiben erhalten. Die Schaltfläche **Standard** kehrt zur Schriftart des Themas zurück.
 
 ![Das Thema Klassisch](images/theme-classic.png)
 

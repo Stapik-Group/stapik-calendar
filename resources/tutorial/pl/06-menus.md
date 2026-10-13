@@ -14,7 +14,7 @@
 
 **Ustawienia**
 
-- Ustawienia… — Otwiera okno ustawień z językiem (polski, angielski lub niemiecki), motywem i rozmiarem czcionki. Zmiana działa od razu.
+- Ustawienia… — Otwiera okno ustawień z językiem (polski, angielski lub niemiecki), motywem i czcionką. Zmiana działa od razu.
 
 **Pomoc**
 

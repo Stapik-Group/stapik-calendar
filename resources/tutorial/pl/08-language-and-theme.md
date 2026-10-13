@@ -6,7 +6,7 @@ Wybierz **Ustawienia → Ustawienia…**, aby otworzyć okno ustawień. Każda z
 
 **Motyw** zmienia wygląd: **Klasyczny** (retro), **Klasyczny różowy** (ten sam układ w różach i fioletach), **Neoklasyczny**, **Nowoczesny** (jasny) lub **Ciemny**.
 
-**Rozmiar czcionki (%)** skaluje tekst całej aplikacji, od 70 % do 200 %. Domyślnie jest to 100 %.
+**Czcionka** otwiera okno wyboru czcionki i jej rozmiaru (od 6 do 40 pt). Wybrana czcionka obowiązuje w całej aplikacji, a proporcje między rozmiarami tekstu w motywie zostają zachowane. Przycisk **Domyślna** wraca do czcionki motywu.
 
 ![Motyw Klasyczny](images/theme-classic.png)
 

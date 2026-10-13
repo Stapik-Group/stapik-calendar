@@ -14,7 +14,7 @@
 
 **Einstellungen**
 
-- Einstellungen… — Öffnet das Einstellungsfenster mit Sprache (Polnisch, Englisch oder Deutsch), Thema und Schriftgröße. Eine Änderung wirkt sofort.
+- Einstellungen… — Öffnet das Einstellungsfenster mit Sprache (Polnisch, Englisch oder Deutsch), Thema und Schriftart. Eine Änderung wirkt sofort.
 
 **Hilfe**
 

@@ -18,7 +18,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from the settings window; the choice is remembered between launches
-- **Settings window** - **Settings → Settings…** opens one window with the language, the theme and the font size (70–200 %); a change is applied and saved at once
+- **Settings window** - **Settings → Settings…** opens one window with the language, the theme and the font (a family and a size, picked in the system font chooser); a change is applied and saved at once
 - **Window memory** - the size, the position and the maximized state of the window are remembered between launches (the position is not remembered on Wayland)
 - **Single instance** - starting the program again shows the running window instead of opening another one
 - **Update notice** - once a day the application asks GitHub for the latest release and, when it is newer than the one you run, offers to open its page; nothing is downloaded or installed. It can be switched off in **Settings → Settings…**
@@ -182,7 +182,7 @@ Next to it:
 - `calendar.json.unreadable-<timestamp>` - a copy of a file written by a newer version of the app (or one that failed to migrate); the app starts with an empty calendar instead of touching the original
 - `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
 
-Language, theme and font size preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
+Language, theme and font preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
 
 The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
 
