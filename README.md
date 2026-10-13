@@ -59,7 +59,7 @@ cmake --build cmake-build-release
 
 ### Option 1 — Download prebuilt `.deb` (recommended)
 
-Download the latest `.deb` package from the [Releases page](https://github.com/Stapik-Group/stapik-calendar/releases), then install it:
+Download the latest `.deb` package for your distribution (Ubuntu 22.04 or 24.04, Debian 12 or 13; the name ends with the distribution) from the [Releases page](https://github.com/Stapik-Group/stapik-calendar/releases), then install it:
 
 ```bash
 sudo dpkg -i stapikcalendar_*.deb
@@ -88,6 +88,15 @@ cmake --install cmake-build-release --prefix "$HOME/.local"
 ```
 
 Installs to `~/.local/lib/stapikcalendar/`, with a launcher at `~/.local/bin/stapikcalendar`. Make sure `~/.local/bin` is in your `PATH`.
+
+### Option 4 — Flatpak or AppImage (built from source)
+
+```bash
+cmake --build cmake-build-release --target stapikcalendar_flatpak     # needs flatpak-builder
+cmake --build cmake-build-release --target stapikcalendar_appimage    # needs linuxdeploy and its GTK plugin on PATH
+```
+
+The Flatpak is created in `cmake-build-release/stapikcalendar-flatpak/`, the AppImage in `cmake-build-release/stapikcalendar-appimage/`. Both are described in the [stapik-common documentation](https://github.com/Stapik-Group/stapik-common/blob/v1.5.1/docs/linux.md).
 
 ## Uninstalling
 
@@ -139,15 +148,15 @@ Authentication: `x-api-key` header with a per-device key from the admin panel. T
 
 ## Command line
 
-| Flag | Effect |
-| --- | --- |
-| `--version` | Prints the name and the version and exits. |
-| `--log-level=LEVEL` | `debug`, `info`, `warning` or `error`. Overrides `STAPIK_LOG_LEVEL`. |
-| `--data-dir=DIR` | Keeps data, settings and cache in `DIR/{data,config,cache}`. |
-| `--portable` | Same as `--data-dir`, with a `portable/` folder next to the executable. Cannot be combined with `--data-dir`. |
-| `--reset-settings` | Moves `settings.json` (and the old `locale.txt` and `theme.txt`) aside as `*.bak` before the application starts. |
-| `--safe-mode` | The window size and position are neither restored nor saved. |
-| `--self-test` | Checks the installation (see [Windows](#windows)) and exits with 1 when a check fails. |
+| Flag                | Effect                                                                                                           |
+|---------------------|------------------------------------------------------------------------------------------------------------------|
+| `--version`         | Prints the name and the version and exits.                                                                       |
+| `--log-level=LEVEL` | `debug`, `info`, `warning` or `error`. Overrides `STAPIK_LOG_LEVEL`.                                             |
+| `--data-dir=DIR`    | Keeps data, settings and cache in `DIR/{data,config,cache}`.                                                     |
+| `--portable`        | Same as `--data-dir`, with a `portable/` folder next to the executable. Cannot be combined with `--data-dir`.    |
+| `--reset-settings`  | Moves `settings.json` (and the old `locale.txt` and `theme.txt`) aside as `*.bak` before the application starts. |
+| `--safe-mode`       | The window size and position are neither restored nor saved.                                                     |
+| `--self-test`       | Checks the installation (see [Windows](#windows)) and exits with 1 when a check fails.                           |
 
 ## Data Storage
 
@@ -190,30 +199,34 @@ Shared building blocks (settings, localization, themes, menu, dialogs, undo stac
 
 ## Continuous integration
 
-GitHub Actions (`.github/workflows/ci.yml`) builds every pull request into `master` and every branch except `develop`. Pushing a tag `vX.Y.Z` on `master` (the tag must match the version in `CMakeLists.txt`) builds the `.deb` package and publishes it, with a SHA-256 checksum, as a GitHub release.
+GitHub Actions call the reusable workflows of [stapik-common](https://github.com/Stapik-Group/stapik-common/blob/v1.5.1/docs/ci.md) (pinned to `v1.5.1`, like the dependency):
+
+- a pull request from `develop` into `master` builds the application on Linux (in a Docker image) and on Windows (`.github/workflows/pull-request.yml`),
+- nothing runs on pushes to a branch or on a merge into `master`,
+- publishing a release, which creates its tag, builds and attaches a `.deb` for Ubuntu 22.04, Ubuntu 24.04, Debian 12 and Debian 13, the Windows installer and the portable ZIP (`.github/workflows/release.yml`). The version of the packages is `VERSION` in `CMakeLists.txt`, so bump it before the release is created. The Windows files are signed when the repository has the secrets `WINDOWS_SIGN_PFX_BASE64` and `WINDOWS_SIGN_PFX_PASSWORD`.
 
 ## Windows
 
-The Windows build is a folder with the program and everything it needs (GTK, its data, the application resources),
-distributed as a zip. There is no installer.
+The Windows build is a folder with the program and everything it needs (GTK, its data, the application resources). It is distributed as an installer and as a portable ZIP, both attached to every release:
 
-- **From CI:** the *Windows* workflow builds the zip on every push and pull request, runs the program once on the
-unpacked zip with only the Windows directories in `PATH` (`stapikcalendar.exe --self-test`), and uploads it as an
-artifact. Run it by hand (Actions > Windows > Run workflow) to get a build of any branch for testers; a `v*` tag
-publishes the zip as a GitHub release.
+- `stapikcalendar-<version>-setup.exe` installs for the current user (or for all users on request), in English, Polish or German, with a Start menu entry, and every release upgrades the previous one. Uninstalling leaves your calendar and settings alone.
+- `stapikcalendar-<version>-windows-portable.zip` needs no installation: extract the whole folder and start `stapikcalendar.exe`. To keep the data, settings and cache next to the program, start it with `--portable`.
 
-- **Locally**, in an MSYS2 UCRT64 shell (packages: `gcc cmake ninja pkgconf gtkmm-4.0 curl adwaita-icon-theme hicolor-icon-theme librsvg`, prefixed `mingw-w64-ucrt-x86_64-`):
+Unsigned files make Windows show "Windows protected your PC" (SmartScreen): click "More info", then "Run anyway".
+
+**Locally**, in an MSYS2 UCRT64 shell (packages: `gcc cmake ninja pkgconf gtkmm-4.0 curl libsodium zlib adwaita-icon-theme hicolor-icon-theme`, prefixed `mingw-w64-ucrt-x86_64-`; the installer also needs Inno Setup 6.3 or newer):
 
 ```
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target stapikcalendar_windows_bundle
+cmake --build build --target stapikcalendar_windows_bundle      # the folder build/stapikcalendar-windows/
+cmake --build build --target stapikcalendar_windows_portable    # the ZIP
+cmake --build build --target stapikcalendar_windows_installer   # the installer
 ```
 
-    The folder is `build/stapikcalendar-windows/`. Add `-DSTAPIK_WINDOWS_CONSOLE=ON` to keep a console window.
+Add `-DSTAPIK_WINDOWS_CONSOLE=ON` to keep a console window.
 
 Data lives in `%APPDATA%\stapikcalendar\data\calendar.json`, settings in `%APPDATA%\stapikcalendar\config` and the log
-(stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. `packaging/windows/README.txt` is the
-note for testers that goes into the zip.
+(stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. To back up, copy `calendar.json`.
 
 `--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the tutorial, translations and a
 writable data directory, logs every check and exits with 1 when one of them fails.

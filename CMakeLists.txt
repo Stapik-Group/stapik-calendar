@@ -15,6 +15,8 @@ FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
         GIT_TAG v1.5.1
+        # Lets an installed stapik-common be used instead of a download; the Flatpak build has no network.
+        FIND_PACKAGE_ARGS 1.5.1
 )
 FetchContent_MakeAvailable(stapikcommon)
 
@@ -30,6 +32,12 @@ stapik_add_application(
         PACKAGING_DIRECTORY packaging
         MAINTAINER "Sebastian Smoliński <sebastian.smolinski6@gmail.com>"
         HOMEPAGE "https://github.com/Stapik-Group/stapik-calendar"
+        LICENSE GPL-3.0-only
+        LONG_DESCRIPTION "A desktop calendar with a monthly view. Every day can hold any number of entries with a name, an optional web link and a color. Entries are moved and copied by dragging, changes can be undone and the calendar is backed up automatically. It can optionally be kept in sync between your devices with a self-hosted Stapik Cloud server."
+        LOCALIZED_NAMES "pl=Stapik Kalendarz" "de=Stapik Kalender"
+        LOCALIZED_DESCRIPTIONS "pl=Kalendarz na komputer w stylu retro" "de=Ein Desktop-Kalender im Retro-Stil"
+        KEYWORDS calendar planner agenda
+        LOCALIZED_KEYWORDS "pl=kalendarz,planer,terminarz" "de=Kalender,Planer,Terminkalender"
         DESKTOP_CATEGORIES Office Calendar
         SOURCES
                 src/main.cpp
