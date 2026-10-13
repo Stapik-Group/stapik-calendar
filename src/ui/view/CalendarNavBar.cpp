@@ -1,21 +1,14 @@
 #include "CalendarNavBar.hpp"
-#include <array>
+#include "../../core/util/DateUtils.hpp"
 
-namespace
-{
-    constexpr std::array<const char*, 12> MONTH_KEYS = {
-        "month.january", "month.february", "month.march", "month.april",
-        "month.may", "month.june", "month.july", "month.august",
-        "month.september", "month.october", "month.november", "month.december"
-    };
-}
+#include "stapik/domain/YearMonth.hpp"
 
-CalendarNavBar::CalendarNavBar() : Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING)
+CalendarNavBar::CalendarNavBar() :
+    Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING),
+    m_monthPicker(stapik::domain::YearMonth::fromDate(DateUtils::today()))
 {
     initButtons();
     initLayout();
-
-    LocaleManager::instance().signalLocaleChanged().connect([this] { updateDisplay(m_lastDisplayedMonth); });
 }
 
 void CalendarNavBar::initButtons()
@@ -29,6 +22,8 @@ void CalendarNavBar::initButtons()
     m_btnPrevMonth.signal_clicked().connect([this] { m_signalPrevMonth.emit(); });
     m_btnNextMonth.signal_clicked().connect([this] { m_signalNextMonth.emit(); });
     m_btnNextYear.signal_clicked().connect([this] { m_signalNextYear.emit(); });
+
+    m_monthPicker.signalMonthChanged().connect(sigc::mem_fun(*this, &CalendarNavBar::onMonthPicked));
 }
 
 void CalendarNavBar::initLayout()
@@ -39,32 +34,34 @@ void CalendarNavBar::initLayout()
 
     append(m_btnPrevYear);
     append(m_btnPrevMonth);
-    append(m_currentLabel);
+    append(m_monthPicker);
     append(m_btnNextMonth);
     append(m_btnNextYear);
-
-    m_currentLabel.set_width_chars(LABEL_WIDTH_CHARS);
-    m_currentLabel.set_halign(Gtk::Align::CENTER);
 }
 
 void CalendarNavBar::updateDisplay(const std::chrono::year_month yearMonth)
 {
-    m_lastDisplayedMonth = yearMonth;
-    m_currentLabel.set_text(formatYearMonth(yearMonth));
+    // The picker only shows years 1 to 9999; outside them the last shown month stays.
+    const auto month = stapik::domain::YearMonth::tryCreate(static_cast<int>(yearMonth.year()), static_cast<int>(static_cast<unsigned>(yearMonth.month())));
+    if (!month)
+        return;
+
+    m_updating = true;
+    m_monthPicker.setMonth(*month);
+    m_updating = false;
 }
 
-std::string CalendarNavBar::formatYearMonth(const std::chrono::year_month yearMonth)
+void CalendarNavBar::onMonthPicked()
 {
-    if (!yearMonth.ok())
-        return {};
+    if (m_updating)
+        return;
 
-    const auto monthIndex = static_cast<unsigned>(yearMonth.month()) - 1;
-    const auto year = static_cast<int>(yearMonth.year());
-
-    return LocaleManager::instance().translate(MONTH_KEYS[monthIndex]) + " " + std::to_string(year);
+    const auto& month = m_monthPicker.month();
+    m_signalMonthSelected.emit(std::chrono::year{ month.year() } / std::chrono::month{ static_cast<unsigned>(month.month()) });
 }
 
 sigc::signal<void()>& CalendarNavBar::signalPrevYear()  { return m_signalPrevYear;  }
 sigc::signal<void()>& CalendarNavBar::signalPrevMonth() { return m_signalPrevMonth; }
 sigc::signal<void()>& CalendarNavBar::signalNextMonth() { return m_signalNextMonth; }
 sigc::signal<void()>& CalendarNavBar::signalNextYear()  { return m_signalNextYear;  }
+sigc::signal<void(std::chrono::year_month)>& CalendarNavBar::signalMonthSelected() { return m_signalMonthSelected; }

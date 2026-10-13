@@ -7,11 +7,8 @@
 #include <algorithm>
 #include <cstring>
 
-#include "stapik/app/AppContext.hpp"
-#include "stapik/storage/AppPaths.hpp"
-#include "stapik/theme/ThemeManager.hpp"
-#include "stapik/ui/menu/StandardMenu.hpp"
-#include "stapik/ui/style/AppStyleProvider.hpp"
+#include "stapik/app/StapikApplication.hpp"
+#include "stapik/app/version.hpp"
 #include "stapik/log/Log.hpp"
 #include "ui/SelfTest.hpp"
 #include "ui/window/MainWindow.hpp"
@@ -40,12 +37,18 @@ namespace
     {
         return {
             .applicationId = APPLICATION_ID,
-            .internalName = STAPIK_APP_NAME,
-            .displayName = STAPIK_APP_DISPLAY_NAME,
-            .version = STAPIK_APP_VERSION,
+            .internalName = std::string{ stapik::app::build::NAME },
+            .displayName = std::string{ stapik::app::build::DISPLAY_NAME },
+            .version = std::string{ stapik::app::build::VERSION },
             .author = AUTHOR,
             .repositoryUrl = REPOSITORY_URL
         };
+    }
+
+    void showExistingWindow(Gtk::Window& window)
+    {
+        window.unminimize();
+        window.present();
     }
 }
 
@@ -56,26 +59,28 @@ int main(int argumentCount, char *argv[])
     if (selfTest)
         g_setenv("G_MESSAGES_DEBUG", "all", FALSE);
 
-    stapik::app::AppContext::initialize(createAppInfo());
+    // Creating the application initializes the application context. Settings, AppPaths and LocaleManager must not
+    // be touched before run(): the command line flags (--data-dir, --portable, --reset-settings) are applied there.
+    stapik::app::StapikApplicationOptions options;
+    options.checkForUpdates = !selfTest;
+
+    const auto app = stapik::app::StapikApplication::create(createAppInfo(), options);
 
     if (selfTest)
         stapik::log::setLevel(stapik::log::Level::Info);
 
-    const auto app = Gtk::Application::create(APPLICATION_ID);
-
-    auto styleProvider = AppStyleProvider::withCommonThemes(AppPaths::resourcesDir());
     int selfTestFailures = 0;
 
     app->signal_activate().connect([&]
     {
-        styleProvider.apply(ThemeManager::instance().themeId());
-        ThemeManager::instance().signalThemeChanged().connect(
-            [&styleProvider] { styleProvider.apply(ThemeManager::instance().themeId()); });
+        // Starting the program again activates the running one, which must not open a second window.
+        if (const auto windows = app->get_windows(); !windows.empty())
+        {
+            showExistingWindow(*windows.front());
+            return;
+        }
 
-        StandardMenu::installShortcuts(*app);
-        app->set_accels_for_action("win.guide", { "F1" });
-
-        auto* window = new MainWindow(styleProvider.themes());
+        auto* window = new MainWindow(app->themes());
         app->add_window(*window);
         window->show();
 

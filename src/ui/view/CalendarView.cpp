@@ -4,6 +4,7 @@
 
 CalendarView::CalendarView(CalendarController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_controller(controller),
     m_currentYearMonth(DateUtils::todayYearMonth()),
     m_grid(controller)
 {
@@ -28,6 +29,7 @@ void CalendarView::initNavigation()
     m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &CalendarView::navigatePrevMonth));
     m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &CalendarView::navigateNextMonth));
     m_navBar.signalNextYear().connect( sigc::mem_fun(*this, &CalendarView::navigateNextYear));
+    m_navBar.signalMonthSelected().connect(sigc::mem_fun(*this, &CalendarView::navigateTo));
 }
 
 void CalendarView::navigatePrevYear()
@@ -54,8 +56,15 @@ void CalendarView::navigateNextYear()
     refreshView();
 }
 
+void CalendarView::navigateTo(const std::chrono::year_month yearMonth)
+{
+    m_currentYearMonth = yearMonth;
+    refreshView();
+}
+
 void CalendarView::refreshView()
 {
+    m_controller.setDisplayedYear(static_cast<int>(m_currentYearMonth.year()));
     m_navBar.updateDisplay(m_currentYearMonth);
     m_grid.displayMonth(m_currentYearMonth);
 }

@@ -12,6 +12,7 @@ class CalendarView : public Gtk::Box
 public:
     explicit CalendarView(CalendarController& controller);
 private:
+    CalendarController& m_controller;
     std::chrono::year_month m_currentYearMonth;
 
     CalendarNavBar m_navBar;
@@ -25,6 +26,7 @@ private:
     void navigatePrevMonth();
     void navigateNextMonth();
     void navigateNextYear();
+    void navigateTo(std::chrono::year_month yearMonth);
 
     void refreshView();
 };

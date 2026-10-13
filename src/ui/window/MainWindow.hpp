@@ -4,6 +4,7 @@
 #include <gtkmm/box.h>
 #include <sigc++/connection.h>
 
+#include "stapik/settings/ObservableSetting.hpp"
 #include "stapik/theme/ThemeRegistry.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
 #include "stapik/ui/widget/StatusIndicator.hpp"
@@ -22,6 +23,7 @@ private:
     static constexpr int DEFAULT_HEIGHT = 800;
     static constexpr int STATUS_BAR_MARGIN = 6;
     static constexpr auto WINDOW_TITLE = "Stapik Calendar";
+    static constexpr auto TUTORIAL_DIRECTORY = "tutorial";
 
     Gtk::Box m_mainBox;
     CalendarController m_controller;
@@ -29,12 +31,18 @@ private:
     Gtk::Box m_statusBar;
     StatusIndicator m_statusIndicator;
     MenuActionHandler m_actionHandler;
+    stapik::settings::ObservableSetting<bool> m_checkForUpdates;
     StandardMenu m_menu;
     sigc::connection m_statusConnection;
+    sigc::connection m_saveFailedConnection;
+    sigc::connection m_apiKeyExpiringConnection;
 
     void init();
     void initLayout();
-    void initHelpMenu();
+    void initFileMenu();
+    void initSettings();
+    void initSaveErrors();
+    void initApiKeyWarning();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

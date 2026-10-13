@@ -19,9 +19,9 @@ void CalendarCell::initLayout()
     m_dayLabel.set_margin(CELL_MARGIN);
 
     m_scrolledWindow.set_child(m_entriesBox);
-    m_scrolledWindow.set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::AUTOMATIC);
+    // EXTERNAL keeps scrolling (wheel, touchpad, touch) but never shows a scrollbar, in any theme.
+    m_scrolledWindow.set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::EXTERNAL);
     m_scrolledWindow.set_vexpand(true);
-    m_scrolledWindow.set_overlay_scrolling(false);
 
     m_entriesBox.set_margin_start(CELL_MARGIN);
     m_entriesBox.set_margin_end(CELL_MARGIN);

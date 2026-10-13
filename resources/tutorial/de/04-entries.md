@@ -1,0 +1,49 @@
+# Einträge
+
+## Einen Eintrag hinzufügen
+
+Doppelklicken Sie auf eine leere Stelle einer Tageszelle. Das Fenster **Neuer Eintrag** öffnet sich:
+
+- **Name** — erforderlich. Ohne Namen wird der Eintrag nicht angelegt.
+- **Link (optional)** — eine Webadresse, die Sie später mit einem Klick öffnen können.
+- **Farbe** — das erste, leere Quadrat bedeutet keine Farbe; die übrigen sind Farben (siehe *Farben*).
+
+Bestätigen Sie mit **OK** oder wählen Sie **Abbrechen**, um zu verwerfen.
+
+![Das Fenster Neuer Eintrag mit den Feldern Name, Link und Farbe](images/new-entry-dialog.png)
+
+## Schnell aus der Zwischenablage hinzufügen
+
+Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`), klicken Sie mit der **rechten Maustaste** auf einen Tag. Die Anwendung legt für diesen Tag einen Eintrag an, mit der Adresse als Link und dem Titel der Webseite als Name. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, heißt der Eintrag *Ohne Namen*. Enthält die Zwischenablage keine Webadresse, passiert nichts.
+
+## Einen Link öffnen
+
+Hat ein Eintrag einen Link, wird der Mauszeiger über seinem Namen zu einer Hand. **Klicken Sie einmal auf den Eintrag**, um den Link im Standardbrowser zu öffnen. Die Anwendung wartet einen Moment (die in Ihrem System eingestellte Doppelklickzeit), um sicherzugehen, dass Sie keinen Doppelklick meinten; die Seite öffnet sich daher mit kurzer Verzögerung.
+
+> Es werden nur `http`- und `https`-Links geöffnet. Ein Link ohne Schema, etwa `example.com`, wird als `https://example.com` geöffnet.
+
+## Einen Eintrag bearbeiten
+
+**Doppelklicken** Sie auf einen Eintrag, um das Fenster **Eintrag bearbeiten** zu öffnen, in dem Sie Name, Link und Farbe ändern können.
+
+## Einen Eintrag löschen
+
+Klicken Sie auf die Schaltfläche **✕** am rechten Rand des Eintrags. Ein gelöschter Eintrag lässt sich mit [Rückgängig](#undo-redo) zurückholen.
+
+## Farben
+
+Klicken Sie mit der rechten Maustaste auf einen Eintrag, um eine Reihe von Quadraten zu öffnen, und klicken Sie auf die gewünschte Farbe. Die Farbe können Sie auch in den Fenstern Neuer Eintrag und Eintrag bearbeiten wählen. Verfügbare Farben: Rot, Orange, Gelb, Grün, Türkis, Blau, Lila, Rosa, Braun und Grau sowie das Standardaussehen ohne Farbe.
+
+![Die Farbauswahl nach einem Rechtsklick auf einen Eintrag](images/entry-color-popover.png)
+
+## Verschieben und Kopieren
+
+Ziehen Sie einen Eintrag und lassen Sie ihn auf einem anderen Tag los, um ihn zu **verschieben**. Halten Sie beim Ziehen `Strg` gedrückt, um ihn stattdessen zu **kopieren**. Wird ein Eintrag auf seinem eigenen Tag losgelassen, ändert sich nichts.
+
+![Ein Eintrag wird von einem Tag auf einen anderen gezogen](images/drag-and-drop.png)
+
+## Tage mit vielen Einträgen
+
+Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.
+
+![Eine Tageszelle mit mehreren Einträgen, einige davon farbig](images/entries-in-cell.png)

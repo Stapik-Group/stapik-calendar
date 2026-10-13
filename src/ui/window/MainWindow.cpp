@@ -2,18 +2,27 @@
 
 #include "../../application/CalendarCloudHooks.hpp"
 
+#include "stapik/app/AppContext.hpp"
+#include "stapik/locale/DateFormatter.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/storage/AppPaths.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
+#include "stapik/update/UpdateChecker.hpp"
 
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
     m_calendarView(m_controller),
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
-    m_actionHandler(*this, m_controller),
-    m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_controller.undoStack() })
+    m_actionHandler(*this, m_controller, [this] { m_checkForUpdates.reload(); }),
+    m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
+    m_menu(*this, StandardMenuOptions{ .tutorialDirectory = AppPaths::resourcesDir() / TUTORIAL_DIRECTORY, .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
     m_actionHandler.registerActions();
-    initHelpMenu();
+    initFileMenu();
+    initSettings();
+    initSaveErrors();
+    initApiKeyWarning();
     init();
     initLayout();
     initSyncStatus();
@@ -22,6 +31,8 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
 MainWindow::~MainWindow()
 {
     m_statusConnection.disconnect();
+    m_saveFailedConnection.disconnect();
+    m_apiKeyExpiringConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -44,11 +55,43 @@ void MainWindow::initLayout()
     m_mainBox.append(m_statusBar);
 }
 
-void MainWindow::initHelpMenu()
+void MainWindow::initFileMenu()
 {
-    m_menu.addToMenu(StandardMenu::Target::Help, [](Gio::Menu& menu)
+    m_menu.addToMenu(StandardMenu::Target::File, [](Gio::Menu& menu)
     {
-        menu.append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
+        const auto backupSection = Gio::Menu::create();
+        backupSection->append(LocaleManager::instance().translate("menu.file.restoreBackup"), "win.restoreBackup");
+        menu.append_section(backupSection);
+
+        const auto archiveSection = Gio::Menu::create();
+        archiveSection->append(LocaleManager::instance().translate("menu.file.exportArchive"), "win.exportArchive");
+        archiveSection->append(LocaleManager::instance().translate("menu.file.importArchive"), "win.importArchive");
+        menu.append_section(archiveSection);
+    });
+}
+
+void MainWindow::initSettings()
+{
+    // The check runs once, at startup, so a change takes effect on the next start.
+    m_menu.settings().addBool("menu.settings.checkForUpdates", m_checkForUpdates);
+}
+
+void MainWindow::initSaveErrors()
+{
+    m_saveFailedConnection = m_controller.signalSaveFailed().connect([this](const std::string& reason)
+    {
+        const auto& loc = LocaleManager::instance();
+        showMessageDialog(*this, loc.translate("save.failed.title"), loc.translate("save.failed.text", { { "reason", reason } }));
+    });
+}
+
+void MainWindow::initApiKeyWarning()
+{
+    m_apiKeyExpiringConnection = m_controller.signalApiKeyExpiring().connect([this](const std::chrono::system_clock::time_point expiresAt)
+    {
+        const auto& loc = LocaleManager::instance();
+        const auto date = stapik::locale::formatDate(stapik::locale::toLocalTime(expiresAt), loc.languageCode());
+        showMessageDialog(*this, loc.translate("cloud.apiKeyExpiring.title"), loc.translate("cloud.apiKeyExpiring", { { "date", date } }));
     });
 }
 

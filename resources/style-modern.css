@@ -99,7 +99,7 @@ frame > border {
 }
 .calendar-entry-delete:hover,
 .calendar-entry-delete:active {
-    background-color: #ffe5e5;
+    background-color: transparent;
     color: #ff3b30;
     padding: 0 !important;
     box-shadow: none;
