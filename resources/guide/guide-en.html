@@ -286,7 +286,7 @@
         <div class="note">Tip for several devices: after you finish editing, wait for <em>Up to date</em> (or use <em>Sync</em>) before you switch to another computer.</div>
 
         <h3>9.6 Changing the server or stopping synchronization</h3>
-        <p>To use another server or key, open <strong>File → Connect to cloud</strong> again and enter the new values. There is no disconnect button: to stop using the cloud, close the application and delete the file <code>~/.local/share/stapikcalendar/config.json</code>. Your local calendar is not affected.</p>
+        <p>To use another server or key, open <strong>File → Connect to cloud</strong> again and enter the new values. There is no disconnect button: to stop using the cloud, close the application and delete the file <code>~/.config/stapikcalendar/config.json</code>. Your local calendar is not affected.</p>
         <p>The API key is stored in that file in plain text, readable only by you, so keep your home directory protected.</p>
     </section>
 
@@ -300,7 +300,7 @@
             <tr><td><code>config.json</code></td><td>cloud address and key</td></tr>
             <tr><td><code>cloud-baseline.json</code></td><td>technical data about the last synchronization</td></tr>
         </table>
-        <p>Your language, theme, font size and window size are stored in <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <p>Your language, theme, font size and window size are stored in <code>~/.config/stapikcalendar/settings.json</code>. The cloud address is in <code>~/.config/stapikcalendar/config.json</code>; the API key is kept in the system keyring.</p>
         <p>If the calendar cannot be saved to disk (for example because the disk is full), the application shows a message with the reason. Fix the problem and make any change: the whole calendar is saved again.</p>
         <h3>Restoring a backup</h3>
         <p>Choose <strong>File → Restore from backup…</strong>, pick one of the saved copies by its date and time and confirm. The calendar you had before becomes the newest copy, so you can go back the same way. The undo history is cleared and, when you are connected to Stapik Cloud, the restored calendar is sent there like any other change.</p>

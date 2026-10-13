@@ -3,6 +3,7 @@
 #include "../../application/CalendarCloudHooks.hpp"
 
 #include "stapik/app/AppContext.hpp"
+#include "stapik/locale/DateFormatter.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
@@ -21,6 +22,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     initHelpMenu();
     initSettings();
     initSaveErrors();
+    initApiKeyWarning();
     init();
     initLayout();
     initSyncStatus();
@@ -30,6 +32,7 @@ MainWindow::~MainWindow()
 {
     m_statusConnection.disconnect();
     m_saveFailedConnection.disconnect();
+    m_apiKeyExpiringConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -85,6 +88,16 @@ void MainWindow::initSaveErrors()
     {
         const auto& loc = LocaleManager::instance();
         showMessageDialog(*this, loc.translate("save.failed.title"), loc.translate("save.failed.text", { { "reason", reason } }));
+    });
+}
+
+void MainWindow::initApiKeyWarning()
+{
+    m_apiKeyExpiringConnection = m_controller.signalApiKeyExpiring().connect([this](const std::chrono::system_clock::time_point expiresAt)
+    {
+        const auto& loc = LocaleManager::instance();
+        const auto date = stapik::locale::formatDate(stapik::locale::toLocalTime(expiresAt), loc.languageCode());
+        showMessageDialog(*this, loc.translate("cloud.apiKeyExpiring.title"), loc.translate("cloud.apiKeyExpiring", { { "date", date } }));
     });
 }
 

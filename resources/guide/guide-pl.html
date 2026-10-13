@@ -286,7 +286,7 @@
         <div class="note">Wskazówka dla kilku urządzeń: po zakończeniu edycji poczekaj na stan <em>Aktualne</em> (albo użyj <em>Synchronizuj</em>), zanim przejdziesz na inny komputer.</div>
 
         <h3>9.6 Zmiana serwera lub zakończenie synchronizacji</h3>
-        <p>Aby użyć innego serwera lub klucza, otwórz ponownie <strong>Plik → Połącz z chmurą</strong> i wpisz nowe wartości. Nie ma przycisku rozłączania: aby przestać korzystać z chmury, zamknij aplikację i usuń plik <code>~/.local/share/stapikcalendar/config.json</code>. Twój lokalny kalendarz nie zostanie naruszony.</p>
+        <p>Aby użyć innego serwera lub klucza, otwórz ponownie <strong>Plik → Połącz z chmurą</strong> i wpisz nowe wartości. Nie ma przycisku rozłączania: aby przestać korzystać z chmury, zamknij aplikację i usuń plik <code>~/.config/stapikcalendar/config.json</code>. Twój lokalny kalendarz nie zostanie naruszony.</p>
         <p>Klucz API jest zapisany w tym pliku jawnym tekstem i odczytać go możesz tylko Ty, więc dbaj o ochronę swojego katalogu domowego.</p>
     </section>
 
@@ -300,7 +300,7 @@
             <tr><td><code>config.json</code></td><td>adres i klucz chmury</td></tr>
             <tr><td><code>cloud-baseline.json</code></td><td>dane techniczne o ostatniej synchronizacji</td></tr>
         </table>
-        <p>Język, motyw, rozmiar czcionki i rozmiar okna są zapisane w <code>~/.config/stapikcalendar/settings.json</code>.</p>
+        <p>Język, motyw, rozmiar czcionki i rozmiar okna są zapisane w <code>~/.config/stapikcalendar/settings.json</code>. Adres chmury jest w <code>~/.config/stapikcalendar/config.json</code>, a klucz API w systemowym pęku kluczy.</p>
         <p>Jeśli kalendarza nie da się zapisać na dysku (na przykład przez brak miejsca), aplikacja pokazuje komunikat z przyczyną. Usuń problem i wprowadź dowolną zmianę: cały kalendarz zostanie zapisany ponownie.</p>
         <h3>Przywracanie kopii zapasowej</h3>
         <p>Wybierz <strong>Plik → Przywróć z kopii zapasowej…</strong>, wskaż jedną z zapisanych kopii według daty i godziny i potwierdź. To, co było wcześniej, staje się najnowszą kopią, więc przywrócenie można cofnąć w ten sam sposób. Historia cofania jest czyszczona, a po połączeniu ze Stapik Cloud przywrócony kalendarz jest tam wysyłany jak każda inna zmiana.</p>

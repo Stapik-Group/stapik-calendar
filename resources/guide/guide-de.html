@@ -286,7 +286,7 @@
         <div class="note">Tipp für mehrere Geräte: Warten Sie nach dem Bearbeiten auf <em>Aktuell</em> (oder verwenden Sie <em>Synchronisieren</em>), bevor Sie zu einem anderen Computer wechseln.</div>
 
         <h3>9.6 Server wechseln oder Synchronisierung beenden</h3>
-        <p>Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie <strong>Datei → Mit Cloud verbinden</strong> erneut und geben Sie die neuen Werte ein. Es gibt keine Schaltfläche zum Trennen: Um die Cloud nicht mehr zu nutzen, schließen Sie die Anwendung und löschen Sie die Datei <code>~/.local/share/stapikcalendar/config.json</code>. Ihr lokaler Kalender bleibt unberührt.</p>
+        <p>Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie <strong>Datei → Mit Cloud verbinden</strong> erneut und geben Sie die neuen Werte ein. Es gibt keine Schaltfläche zum Trennen: Um die Cloud nicht mehr zu nutzen, schließen Sie die Anwendung und löschen Sie die Datei <code>~/.config/stapikcalendar/config.json</code>. Ihr lokaler Kalender bleibt unberührt.</p>
         <p>Der API-Schlüssel steht in dieser Datei im Klartext und ist nur für Sie lesbar; schützen Sie daher Ihr Home-Verzeichnis.</p>
     </section>
 
@@ -297,10 +297,9 @@
             <tr><th>Datei</th><th>Inhalt</th></tr>
             <tr><td><code>calendar.json</code></td><td>Ihr Kalender</td></tr>
             <tr><td><code>calendar.json.bak</code>, <code>.bak.2</code>, <code>.bak.3</code></td><td>die drei vorherigen Versionen, bei jedem Speichern aufgefrischt</td></tr>
-            <tr><td><code>config.json</code></td><td>Cloud-Adresse und Schlüssel</td></tr>
             <tr><td><code>cloud-baseline.json</code></td><td>technische Daten zur letzten Synchronisierung</td></tr>
         </table>
-        <p>Sprache, Thema, Schriftgröße und Fenstergröße werden in <code>~/.config/stapikcalendar/settings.json</code> gespeichert.</p>
+        <p>Sprache, Thema, Schriftgröße und Fenstergröße werden in <code>~/.config/stapikcalendar/settings.json</code> gespeichert. Die Cloud-Adresse steht in <code>~/.config/stapikcalendar/config.json</code>, der API-Schlüssel im System-Schlüsselbund.</p>
         <p>Lässt sich der Kalender nicht auf der Festplatte speichern (zum Beispiel weil sie voll ist), zeigt die Anwendung eine Meldung mit der Ursache. Beheben Sie das Problem und nehmen Sie irgendeine Änderung vor: Der gesamte Kalender wird erneut gespeichert.</p>
         <h3>Eine Sicherung wiederherstellen</h3>
         <p>Wählen Sie <strong>Datei → Aus Sicherung wiederherstellen…</strong>, suchen Sie eine der gespeicherten Kopien nach Datum und Uhrzeit aus und bestätigen Sie. Der bisherige Stand wird zur neuesten Kopie, die Wiederherstellung lässt sich also auf demselben Weg zurücknehmen. Der Rückgängig-Verlauf wird geleert, und bei bestehender Verbindung zu Stapik Cloud wird der wiederhergestellte Kalender wie jede andere Änderung dorthin gesendet.</p>

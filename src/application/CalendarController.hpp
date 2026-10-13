@@ -63,6 +63,8 @@ public:
     sigc::signal<void(const ConnectionResult&)>& signalConnectionResult();
     // Emitted with the reason when saving to disk starts to fail; not repeated until a save succeeds again.
     sigc::signal<void(const std::string&)>& signalSaveFailed();
+    // Emitted with the expiry time when the cloud reports that the API key is about to expire; once per reported time.
+    sigc::signal<void(std::chrono::system_clock::time_point)>& signalApiKeyExpiring();
 
 private:
     using Session = stapik::sync::CloudSession<CalendarDocument>;

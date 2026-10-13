@@ -178,6 +178,11 @@ sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
     return m_signalSaveFailed;
 }
 
+sigc::signal<void(std::chrono::system_clock::time_point)>& CalendarController::signalApiKeyExpiring()
+{
+    return m_session.signalApiKeyExpiring();
+}
+
 void CalendarController::onHistoryChanged()
 {
     m_document.markUpdated();

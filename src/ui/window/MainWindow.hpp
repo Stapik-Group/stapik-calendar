@@ -34,6 +34,7 @@ private:
     StandardMenu m_menu;
     sigc::connection m_statusConnection;
     sigc::connection m_saveFailedConnection;
+    sigc::connection m_apiKeyExpiringConnection;
 
     void init();
     void initLayout();
@@ -41,6 +42,7 @@ private:
     void initHelpMenu();
     void initSettings();
     void initSaveErrors();
+    void initApiKeyWarning();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

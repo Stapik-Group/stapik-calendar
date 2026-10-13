@@ -110,7 +110,7 @@ Either way, your calendar data and settings remain in `~/.local/share/stapikcale
 
 ## Cloud Sync
 
-The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable).
+The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). The server must be Stapik Cloud **1.2.0 or newer**; older servers are not supported. Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable).
 
 Once connected, the app compares the local document and the cloud copy using a timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the write that's based on the older cloud state loses.
 
@@ -122,6 +122,8 @@ Data is saved locally after every change. Synchronization runs in the background
 
 When the server version wins a conflict, it replaces the local document and the undo history is cleared, because earlier operations no longer match the data.
 
+API keys may have an expiry date. When the key is within its last 30 days, the cloud reports it and the app shows a message with the date, once per reported date, so you can issue a new key in the admin panel and enter it in **File → Connect** before sync stops. If the server asks the app to slow down (at most 600 requests per minute per key), the local calendar is kept and the next attempt waits as long as the server asked.
+
 **Upgrading from 1.1.x:** version 1.2.0 changed the document format stored in the cloud (the timestamp is now part of the synchronized document). Upgrade every device before connecting any of them to the same cloud slot — a 1.1.x client cannot read the new format and would treat the cloud document as empty. A cloud document written by 1.1.x is still read by 1.2.0 and is replaced with the new format on the next successful write.
 
 **Caution for multi-device use:** editing the calendar offline on two different machines before either one reconnects can still cause one set of changes to lose the conflict. With shadow-copy resolution (the default), that copy isn't destroyed — it's recoverable from the admin panel's version history — but it won't reappear in the app on its own; recovering it means restoring it from the admin panel and syncing again. If you use the app on more than one device, sync (or at least go online) after each editing session to avoid needing a manual restore.
@@ -131,7 +133,7 @@ When the server version wins a conflict, it replaces the local document and the 
 The app talks to a Stapik Cloud server (or any server implementing the same contract):
 
 - `GET /api/v1/documents/{slotKey}` — returns `{ "slotKey": "...", "content": "...", "contentHash": "...", "updatedAt": "..." }`
-- `PUT /api/v1/documents/{slotKey}` — accepts `{ "content": "...", "clientLastKnownUpdate": "..." }`, returns the same shape as `GET`. Status `200` means the write was accepted; `409` means it lost a conflict, and the response body is the current, winning document rather than an echo of what was sent.
+- `PUT /api/v1/documents/{slotKey}` — accepts `{ "content": "...", "clientLastKnownUpdate": "..." }`, returns the same shape as `GET`. Status `200` means the write was accepted; `409` means it lost a conflict (the write carries the version it is based on in `If-Match`; a missing or stale one loses), and the response body is the current, winning document rather than an echo of what was sent.
 
 Authentication: `x-api-key` header with a per-device key from the admin panel. The old `/read`/`/write` endpoints and the single shared API key are no longer supported — existing installations need to be reconnected in **File → Connect** with a newly issued key.
 
@@ -169,9 +171,10 @@ Next to it:
 - `calendar.json.corrupt-<timestamp>` - a file that could not be parsed, moved aside so it is never overwritten
 - `calendar.json.unreadable-<timestamp>` - a copy of a file written by a newer version of the app (or one that failed to migrate); the app starts with an empty calendar instead of touching the original
 - `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
-- `config.json` - cloud configuration (server URL and API key)
 
 Language, theme and font size preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
+
+The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
 
 ## Architecture
 
