@@ -2,7 +2,7 @@
 
 A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports multiple visual themes, from a retro look to a modern one.
 
-![Screenshot](screenshots/screenshot_1.png)
+![Screenshot](screenshots/screenshot.png)
 
 ## Features
 
