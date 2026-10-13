@@ -25,6 +25,7 @@ private:
     void navigatePrevMonth();
     void navigateNextMonth();
     void navigateNextYear();
+    void navigateTo(std::chrono::year_month yearMonth);
 
     void refreshView();
 };
