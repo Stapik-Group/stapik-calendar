@@ -13,7 +13,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Drag and drop** - drag an entry to another day to move it; hold **Ctrl** while dragging to copy it instead
 - **Quick add from clipboard** - right-clicking an empty cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
-- **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
+- **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), one cloud partition per year loaded as you navigate, automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from the settings window; the choice is remembered between launches
@@ -22,9 +22,9 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Single instance** - starting the program again shows the running window instead of opening another one
 - **Update notice** - once a day the application asks GitHub for the latest release and, when it is newer than the one you run, offers to open its page; nothing is downloaded or installed. It can be switched off in **Settings → Settings…**
 - **Command line** - `--version`, `--portable`, `--data-dir`, `--safe-mode`, `--reset-settings` and `--log-level`, see [Command line](#command-line)
-- **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups; if a save fails, a message tells you why
+- **Auto-save** - calendar data saved locally after every change in one file per year, atomically and with rotating backups; if a save fails, a message tells you why
 - **Backup of the whole application** - **File → Back up the whole application…** saves the calendar together with the settings into one `.zip` file, and **File → Restore the whole application…** brings both back from such a file, for example on another computer
-- **Restore from backup** - **File → Restore from backup…** lists the saved copies by date and time and goes back to the one you pick; the calendar you had before becomes the newest copy, so a restore can be taken back the same way
+- **Restore from backup** - **File → Restore from backup…** lists the saved copies of the displayed year by date and time and goes back to the one you pick; the year you had before becomes the newest copy, so a restore can be taken back the same way
 
 ## Dependencies
 
@@ -144,6 +144,7 @@ API keys may have an expiry date. When the key is within its last 30 days, the c
 The app talks to a Stapik Cloud server (or any server implementing the same contract):
 
 - `GET /api/v1/documents/{slotKey}` — returns `{ "slotKey": "...", "content": "...", "contentHash": "...", "updatedAt": "..." }`
+- `GET` / `PUT /api/v1/documents/{slotKey}/partitions/{year}` — the same for one year (`2026`), and `GET /api/v1/documents/{slotKey}/partitions` lists the years that exist; the calendar uses only these, the document itself (`{slotKey}`) is read once to import a calendar saved by an earlier version
 - `PUT /api/v1/documents/{slotKey}` — accepts `{ "content": "...", "clientLastKnownUpdate": "..." }`, returns the same shape as `GET`. Status `200` means the write was accepted; `409` means it lost a conflict (the write carries the version it is based on in `If-Match`; a missing or stale one loses), and the response body is the current, winning document rather than an echo of what was sent.
 
 Authentication: `x-api-key` header with a per-device key from the admin panel. The old `/read`/`/write` endpoints and the single shared API key are no longer supported — existing installations need to be reconnected in **File → Connect** with a newly issued key.
