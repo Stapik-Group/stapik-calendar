@@ -48,7 +48,10 @@ void MainWindow::initHelpMenu()
 {
     m_menu.addToMenu(StandardMenu::Target::Help, [](Gio::Menu& menu)
     {
-        menu.append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
+        // The shared Help items (log, about) are already in the menu; the guide goes first, where a tutorial would be.
+        const auto guideSection = Gio::Menu::create();
+        guideSection->append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
+        menu.prepend_section(guideSection);
     });
 }
 

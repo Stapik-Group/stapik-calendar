@@ -21,4 +21,4 @@ Removing
 Reporting problems
   Describe what you did and attach stapik.log and, if you can, a screenshot.
 
-Language and theme: the Settings menu.
+Language, theme and font size: Settings > Settings...

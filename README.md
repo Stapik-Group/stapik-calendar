@@ -17,7 +17,8 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **User guide** - **Help → Guide** (or `F1`) opens a full illustrated guide in your browser, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
-- **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from **Settings → Theme**; the choice is remembered between launches
+- **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from the settings window; the choice is remembered between launches
+- **Settings window** - **Settings → Settings…** opens one window with the language, the theme and the font size (70–200 %); a change is applied and saved at once
 - **Auto-save** - calendar data saved locally after every change, atomically and with rotating backups
 
 ## Dependencies
@@ -153,7 +154,7 @@ Next to it:
 - `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
 - `config.json` - cloud configuration (server URL and API key)
 
-Language and theme preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start.
+Language, theme and font size preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start.
 
 ## Architecture
 

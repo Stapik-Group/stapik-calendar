@@ -10,6 +10,7 @@
 #include "stapik/app/AppContext.hpp"
 #include "stapik/app/version.hpp"
 #include "stapik/storage/AppPaths.hpp"
+#include "stapik/theme/FontSizeManager.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
 #include "stapik/ui/style/AppStyleProvider.hpp"
@@ -69,11 +70,19 @@ int main(int argumentCount, char *argv[])
 
     app->signal_activate().connect([&]
     {
-        styleProvider.apply(ThemeManager::instance().themeId());
-        ThemeManager::instance().signalThemeChanged().connect(
-            [&styleProvider] { styleProvider.apply(ThemeManager::instance().themeId()); });
+        // The settings window changes the theme and the font size, and both end up in the same style sheet.
+        const auto applyStyle = [&styleProvider]
+        {
+            styleProvider.apply(ThemeManager::instance().themeId(), FontSizeManager::instance().scalePercent());
+        };
+
+        applyStyle();
+        ThemeManager::instance().signalThemeChanged().connect(applyStyle);
+        FontSizeManager::instance().signalFontSizeChanged().connect(applyStyle);
 
         StandardMenu::installShortcuts(*app);
+        // installShortcuts() gives F1 to the tutorial, which the calendar does not have yet: F1 opens the guide.
+        app->set_accels_for_action("win.tutorial", {});
         app->set_accels_for_action("win.guide", { "F1" });
 
         auto* window = new MainWindow(styleProvider.themes());
