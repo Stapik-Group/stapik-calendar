@@ -7,7 +7,7 @@ Stapik Cloud to serwer, który uruchamiasz samodzielnie. Przechowuje jedną kopi
 - Działającego serwera Stapik Cloud, do którego Twój komputer ma dostęp, oraz jego **adresu** (adresu API), na przykład `https://cloud.example.com`.
 - **Klucza API** wystawionego dla tego urządzenia. W panelu administracyjnym Stapik Cloud każde urządzenie dostaje własny klucz; nie ma klucza wspólnego.
 
-Kalendarz jest przechowywany na serwerze w dokumencie o nazwie `calendar.json`.
+Kalendarz jest przechowywany na serwerze w osobnych partycjach dokumentu, po jednej na rok (`2026`, `2027`…). Aplikacja pobiera rok, który oglądasz, a pozostałe lata dopiero wtedy, gdy do nich przejdziesz. Lata, w których nie ma żadnych wpisów, nie tworzą partycji w chmurze.
 
 ## Łączenie
 
@@ -25,7 +25,9 @@ Kalendarz jest przechowywany na serwerze w dokumencie o nazwie `calendar.json`.
 
 Ustawienia są zapamiętywane. Przy następnym uruchomieniu aplikacja łączy się sama, a okno otwierane z *Połącz z chmurą* jest już wypełnione, więc możesz go użyć do zmiany serwera lub klucza.
 
-**Co dzieje się przy pierwszej synchronizacji:** jeśli chmura jest jeszcze pusta, Twój kalendarz zostaje wysłany. Jeśli kopia w chmurze jest nowsza od Twojej, zastępuje Twój lokalny kalendarz. W pozostałych przypadkach wysyłany jest Twój lokalny kalendarz.
+**Co dzieje się przy pierwszej synchronizacji:** jeśli chmura jest jeszcze pusta, Twój kalendarz zostaje wysłany. Jeśli kopia danego roku w chmurze jest nowsza od Twojej, zastępuje ten rok na Twoim komputerze. W pozostałych przypadkach wysyłany jest Twój lokalny rok.
+
+**Kalendarz z poprzednich wersji:** starsze wersje aplikacji trzymały cały kalendarz w jednym dokumencie `calendar.json`. Przy pierwszym połączeniu z danym serwerem aplikacja jednorazowo odczytuje taki dokument i dodaje jego wpisy do lat na Twoim komputerze (to, co już tu masz, zostaje). Stary dokument w chmurze nie jest zmieniany, ale też przestaje być aktualizowany: starsze wersje aplikacji na innych urządzeniach go używają i nie widzą partycji.
 
 ## Pasek stanu
 
@@ -48,9 +50,9 @@ Gdy chmura jest skonfigurowana, u dołu okna widać bieżący stan:
 
 ## Konflikty i kilka urządzeń
 
-Cały kalendarz jest porównywany jako jeden dokument i wygrywa nowsza wersja. Wpisy nigdy nie są łączone pojedynczo. Jeśli zmienisz kalendarz na dwóch komputerach, gdy oba są offline, wersja, która później dotrze do serwera, zastąpi drugą.
+Każdy rok jest porównywany osobno jako jeden dokument i wygrywa nowsza wersja. Wpisy nigdy nie są łączone pojedynczo. Jeśli zmienisz kalendarz na dwóch komputerach, gdy oba są offline, wersja, która później dotrze do serwera, zastąpi drugą.
 
-Gdy wygrywa wersja z serwera, zastępuje kalendarz na Twoim komputerze, a historia cofania jest czyszczona. Domyślnie Stapik Cloud zachowuje zastąpioną wersję w historii dokumentu, więc można ją przywrócić z panelu administracyjnego; przywróć ją tam i zsynchronizuj ponownie.
+Gdy wygrywa wersja z serwera, zastępuje dany rok na Twoim komputerze, a historia cofania jest czyszczona. Domyślnie Stapik Cloud zachowuje zastąpioną wersję w historii dokumentu, więc można ją przywrócić z panelu administracyjnego; przywróć ją tam i zsynchronizuj ponownie.
 
 > Wskazówka dla kilku urządzeń: po zakończeniu edycji poczekaj na stan *Aktualne* (albo użyj *Synchronizuj*), zanim przejdziesz na inny komputer.
 

@@ -24,8 +24,7 @@ namespace
     constexpr int SCHEMA_VERSION = 1;
     constexpr int BACKUP_COUNT = 3;
     constexpr auto LEGACY_FILE_NAME = "calendar.json";
-    constexpr auto BASELINE_FILE_NAME = "cloud-baseline.json";
-    constexpr auto BASELINE_KEY = "lastKnownCloudUpdate";
+    constexpr auto BASELINE_FILE_NAME = "cloud-baselines.json";
 
     // Version 0 is every file written before the schema was versioned:
     // either a bare entries array or a sync envelope { lastUpdate, payload, lastKnownCloudUpdate? }.
@@ -236,38 +235,47 @@ void CalendarDocumentStore::migrateLegacyFile() const
         stapik::log::info("Split {} into one file per year; the old file is kept as {}", legacyPath.string(), migratedPath.string());
 }
 
-std::optional<TimePoint> CalendarDocumentStore::loadBaseline() const
+std::map<int, TimePoint> CalendarDocumentStore::loadBaselines() const
 {
+    std::map<int, TimePoint> baselines;
+
     std::ifstream file(m_baselinePath);
     if (!file.is_open())
-        return std::nullopt;
+        return baselines;
 
     try
     {
-        return stapik::sync::parseIso8601(nlohmann::json::parse(file).at(BASELINE_KEY).get<std::string>());
+        for (const auto& [key, value] : nlohmann::json::parse(file).items())
+        {
+            if (const auto time = stapik::sync::parseIso8601(value.get<std::string>()))
+                baselines.emplace(std::stoi(key), *time);
+        }
     }
-    catch (const nlohmann::json::exception&)
+    catch (const std::exception& exception)
     {
-        return std::nullopt;
+        stapik::log::warning("Cannot read the cloud baselines: {}", exception.what());
+        return {};
     }
+
+    return baselines;
 }
 
-stapik::storage::FileResult CalendarDocumentStore::saveBaseline(const std::optional<TimePoint>& baseline) const
+stapik::storage::FileResult CalendarDocumentStore::saveBaselines(const std::map<int, TimePoint>& baselines) const
 {
-    if (!baseline.has_value())
+    if (baselines.empty())
     {
         std::error_code errorCode;
         std::filesystem::remove(m_baselinePath, errorCode);
         return {};
     }
 
-    const nlohmann::json json = {
-        { BASELINE_KEY, stapik::sync::toIso8601(*baseline, stapik::sync::TimestampPrecision::Microseconds) }
-    };
+    nlohmann::json json = nlohmann::json::object();
+    for (const auto& [year, baseline] : baselines)
+        json[std::format("{:04}", year)] = stapik::sync::toIso8601(baseline, stapik::sync::TimestampPrecision::Microseconds);
 
     const auto written = stapik::storage::writeFileAtomically(m_baselinePath, json.dump(2) + "\n");
     if (!written)
-        stapik::log::warning("Cannot save the cloud baseline: {}", written.error().message());
+        stapik::log::warning("Cannot save the cloud baselines: {}", written.error().message());
 
     return written;
 }

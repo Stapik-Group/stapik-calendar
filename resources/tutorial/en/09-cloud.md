@@ -7,7 +7,7 @@ Stapik Cloud is a server that you run yourself. It keeps one copy of your calend
 - A running Stapik Cloud server that your computer can reach, and its **address** (the API URL), for example `https://cloud.example.com`.
 - An **API key** issued for this device. In the Stapik Cloud admin panel every device gets its own key; there is no shared key.
 
-The calendar is stored in the document named `calendar.json` on the server.
+The calendar is stored on the server in separate partitions of the document, one per year (`2026`, `2027`…). The application downloads the year you are looking at, and the other years only when you move to them. A year without any entries does not create a partition in the cloud.
 
 ## Connecting
 
@@ -25,7 +25,9 @@ The calendar is stored in the document named `calendar.json` on the server.
 
 The settings are remembered. Next time the application connects by itself, and the window you open from *Connect to cloud* is already filled in, so you can use it to change the server or the key.
 
-**What happens at the first synchronization:** if the cloud is still empty, your calendar is uploaded. If the copy in the cloud is newer than yours, it replaces your local calendar. Otherwise your local calendar is uploaded.
+**What happens at the first synchronization:** if the cloud is still empty, your calendar is uploaded. If the cloud copy of a year is newer than yours, it replaces that year on your computer. Otherwise your local year is uploaded.
+
+**A calendar from earlier versions:** earlier versions of the application kept the whole calendar in one document, `calendar.json`. When you connect to a server for the first time, the application reads such a document once and adds its entries to the years on your computer (what you already have here stays). The old document in the cloud is not changed, but it is no longer updated either: earlier versions of the application on other devices still use it and do not see the partitions.
 
 ## The status bar
 
@@ -48,7 +50,7 @@ When a cloud is configured, the bottom of the window shows the current state:
 
 ## Conflicts and several devices
 
-The whole calendar is compared as one document, and the newer version wins. Entries are never merged one by one. If you change the calendar on two computers while both are offline, the version that reaches the server later replaces the other.
+Each year is compared separately as one document, and the newer version wins. Entries are never merged one by one. If you change the calendar on two computers while both are offline, the version that reaches the server later replaces the other.
 
 When the server version wins, it replaces the calendar on your computer and the undo history is cleared. By default Stapik Cloud keeps the replaced version in the document history, so it can be restored from the admin panel; restore it there and synchronize again.
 

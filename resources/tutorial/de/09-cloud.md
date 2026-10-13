@@ -7,7 +7,7 @@ Stapik Cloud ist ein Server, den Sie selbst betreiben. Er hält eine Kopie Ihres
 - Einen laufenden Stapik-Cloud-Server, den Ihr Computer erreichen kann, und dessen **Adresse** (die API-URL), zum Beispiel `https://cloud.example.com`.
 - Einen für dieses Gerät ausgestellten **API-Schlüssel**. Im Admin-Panel von Stapik Cloud erhält jedes Gerät einen eigenen Schlüssel; es gibt keinen gemeinsamen Schlüssel.
 
-Der Kalender wird auf dem Server im Dokument mit dem Namen `calendar.json` gespeichert.
+Der Kalender wird auf dem Server in getrennten Partitionen des Dokuments gespeichert, eine pro Jahr (`2026`, `2027`…). Die Anwendung lädt das Jahr, das Sie ansehen, und die übrigen Jahre erst, wenn Sie zu ihnen wechseln. Ein Jahr ohne Einträge erzeugt keine Partition in der Cloud.
 
 ## Verbinden
 
@@ -25,7 +25,9 @@ Der Kalender wird auf dem Server im Dokument mit dem Namen `calendar.json` gespe
 
 Die Einstellungen werden gespeichert. Beim nächsten Start verbindet sich die Anwendung selbst, und das Fenster, das Sie über *Mit Cloud verbinden* öffnen, ist bereits ausgefüllt, sodass Sie damit Server oder Schlüssel ändern können.
 
-**Was bei der ersten Synchronisierung geschieht:** Ist die Cloud noch leer, wird Ihr Kalender hochgeladen. Ist die Kopie in der Cloud neuer als Ihre, ersetzt sie Ihren lokalen Kalender. Andernfalls wird Ihr lokaler Kalender hochgeladen.
+**Was bei der ersten Synchronisierung geschieht:** Ist die Cloud noch leer, wird Ihr Kalender hochgeladen. Ist die Cloud-Kopie eines Jahres neuer als Ihre, ersetzt sie dieses Jahr auf Ihrem Computer. Andernfalls wird Ihr lokales Jahr hochgeladen.
+
+**Ein Kalender aus früheren Versionen:** Frühere Versionen der Anwendung speicherten den ganzen Kalender in einem Dokument, `calendar.json`. Bei der ersten Verbindung mit einem Server liest die Anwendung ein solches Dokument einmalig und fügt seine Einträge zu den Jahren auf Ihrem Computer hinzu (was bereits hier ist, bleibt erhalten). Das alte Dokument in der Cloud wird nicht verändert, aber auch nicht mehr aktualisiert: Frühere Versionen der Anwendung auf anderen Geräten benutzen es weiter und sehen die Partitionen nicht.
 
 ## Die Statusleiste
 
@@ -48,7 +50,7 @@ Ist eine Cloud eingerichtet, zeigt der untere Fensterrand den aktuellen Zustand:
 
 ## Konflikte und mehrere Geräte
 
-Der gesamte Kalender wird als ein Dokument verglichen, und die neuere Version gewinnt. Einträge werden nie einzeln zusammengeführt. Ändern Sie den Kalender auf zwei Computern, während beide offline sind, ersetzt die Version, die später den Server erreicht, die andere.
+Jedes Jahr wird einzeln als ein Dokument verglichen, und die neuere Version gewinnt. Einträge werden nie einzeln zusammengeführt. Ändern Sie den Kalender auf zwei Computern, während beide offline sind, ersetzt die Version, die später den Server erreicht, die andere.
 
 Gewinnt die Serverversion, ersetzt sie den Kalender auf Ihrem Computer, und der Rückgängig-Verlauf wird geleert. Standardmäßig bewahrt Stapik Cloud die ersetzte Version im Dokumentverlauf auf, sodass sie im Admin-Panel wiederhergestellt werden kann; stellen Sie sie dort wieder her und synchronisieren Sie erneut.
 

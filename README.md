@@ -121,7 +121,7 @@ Either way, your calendar data and settings remain in `~/.local/share/stapikcale
 
 The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). The server must be Stapik Cloud **1.2.0 or newer**; older servers are not supported. Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable).
 
-Once connected, the app compares the local document and the cloud copy using a timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the write that's based on the older cloud state loses.
+Once connected, the app compares the local document and the cloud copy using a timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. Each year of the calendar is its own cloud partition (`2026`, `2027`, ...), so the comparison happens per year; the displayed year is loaded at once and the others when you navigate to them. There is no field-level or entry-level merging — if both copies changed since the last sync, the write that's based on the older cloud state loses.
 
 Unlike the original simple sync protocol, a losing write isn't necessarily gone for good. Each cloud document slot has a conflict-resolution strategy set in the admin panel:
 - **Last-write-wins with shadow copy** (the default) — the losing write is kept in the document's version history and can be restored from the admin panel.
@@ -132,6 +132,8 @@ Data is saved locally after every change. Synchronization runs in the background
 When the server version wins a conflict, it replaces the local document and the undo history is cleared, because earlier operations no longer match the data.
 
 API keys may have an expiry date. When the key is within its last 30 days, the cloud reports it and the app shows a message with the date, once per reported date, so you can issue a new key in the admin panel and enter it in **File → Connect** before sync stops. If the server asks the app to slow down (at most 600 requests per minute per key), the local calendar is kept and the next attempt waits as long as the server asked.
+
+**Upgrading from versions with a single cloud document:** earlier versions kept the whole calendar in the document `calendar.json`. The first time the app connects to a cloud it reads that document once (never writing to it) and adds its entries to the years on this device; the setting `cloud.legacyMigratedFor` remembers that this was done. The old document stays as it is, but it is no longer updated, so older versions on other devices keep using it and do not see the partitions.
 
 **Upgrading from 1.1.x:** version 1.2.0 changed the document format stored in the cloud (the timestamp is now part of the synchronized document). Upgrade every device before connecting any of them to the same cloud slot — a 1.1.x client cannot read the new format and would treat the cloud document as empty. A cloud document written by 1.1.x is still read by 1.2.0 and is replaced with the new format on the next successful write.
 
@@ -179,7 +181,7 @@ Next to it:
 - `calendar-YYYY.json.bak`, `.bak.2`, `.bak.3` - the three previous versions of each year, rotated on every save of that year
 - `calendar-YYYY.json.corrupt-<timestamp>` - a file that could not be parsed, moved aside so it is never overwritten
 - `calendar-YYYY.json.unreadable-<timestamp>` - a copy of a file written by a newer version of the app (or one that failed to migrate); that year starts empty instead of the original being touched
-- `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
+- `cloud-baselines.json` - the cloud timestamp of each year this device last synchronized with (local sync state, never uploaded)
 
 Language, theme and font preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
 

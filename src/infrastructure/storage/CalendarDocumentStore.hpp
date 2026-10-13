@@ -14,7 +14,7 @@
 #include <vector>
 
 // Persists the calendar as one versioned, atomic file per year (calendar-YYYY.json, each with its own backups)
-// and, separately, the local cloud baseline, so that the baseline never ends up in the cloud payload.
+// and, separately, the local cloud baselines, so that the baseline never ends up in the cloud payload.
 class CalendarDocumentStore
 {
 public:
@@ -29,8 +29,9 @@ public:
     [[nodiscard]] std::vector<stapik::document::BackupInfo> listBackups(int year) const;
     [[nodiscard]] std::optional<CalendarDocument> loadBackup(const stapik::document::BackupInfo& backup) const;
 
-    [[nodiscard]] std::optional<CalendarDocument::TimePoint> loadBaseline() const;
-    [[nodiscard]] stapik::storage::FileResult saveBaseline(const std::optional<CalendarDocument::TimePoint>& baseline) const;
+    // The cloud timestamp each year was last synchronized with (local sync state, never uploaded).
+    [[nodiscard]] std::map<int, CalendarDocument::TimePoint> loadBaselines() const;
+    [[nodiscard]] stapik::storage::FileResult saveBaselines(const std::map<int, CalendarDocument::TimePoint>& baselines) const;
 
     // Writes the whole calendar (all years as one document) and the application settings into one archive file.
     [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> exportArchive(
