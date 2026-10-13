@@ -2,8 +2,8 @@
 
 The calendar lives in your home directory, in `~/.local/share/stapikcalendar/`:
 
-- `calendar.json` — your calendar
-- `calendar.json.bak`, `.bak.2`, `.bak.3` — the three previous versions, replaced every time you save
+- `calendar-2026.json`, `calendar-2027.json`… — your calendar, one file per year (the old `calendar.json` was split into years and stays as `calendar.json.migrated`)
+- `calendar-2026.json.bak`, `.bak.2`, `.bak.3` — the three previous versions of that year, replaced every time that year is saved
 - `config.json` — cloud address and key
 - `cloud-baseline.json` — technical data about the last synchronization
 
@@ -13,14 +13,14 @@ If the calendar cannot be saved to disk (for example because the disk is full), 
 
 ## Restoring a backup
 
-Choose **File → Restore from backup…**, pick one of the saved copies by its date and time and confirm. The calendar you had before becomes the newest copy, so you can go back the same way. The undo history is cleared and, when you are connected to Stapik Cloud, the restored calendar is sent there like any other change.
+Backups are kept for each year separately. Go to the year you want to restore, choose **File → Restore from backup…**, pick one of the saved copies by its date and time and confirm. Only that year is restored; the rest of the calendar does not change. The year you had before becomes the newest copy, so you can go back the same way. The undo history is cleared and, when you are connected to Stapik Cloud, the restored calendar is sent there like any other change.
 
 If the application does not start or the calendar file is damaged, you can restore by hand instead:
 
 1. Close the application.
-2. Copy `calendar.json.bak` (or `.bak.2`, `.bak.3`) over `calendar.json`.
+2. Copy `calendar-2026.json.bak` (or `.bak.2`, `.bak.3`) over `calendar-2026.json` (use the right year).
 3. Start the application again.
 
 ## Moving the calendar to another computer
 
-Copy `calendar.json` into the same folder on the other computer. With Stapik Cloud you can instead connect the new computer to the same server and the calendar will download by itself.
+Copy the `calendar-*.json` files into the same folder on the other computer. With Stapik Cloud you can instead connect the new computer to the same server and the calendar will download by itself.

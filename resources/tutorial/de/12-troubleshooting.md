@@ -26,4 +26,4 @@ Sie haben wahrscheinlich *Konflikt: Serverversion beibehalten* gesehen: Ein ande
 
 **Die Anwendung startet mit einem leeren Kalender.**
 
-Die Kalenderdatei konnte nicht gelesen werden. Suchen Sie in `~/.local/share/stapikcalendar/` nach Dateien mit den Namen `calendar.json.corrupt-…` oder `calendar.json.unreadable-…` (eine Kopie der unlesbaren Datei) sowie nach den Sicherungen `calendar.json.bak`; stellen Sie eine davon wie im Abschnitt [Ihre Daten und Sicherungen](#data-and-backups) beschrieben wieder her.
+Die Kalenderdatei konnte nicht gelesen werden. Suchen Sie in `~/.local/share/stapikcalendar/` nach Dateien mit den Namen `calendar-YYYY.json.corrupt-…` oder `calendar-YYYY.json.unreadable-…` (eine Kopie der unlesbaren Datei) sowie nach den Sicherungen `calendar-YYYY.json.bak`; stellen Sie eine davon wie im Abschnitt [Ihre Daten und Sicherungen](#data-and-backups) beschrieben wieder her.

@@ -7,14 +7,16 @@
 
 #include "stapik/log/Log.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <set>
 #include <utility>
 
 static_assert(stapik::sync::SyncableDocument<CalendarDocument>);
 
 CalendarController::CalendarController(CalendarDocumentStore store, stapik::sync::CloudSessionHooks hooks) :
     m_store(std::move(store)),
-    m_document(m_store.load()),
+    m_document(loadFromStore()),
     m_loadCloudConfig(hooks.loadConfig),
     m_session(std::move(hooks))
 {
@@ -98,9 +100,14 @@ void CalendarController::changeEntryColor(const Date date, const std::size_t ind
     editEntry(date, index, std::move(updated));
 }
 
+void CalendarController::setDisplayedYear(const int year)
+{
+    m_displayedYear = year;
+}
+
 std::vector<stapik::document::BackupInfo> CalendarController::listBackups() const
 {
-    return m_store.listBackups();
+    return m_store.listBackups(m_displayedYear);
 }
 
 bool CalendarController::restoreBackup(const stapik::document::BackupInfo& backup)
@@ -112,12 +119,9 @@ bool CalendarController::restoreBackup(const stapik::document::BackupInfo& backu
     // Commands hold indices into the old entries, so the history cannot outlive them.
     clearHistorySilently();
 
-    if (const auto baseline = m_document.lastKnownCloudUpdate())
-        restored->setLastKnownCloudUpdate(*baseline);
+    calendar_years::replaceYear(m_document.entries(), m_displayedYear, restored->entries());
 
-    m_document = std::move(*restored);
-
-    // From here the restored calendar is a change like any other: stamped as the newest, saved, sent and shown.
+    // From here the restored year is a change like any other: stamped as the newest, saved, sent and shown.
     onHistoryChanged();
     return true;
 }
@@ -129,22 +133,22 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController:
 
 stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController::importArchive(const std::filesystem::path& source)
 {
-    auto imported = m_store.importArchive(source);
-    if (!imported)
-        return stapik::Failure(std::move(imported).error());
+    return m_store.importArchive(source, [this](const CalendarDocument& imported)
+    {
+        // Commands hold indices into the old entries, so the history cannot outlive them.
+        clearHistorySilently();
 
-    // Commands hold indices into the old entries, so the history cannot outlive them.
-    clearHistorySilently();
+        CalendarDocument restored = imported;
+        if (const auto baseline = m_document.lastKnownCloudUpdate())
+            restored.setLastKnownCloudUpdate(*baseline);
 
-    auto restored = std::move(imported->document);
-    if (const auto baseline = m_document.lastKnownCloudUpdate())
-        restored.setLastKnownCloudUpdate(*baseline);
+        m_document = std::move(restored);
 
-    m_document = std::move(restored);
-
-    // The same as after restoring a backup: from here the imported calendar is a change like any other.
-    onHistoryChanged();
-    return imported->info;
+        // The imported calendar is a change like any other. Years missing from the archive end up empty.
+        // A failure to write is reported the usual way, through signalSaveFailed.
+        onHistoryChanged();
+        return stapik::storage::FileResult{};
+    });
 }
 
 void CalendarController::connect(const CloudStorageConfig& config)
@@ -210,8 +214,9 @@ sigc::signal<void(std::chrono::system_clock::time_point)>& CalendarController::s
 
 void CalendarController::onHistoryChanged()
 {
-    m_document.markUpdated();
-    persist();
+    const auto now = std::chrono::system_clock::now();
+    m_document.markUpdated(now);
+    persist(now);
     m_session.pushChange(m_document);
     m_signalDocumentChanged.emit();
 }
@@ -221,14 +226,14 @@ void CalendarController::onDocumentReplaced(const CalendarDocument& replacement)
     // Commands hold indices into the old entries, so they must not outlive the replacement.
     clearHistorySilently();
     m_document = replacement;
-    persist();
+    persist(replacement.lastUpdate());
     m_signalDocumentChanged.emit();
 }
 
 void CalendarController::onBaselineChanged(const CalendarDocument::TimePoint baseline)
 {
     m_document.setLastKnownCloudUpdate(baseline);
-    persist();
+    persist(m_document.lastUpdate());
 }
 
 void CalendarController::onSyncOutcome(const stapik::sync::SyncOutcome<CalendarDocument>& outcome)
@@ -250,10 +255,68 @@ void CalendarController::clearHistorySilently()
     m_historyConnection.unblock();
 }
 
-void CalendarController::persist()
+CalendarDocument CalendarController::loadFromStore()
 {
-    const auto saved = m_store.save(m_document);
-    if (saved)
+    CalendarEntries entries;
+    CalendarDocument::TimePoint lastUpdate{};
+
+    for (const auto& [year, document] : m_store.loadYears())
+    {
+        // A year file holds only its own year; anything else in it would be written back to the wrong file.
+        auto yearEntries = calendar_years::entriesOfYear(document.entries(), year);
+
+        entries.insert(yearEntries.begin(), yearEntries.end());
+        lastUpdate = std::max(lastUpdate, document.lastUpdate());
+        m_years[year] = YearState{ document.lastUpdate(), std::move(yearEntries) };
+    }
+
+    CalendarDocument document(std::move(entries), lastUpdate);
+
+    if (const auto baseline = m_store.loadBaseline())
+        document.setLastKnownCloudUpdate(*baseline);
+
+    return document;
+}
+
+void CalendarController::persist(const CalendarDocument::TimePoint stamp)
+{
+    const auto current = calendar_years::splitByYear(m_document.entries());
+
+    std::set<int> years;
+    for (const auto& [year, entries] : current)
+        years.insert(year);
+    for (const auto& [year, state] : m_years)
+        years.insert(year);
+
+    const CalendarEntries none;
+    std::optional<stapik::storage::FileError> failure;
+
+    for (const int year : years)
+    {
+        const auto currentIt = current.find(year);
+        const auto& entries = currentIt == current.end() ? none : currentIt->second;
+
+        auto stateIt = m_years.find(year);
+        if (stateIt == m_years.end())
+            stateIt = m_years.emplace(year, YearState{}).first;
+        else if (stateIt->second.saved == entries)
+            continue;
+
+        if (const auto saved = m_store.saveYear(year, CalendarDocument(entries, stamp)); saved)
+        {
+            stateIt->second.lastUpdate = stamp;
+            stateIt->second.saved = entries;
+        }
+        else if (!failure.has_value())
+        {
+            failure = saved.error();
+        }
+    }
+
+    // The baseline is written even when a year failed; when both fail, the calendar is the failure worth reporting.
+    const auto baselineSaved = m_store.saveBaseline(m_document.lastKnownCloudUpdate());
+
+    if (!failure.has_value() && baselineSaved)
     {
         m_saveFailed = false;
         return;
@@ -261,5 +324,5 @@ void CalendarController::persist()
 
     // The store has logged the reason. The user hears about it once per streak of failures, not after every edit.
     if (!std::exchange(m_saveFailed, true))
-        m_signalSaveFailed.emit(saved.error().message());
+        m_signalSaveFailed.emit(failure.has_value() ? failure->message() : baselineSaved.error().message());
 }

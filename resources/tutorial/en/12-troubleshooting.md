@@ -26,4 +26,4 @@ You probably saw *Conflict: server version kept*: another device saved a newer v
 
 **The application starts with an empty calendar.**
 
-The calendar file could not be read. Look in `~/.local/share/stapikcalendar/` for files named `calendar.json.corrupt-…` or `calendar.json.unreadable-…` (a copy of the unreadable file) and for the backups `calendar.json.bak`; restore one as described in [Your data and backups](#data-and-backups).
+The calendar file could not be read. Look in `~/.local/share/stapikcalendar/` for files named `calendar-YYYY.json.corrupt-…` or `calendar-YYYY.json.unreadable-…` (a copy of the unreadable file) and for the backups `calendar-YYYY.json.bak`; restore one as described in [Your data and backups](#data-and-backups).

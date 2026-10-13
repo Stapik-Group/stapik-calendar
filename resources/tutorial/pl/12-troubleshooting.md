@@ -26,4 +26,4 @@ Prawdopodobnie widziałeś *Konflikt: zachowano wersję z serwera*: inne urządz
 
 **Aplikacja uruchamia się z pustym kalendarzem.**
 
-Nie udało się odczytać pliku kalendarza. Poszukaj w `~/.local/share/stapikcalendar/` plików o nazwach `calendar.json.corrupt-…` lub `calendar.json.unreadable-…` (kopia nieczytelnego pliku) oraz kopii zapasowych `calendar.json.bak`; przywróć jedną z nich zgodnie z opisem w rozdziale [Twoje dane i kopie zapasowe](#data-and-backups).
+Nie udało się odczytać pliku kalendarza. Poszukaj w `~/.local/share/stapikcalendar/` plików o nazwach `calendar-YYYY.json.corrupt-…` lub `calendar-YYYY.json.unreadable-…` (kopia nieczytelnego pliku) oraz kopii zapasowych `calendar-YYYY.json.bak`; przywróć jedną z nich zgodnie z opisem w rozdziale [Twoje dane i kopie zapasowe](#data-and-backups).

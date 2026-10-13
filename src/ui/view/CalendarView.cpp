@@ -4,6 +4,7 @@
 
 CalendarView::CalendarView(CalendarController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_controller(controller),
     m_currentYearMonth(DateUtils::todayYearMonth()),
     m_grid(controller)
 {
@@ -63,6 +64,7 @@ void CalendarView::navigateTo(const std::chrono::year_month yearMonth)
 
 void CalendarView::refreshView()
 {
+    m_controller.setDisplayedYear(static_cast<int>(m_currentYearMonth.year()));
     m_navBar.updateDisplay(m_currentYearMonth);
     m_grid.displayMonth(m_currentYearMonth);
 }

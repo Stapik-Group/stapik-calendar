@@ -44,6 +44,7 @@ stapik_add_application(
                 src/application/CalendarCloudHooks.cpp
                 src/application/CalendarController.cpp
                 src/core/model/CalendarDocument.cpp
+                src/core/model/CalendarYears.cpp
                 src/core/command/AddEntryCommand.cpp
                 src/core/command/EditEntryCommand.cpp
                 src/core/command/DeleteEntryCommand.cpp

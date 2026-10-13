@@ -1,5 +1,7 @@
 #include "CalendarDocumentStore.hpp"
 
+#include "../../core/model/CalendarYears.hpp"
+
 #include "stapik/app/AppContext.hpp"
 #include "stapik/log/Log.hpp"
 #include "stapik/storage/AppPaths.hpp"
@@ -10,6 +12,8 @@
 #include <chrono>
 #include <format>
 #include <fstream>
+#include <regex>
+#include <string>
 #include <utility>
 
 namespace
@@ -19,7 +23,7 @@ namespace
 
     constexpr int SCHEMA_VERSION = 1;
     constexpr int BACKUP_COUNT = 3;
-    constexpr auto DOCUMENT_FILE_NAME = "calendar.json";
+    constexpr auto LEGACY_FILE_NAME = "calendar.json";
     constexpr auto BASELINE_FILE_NAME = "cloud-baseline.json";
     constexpr auto BASELINE_KEY = "lastKnownCloudUpdate";
 
@@ -68,7 +72,8 @@ namespace
 }
 
 CalendarDocumentStore::CalendarDocumentStore(const std::filesystem::path& directory) :
-    m_file(createFile(directory / DOCUMENT_FILE_NAME)),
+    m_directory(directory),
+    m_legacyFile(createFile(directory / LEGACY_FILE_NAME)),
     m_baselinePath(directory / BASELINE_FILE_NAME) {}
 
 CalendarDocumentStore CalendarDocumentStore::createDefault()
@@ -76,56 +81,42 @@ CalendarDocumentStore CalendarDocumentStore::createDefault()
     return CalendarDocumentStore(AppPaths::ensureUserDataDir(stapik::app::AppContext::instance().info().internalName));
 }
 
-CalendarDocument CalendarDocumentStore::load() const
+std::map<int, CalendarDocument> CalendarDocumentStore::loadYears() const
 {
-    auto result = m_file.load();
+    migrateLegacyFile();
 
-    if (result.status == LoadStatus::Missing)
-        return {};
+    std::map<int, CalendarDocument> years;
 
-    if (result.status != LoadStatus::Loaded || !result.document.has_value())
+    for (const auto& [year, path] : findYearFiles())
     {
-        if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
-            preserveUnreadableFile();
+        const auto result = createFile(path).load();
 
-        return {};
+        if (result.status == LoadStatus::Loaded && result.document.has_value())
+            years.emplace(year, *result.document);
+        else if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
+            preserveUnreadableFile(path);
     }
 
-    CalendarDocument document = std::move(*result.document);
-
-    if (result.migrated)
-    {
-        // Saving rotates the backups first, so the pre-migration file stays available as calendar.json.bak.
-        stapik::log::info("Migrated {} from schema version {}", m_file.filePath().string(), result.fileVersion);
-        if (const auto saved = m_file.save(document); !saved)
-            stapik::log::warning("Cannot save the migrated calendar: {}", saved.error().message());
-    }
-
-    if (const auto baseline = loadBaseline(); baseline.has_value())
-        return document.withLastKnownCloudUpdate(*baseline);
-
-    return document;
+    return years;
 }
 
-stapik::storage::FileResult CalendarDocumentStore::save(const CalendarDocument& document) const
+stapik::storage::FileResult CalendarDocumentStore::saveYear(const int year, const CalendarDocument& document) const
 {
-    const auto documentSaved = m_file.save(document);
-    if (!documentSaved)
-        stapik::log::warning("Cannot save the calendar: {}", documentSaved.error().message());
+    const auto saved = createFile(yearPath(year)).save(document);
+    if (!saved)
+        stapik::log::warning("Cannot save the calendar for {}: {}", year, saved.error().message());
 
-    // Both files are always written; when both fail, the calendar itself is the failure worth reporting.
-    const auto baselineSaved = saveBaseline(document.lastKnownCloudUpdate());
-    return documentSaved ? baselineSaved : documentSaved;
+    return saved;
 }
 
-std::vector<stapik::document::BackupInfo> CalendarDocumentStore::listBackups() const
+std::vector<stapik::document::BackupInfo> CalendarDocumentStore::listBackups(const int year) const
 {
-    return m_file.listBackups();
+    return createFile(yearPath(year)).listBackups();
 }
 
 std::optional<CalendarDocument> CalendarDocumentStore::loadBackup(const stapik::document::BackupInfo& backup) const
 {
-    auto result = m_file.loadBackup(backup);
+    auto result = m_legacyFile.loadBackup(backup);
     if (result.status != LoadStatus::Loaded || !result.document.has_value())
     {
         stapik::log::warning("Cannot restore {}: the backup cannot be used (status {})",
@@ -139,13 +130,110 @@ std::optional<CalendarDocument> CalendarDocumentStore::loadBackup(const stapik::
 stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentStore::exportArchive(
     const CalendarDocument& document, const std::filesystem::path& target) const
 {
-    return stapik::archive::exportAppArchive(m_file, document, archiveContext(), target);
+    return stapik::archive::exportAppArchive(m_legacyFile, document, archiveContext(), target);
 }
 
-stapik::archive::ArchiveResult<stapik::archive::RestoredApp<CalendarDocument>> CalendarDocumentStore::importArchive(
-    const std::filesystem::path& source) const
+stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentStore::importArchive(
+    const std::filesystem::path& source,
+    const std::function<stapik::storage::FileResult(const CalendarDocument&)>& apply) const
 {
-    return stapik::archive::importAppArchive(m_file, source, archiveContext());
+    const auto context = archiveContext();
+
+    auto archive = stapik::archive::AppArchive::open(source, context.appName);
+    if (!archive)
+        return stapik::Failure(std::move(archive).error());
+
+    auto loaded = m_legacyFile.deserialize(archive->documentText(), "the archive " + stapik::storage::pathText(source));
+    switch (loaded.status)
+    {
+        using enum LoadStatus;
+        case Loaded:
+            break;
+        case NewerVersion:
+            return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Unsupported,
+                "The archive was made by a newer version of the application");
+        case Missing:
+        case Corrupted:
+        case MigrationFailed:
+        default:
+            return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Corrupted,
+                "The document in the archive cannot be read");
+    }
+
+    if (const auto applied = apply(*loaded.document); !applied)
+        return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Io, applied.error().message());
+
+    // The calendar is already stored here, so a failure to restore the settings is not an error of the import.
+    if (context.settings != nullptr)
+        static_cast<void>(archive->restoreSettings(*context.settings));
+
+    return archive->info();
+}
+
+std::filesystem::path CalendarDocumentStore::yearPath(const int year) const
+{
+    return m_directory / std::format("calendar-{:04}.json", year);
+}
+
+std::map<int, std::filesystem::path> CalendarDocumentStore::findYearFiles() const
+{
+    static const std::regex pattern(R"(calendar-(\d{4})\.json)");
+
+    std::map<int, std::filesystem::path> files;
+
+    std::error_code errorCode;
+    for (std::filesystem::directory_iterator it(m_directory, errorCode), end; !errorCode && it != end; it.increment(errorCode))
+    {
+        const auto name = it->path().filename().string();
+
+        if (std::smatch match; std::regex_match(name, match, pattern))
+            files.emplace(std::stoi(match[1].str()), it->path());
+    }
+
+    return files;
+}
+
+void CalendarDocumentStore::migrateLegacyFile() const
+{
+    const auto legacyPath = m_legacyFile.filePath();
+
+    std::error_code errorCode;
+    if (!std::filesystem::exists(legacyPath, errorCode))
+        return;
+
+    auto result = m_legacyFile.load();
+
+    if (result.status != LoadStatus::Loaded || !result.document.has_value())
+    {
+        if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
+            preserveUnreadableFile(legacyPath);
+
+        // A corrupted file was already moved aside by the load. A file from a newer version stays where it is.
+        return;
+    }
+
+    const auto existing = findYearFiles();
+
+    for (const auto& [year, entries] : calendar_years::splitByYear(result.document->entries()))
+    {
+        // A year that already has a file is newer than the single-file calendar, so it is never overwritten.
+        if (existing.contains(year))
+            continue;
+
+        if (!saveYear(year, CalendarDocument(entries, result.document->lastUpdate())))
+        {
+            stapik::log::warning("Cannot split {} into years; it stays as it is and is tried again on the next start", legacyPath.string());
+            return;
+        }
+    }
+
+    const auto migratedPath = std::filesystem::path(legacyPath.string() + ".migrated");
+    std::filesystem::rename(legacyPath, migratedPath, errorCode);
+
+    if (errorCode)
+        stapik::log::warning("Cannot rename {} after splitting it into years: {}", legacyPath.string(), errorCode.message());
+    else
+        stapik::log::info("Split {} into one file per year; the old file is kept as {}", legacyPath.string(), migratedPath.string());
 }
 
 std::optional<TimePoint> CalendarDocumentStore::loadBaseline() const
@@ -184,16 +272,16 @@ stapik::storage::FileResult CalendarDocumentStore::saveBaseline(const std::optio
     return written;
 }
 
-void CalendarDocumentStore::preserveUnreadableFile() const
+void CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& path) const
 {
     const auto stamp = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
-    const auto target = std::filesystem::path(std::format("{}.unreadable-{}", m_file.filePath().string(), stamp));
+    const auto target = std::filesystem::path(std::format("{}.unreadable-{}", path.string(), stamp));
 
     std::error_code errorCode;
-    std::filesystem::copy_file(m_file.filePath(), target, std::filesystem::copy_options::skip_existing, errorCode);
+    std::filesystem::copy_file(path, target, std::filesystem::copy_options::skip_existing, errorCode);
 
     if (errorCode)
         stapik::log::warning("Cannot keep a copy of the unreadable calendar file: {}", errorCode.message());
     else
-        stapik::log::warning("The calendar file cannot be read by this version; a copy was kept as {}", target.string());
+        stapik::log::warning("The calendar file {} cannot be read by this version; a copy was kept as {}", path.string(), target.string());
 }

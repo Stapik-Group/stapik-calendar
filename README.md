@@ -161,7 +161,7 @@ Authentication: `x-api-key` header with a per-device key from the admin panel. T
 
 ## Data Storage
 
-Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json` as a versioned document:
+Calendar data is stored locally in `~/.local/share/stapikcalendar/`, one file per year (`calendar-2026.json`, `calendar-2027.json`, ...), each a versioned document with the entries of that year:
 
 ```json
 {
@@ -173,13 +173,13 @@ Calendar data is stored locally at `~/.local/share/stapikcalendar/calendar.json`
 }
 ```
 
-Each entry stores a name, an optional link and a color id (`default`, `red`, `orange`, `yellow`, `green`, `teal`, `blue`, `purple`, `pink`, `brown` or `gray`). Files written by older versions (a bare entries array, or the `lastUpdate` / `payload` envelope) are migrated automatically on the first start; the pre-migration file is kept as `calendar.json.bak`.
+Each entry stores a name, an optional link and a color id (`default`, `red`, `orange`, `yellow`, `green`, `teal`, `blue`, `purple`, `pink`, `brown` or `gray`). Files written by older versions (a bare entries array, or the `lastUpdate` / `payload` envelope) are migrated automatically on the first start. The single `calendar.json` of earlier versions is split into the year files once and kept as `calendar.json.migrated`.
 
 Next to it:
 
-- `calendar.json.bak`, `calendar.json.bak.2`, `calendar.json.bak.3` - the three previous versions, rotated on every save
-- `calendar.json.corrupt-<timestamp>` - a file that could not be parsed, moved aside so it is never overwritten
-- `calendar.json.unreadable-<timestamp>` - a copy of a file written by a newer version of the app (or one that failed to migrate); the app starts with an empty calendar instead of touching the original
+- `calendar-YYYY.json.bak`, `.bak.2`, `.bak.3` - the three previous versions of each year, rotated on every save of that year
+- `calendar-YYYY.json.corrupt-<timestamp>` - a file that could not be parsed, moved aside so it is never overwritten
+- `calendar-YYYY.json.unreadable-<timestamp>` - a copy of a file written by a newer version of the app (or one that failed to migrate); that year starts empty instead of the original being touched
 - `cloud-baseline.json` - the cloud timestamp this device last synchronized with (local sync state, never uploaded)
 
 Language, theme and font preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
@@ -226,8 +226,8 @@ cmake --build build --target stapikcalendar_windows_installer   # the installer
 
 Add `-DSTAPIK_WINDOWS_CONSOLE=ON` to keep a console window.
 
-Data lives in `%APPDATA%\stapikcalendar\data\calendar.json`, settings in `%APPDATA%\stapikcalendar\config` and the log
-(stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. To back up, copy `calendar.json`.
+Data lives in `%APPDATA%\stapikcalendar\data\calendar-YYYY.json` (one file per year), settings in `%APPDATA%\stapikcalendar\config` and the log
+(stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. To back up, copy the `calendar-*.json` files.
 
 `--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the tutorial, translations and a
 writable data directory, logs every check and exits with 1 when one of them fails.

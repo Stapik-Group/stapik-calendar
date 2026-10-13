@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/model/CalendarDocument.hpp"
+#include "../core/model/CalendarYears.hpp"
 #include "../infrastructure/storage/CalendarDocumentStore.hpp"
 
 #include "stapik/archive/AppArchive.hpp"
@@ -16,6 +17,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <functional>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -49,8 +51,12 @@ public:
     void copyEntry(Date sourceDate, std::size_t index, Date destDate);
     void changeEntryColor(Date date, std::size_t index, EntryColor color);
 
+    // The year the user is looking at. Backups are kept and restored per year, for this year.
+    void setDisplayedYear(int year);
+
+    // Backups of the displayed year.
     [[nodiscard]] std::vector<stapik::document::BackupInfo> listBackups() const;
-    // Replaces the calendar with a backup. Returns false, and changes nothing, when the backup cannot be used.
+    // Replaces the displayed year with a backup. Returns false, and changes nothing, when the backup cannot be used.
     [[nodiscard]] bool restoreBackup(const stapik::document::BackupInfo& backup);
     [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> exportArchive(const std::filesystem::path& target) const;
     [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> importArchive(const std::filesystem::path& source);
@@ -78,10 +84,21 @@ private:
     void onBaselineChanged(CalendarDocument::TimePoint baseline);
     void onSyncOutcome(const stapik::sync::SyncOutcome<CalendarDocument>& outcome);
     void clearHistorySilently();
-    void persist();
+    CalendarDocument loadFromStore();
+    // Writes the years whose entries differ from what was last written, stamping them with `stamp`, and the baseline.
+    void persist(CalendarDocument::TimePoint stamp);
+
+    // What is on disk for one year: the entries as last written and the time they were written.
+    struct YearState
+    {
+        CalendarDocument::TimePoint lastUpdate{};
+        CalendarEntries saved;
+    };
 
     CalendarDocumentStore m_store;
+    std::map<int, YearState> m_years;    // filled by loadFromStore(), so it has to be declared before m_document
     CalendarDocument m_document;
+    int m_displayedYear = static_cast<int>(std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) }.year());
     std::function<std::optional<CloudStorageConfig>()> m_loadCloudConfig;
     stapik::command::UndoStack m_history;
     sigc::connection m_historyConnection;
