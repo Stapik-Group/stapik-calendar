@@ -5,6 +5,7 @@
 #include "stapik/app/AppContext.hpp"
 #include "stapik/locale/DateFormatter.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/storage/AppPaths.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
@@ -15,11 +16,10 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
     m_actionHandler(*this, m_controller),
     m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
-    m_menu(*this, StandardMenuOptions{ .themes = &themes, .undoStack = &m_controller.undoStack() })
+    m_menu(*this, StandardMenuOptions{ .tutorialDirectory = AppPaths::resourcesDir() / TUTORIAL_DIRECTORY, .themes = &themes, .undoStack = &m_controller.undoStack() })
 {
     m_actionHandler.registerActions();
     initFileMenu();
-    initHelpMenu();
     initSettings();
     initSaveErrors();
     initApiKeyWarning();
@@ -62,17 +62,6 @@ void MainWindow::initFileMenu()
         const auto backupSection = Gio::Menu::create();
         backupSection->append(LocaleManager::instance().translate("menu.file.restoreBackup"), "win.restoreBackup");
         menu.append_section(backupSection);
-    });
-}
-
-void MainWindow::initHelpMenu()
-{
-    m_menu.addToMenu(StandardMenu::Target::Help, [](Gio::Menu& menu)
-    {
-        // The shared Help items (log, about) are already in the menu; the guide goes first, where a tutorial would be.
-        const auto guideSection = Gio::Menu::create();
-        guideSection->append(LocaleManager::instance().translate("menu.help.guide"), "win.guide");
-        menu.prepend_section(guideSection);
     });
 }
 

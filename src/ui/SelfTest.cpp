@@ -25,8 +25,8 @@ namespace
     constexpr std::string_view GTK_SCHEMA = "org.gtk.gtk4.Settings.FileChooser";
     constexpr std::string_view TEST_SVG = R"(<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="#000"/></svg>)";
     constexpr std::string_view TRANSLATION_KEY = "day.mon";
-    constexpr std::string_view GUIDE_FILE = "guide-en.html";
-    constexpr std::string_view GUIDE_DIRECTORY = "guide";
+    constexpr std::string_view TUTORIAL_DIRECTORY = "tutorial";
+    constexpr std::string_view TUTORIAL_LANGUAGE = "en";
     constexpr std::string_view THEME_FILE = "style-classic.css";
 
     class Report
@@ -139,7 +139,7 @@ int runSelfTest(Gtk::Window& window)
 
     report.check("stapik-common resources are found", [] { return std::filesystem::is_directory(AppPaths::commonResourcesDir() / "locales"); });
     report.check("application theme styles are found", [] { return std::filesystem::exists(AppPaths::resourcesDir() / THEME_FILE); });
-    report.check("the user guide is found", [] { return std::filesystem::exists(AppPaths::resourcesDir() / GUIDE_DIRECTORY / GUIDE_FILE); });
+    report.check("the tutorial is found", [] { return std::filesystem::is_directory(AppPaths::resourcesDir() / TUTORIAL_DIRECTORY / TUTORIAL_LANGUAGE); });
     report.check("translations are loaded", [] { return LocaleManager::instance().translate(TRANSLATION_KEY) != TRANSLATION_KEY; });
     report.check("the data directory is writable", dataDirectoryIsWritable);
 

@@ -1,0 +1,29 @@
+# Rozwiązywanie problemów
+
+**Kliknięcie wpisu nie otwiera strony.**
+
+Sprawdź, czy wpis ma link. Otwierane są tylko linki `http` i `https`, a system musi mieć ustawioną domyślną przeglądarkę.
+
+**Dwuklik otwiera stronę zamiast edytora.**
+
+Kliknij trochę szybciej albo wydłuż czas dwukliku w ustawieniach myszy w systemie.
+
+**Prawy przycisk na dniu nic nie robi.**
+
+W schowku musi być pełny adres strony zaczynający się od `http://` lub `https://`.
+
+**Stan to „Offline”.**
+
+Sprawdź połączenie z internetem i adres serwera (**Plik → Połącz z chmurą**). Aplikacja ponawia próby sama, a **Plik → Synchronizuj** próbuje od razu.
+
+**Stan to „Błąd synchronizacji” albo łączenie się nie udaje.**
+
+Sprawdź, czy adres i klucz API są poprawne oraz czy klucz został wystawiony dla tego urządzenia i nie został unieważniony w panelu administracyjnym.
+
+**Moje zmiany zniknęły po synchronizacji.**
+
+Prawdopodobnie widziałeś *Konflikt: zachowano wersję z serwera*: inne urządzenie zapisało nowszą wersję. Przywróć zastąpioną wersję z historii dokumentu w panelu administracyjnym Stapik Cloud (zobacz [Konflikty](#cloud)) albo przywróć lokalną kopię zapasową (zobacz [Twoje dane](#data-and-backups)).
+
+**Aplikacja uruchamia się z pustym kalendarzem.**
+
+Nie udało się odczytać pliku kalendarza. Poszukaj w `~/.local/share/stapikcalendar/` plików o nazwach `calendar.json.corrupt-…` lub `calendar.json.unreadable-…` (kopia nieczytelnego pliku) oraz kopii zapasowych `calendar.json.bak`; przywróć jedną z nich zgodnie z opisem w rozdziale [Twoje dane i kopie zapasowe](#data-and-backups).

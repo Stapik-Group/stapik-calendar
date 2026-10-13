@@ -18,13 +18,10 @@
   "command.entry.edit": "edit entry “{name}”",
   "command.entry.delete": "delete entry “{name}”",
   "command.entry.move": "move entry “{name}”",
-  "menu.help.guide": "Guide",
   "menu.settings.checkForUpdates": "Check for updates on startup",
   "save.failed.title": "The calendar could not be saved",
   "save.failed.text": "Your latest changes are not on disk yet: {reason}. The whole calendar is saved again after the next change. If the problem remains, closing the program loses those changes.",
   "backup.restore.failed.title": "The backup could not be restored",
   "backup.restore.failed.text": "The selected backup is damaged, missing or was written by a newer version of the program. Your current calendar was not changed.",
-  "cloud.apiKeyExpiring.title": "API key expires soon",
-  "guide.error.title": "Could not open the guide",
-  "guide.error.text": "The guide file for this language was not found or no web browser could be started."
+  "cloud.apiKeyExpiring.title": "API key expires soon"
 }

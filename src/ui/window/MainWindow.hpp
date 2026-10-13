@@ -23,6 +23,7 @@ private:
     static constexpr int DEFAULT_HEIGHT = 800;
     static constexpr int STATUS_BAR_MARGIN = 6;
     static constexpr auto WINDOW_TITLE = "Stapik Calendar";
+    static constexpr auto TUTORIAL_DIRECTORY = "tutorial";
 
     Gtk::Box m_mainBox;
     CalendarController m_controller;
@@ -39,7 +40,6 @@ private:
     void init();
     void initLayout();
     void initFileMenu();
-    void initHelpMenu();
     void initSettings();
     void initSaveErrors();
     void initApiKeyWarning();

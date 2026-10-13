@@ -18,13 +18,10 @@
   "command.entry.edit": "edycja wpisu „{name}”",
   "command.entry.delete": "usunięcie wpisu „{name}”",
   "command.entry.move": "przeniesienie wpisu „{name}”",
-  "menu.help.guide": "Poradnik",
   "menu.settings.checkForUpdates": "Sprawdzaj aktualizacje przy uruchomieniu",
   "save.failed.title": "Nie udało się zapisać kalendarza",
   "save.failed.text": "Ostatnie zmiany nie są jeszcze na dysku: {reason}. Cały kalendarz zostanie zapisany ponownie po kolejnej zmianie. Jeśli problem nie ustąpi, zamknięcie programu spowoduje utratę tych zmian.",
   "backup.restore.failed.title": "Nie udało się przywrócić kopii zapasowej",
   "backup.restore.failed.text": "Wybrana kopia jest uszkodzona, nie istnieje albo została zapisana przez nowszą wersję programu. Obecny kalendarz nie został zmieniony.",
-  "cloud.apiKeyExpiring.title": "Klucz API wkrótce wygaśnie",
-  "guide.error.title": "Nie udało się otworzyć poradnika",
-  "guide.error.text": "Nie znaleziono pliku poradnika dla tego języka albo nie udało się uruchomić przeglądarki."
+  "cloud.apiKeyExpiring.title": "Klucz API wkrótce wygaśnie"
 }

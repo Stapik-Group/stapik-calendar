@@ -80,10 +80,6 @@ int main(int argumentCount, char *argv[])
             return;
         }
 
-        // StapikApplication binds F1 to the tutorial, which the calendar does not have yet: F1 opens the guide.
-        app->set_accels_for_action("win.tutorial", {});
-        app->set_accels_for_action("win.guide", { "F1" });
-
         auto* window = new MainWindow(app->themes());
         app->add_window(*window);
         window->show();

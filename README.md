@@ -15,7 +15,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Quick add from clipboard** - right-clicking an empty cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
-- **User guide** - **Help → Guide** (or `F1`) opens a full illustrated guide in your browser, in Polish, English or German
+- **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
 - **Multilingual UI** - Polish, English and German interface with instant switching
 - **Themes** - switch between **Classic** (retro), **Neoclassic** (a softer, take on the classic look), **Modern** (light, rounded), **Dark** (the modern look on a dark palette) and **Classic Pink** (classic layout with a vaporwave pink/purple/cyan palette) from the settings window; the choice is remembered between launches
 - **Settings window** - **Settings → Settings…** opens one window with the language, the theme and the font size (70–200 %); a change is applied and saved at once
@@ -215,5 +215,5 @@ Data lives in `%APPDATA%\stapikcalendar\data\calendar.json`, settings in `%APPDA
 (stderr of the GUI program) in `%LOCALAPPDATA%\stapikcalendar\cache\stapik.log`. `packaging/windows/README.txt` is the
 note for testers that goes into the zip.
 
-`--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the user guide, translations and a
+`--self-test` is also available on Linux; it checks icons, GSettings schemas, resources, the tutorial, translations and a
 writable data directory, logs every check and exits with 1 when one of them fails.

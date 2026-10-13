@@ -18,13 +18,10 @@
   "command.entry.edit": "Eintrag „{name}“ bearbeiten",
   "command.entry.delete": "Eintrag „{name}“ löschen",
   "command.entry.move": "Eintrag „{name}“ verschieben",
-  "menu.help.guide": "Anleitung",
   "menu.settings.checkForUpdates": "Beim Start nach Updates suchen",
   "save.failed.title": "Der Kalender konnte nicht gespeichert werden",
   "save.failed.text": "Die letzten Änderungen sind noch nicht auf der Festplatte: {reason}. Der gesamte Kalender wird nach der nächsten Änderung erneut gespeichert. Besteht das Problem weiter, gehen diese Änderungen beim Schließen des Programms verloren.",
   "backup.restore.failed.title": "Die Sicherung konnte nicht wiederhergestellt werden",
   "backup.restore.failed.text": "Die ausgewählte Sicherung ist beschädigt, nicht vorhanden oder stammt von einer neueren Programmversion. Ihr aktueller Kalender wurde nicht verändert.",
-  "cloud.apiKeyExpiring.title": "API-Schlüssel läuft bald ab",
-  "guide.error.title": "Die Anleitung konnte nicht geöffnet werden",
-  "guide.error.text": "Die Anleitungsdatei für diese Sprache wurde nicht gefunden oder es konnte kein Browser gestartet werden."
+  "cloud.apiKeyExpiring.title": "API-Schlüssel läuft bald ab"
 }
