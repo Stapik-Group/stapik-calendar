@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(stapikcalendar VERSION 1.3.1 LANGUAGES CXX)
+project(stapikcalendar VERSION 1.3.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,9 +14,9 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v1.5.4
+        GIT_TAG v1.5.5
         # Lets an installed stapik-common be used instead of a download; the Flatpak build has no network.
-        FIND_PACKAGE_ARGS 1.5.4
+        FIND_PACKAGE_ARGS 1.5.5
 )
 FetchContent_MakeAvailable(stapikcommon)
 
