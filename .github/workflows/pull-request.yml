@@ -11,7 +11,7 @@ concurrency:
 jobs:
   build:
     if: github.head_ref == 'develop'
-    uses: Stapik-Group/stapik-common/.github/workflows/build.yml@v1.5.1
+    uses: Stapik-Group/stapik-common/.github/workflows/build.yml@v1.5.5
     with:
       # The calendar has no unit tests to run.
       run-tests: false

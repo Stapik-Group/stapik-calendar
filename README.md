@@ -33,7 +33,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - `libsodium` and `zlib` (required by `stapik-common`)
 - `libsecret` and `libx11` (Linux, optional: the cloud API key is kept in the system keyring and the window position is remembered)
 - CMake 4.2 or newer
-- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.5.1 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
+- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.5.5 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
 - `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
@@ -96,7 +96,7 @@ cmake --build cmake-build-release --target stapikcalendar_flatpak     # needs fl
 cmake --build cmake-build-release --target stapikcalendar_appimage    # needs linuxdeploy and its GTK plugin on PATH
 ```
 
-The Flatpak is created in `cmake-build-release/stapikcalendar-flatpak/`, the AppImage in `cmake-build-release/stapikcalendar-appimage/`. Both are described in the [stapik-common documentation](https://github.com/Stapik-Group/stapik-common/blob/v1.5.1/docs/linux.md).
+The Flatpak is created in `cmake-build-release/stapikcalendar-flatpak/`, the AppImage in `cmake-build-release/stapikcalendar-appimage/`. Both are described in the [stapik-common documentation](https://github.com/Stapik-Group/stapik-common/blob/v1.5.5/docs/linux.md).
 
 ## Uninstalling
 
@@ -202,7 +202,7 @@ Shared building blocks (settings, localization, themes, menu, dialogs, undo stac
 
 ## Continuous integration
 
-GitHub Actions call the reusable workflows of [stapik-common](https://github.com/Stapik-Group/stapik-common/blob/v1.5.1/docs/ci.md) (pinned to `v1.5.1`, like the dependency):
+GitHub Actions call the reusable workflows of [stapik-common](https://github.com/Stapik-Group/stapik-common/blob/v1.5.5/docs/ci.md) (pinned to `v1.5.5`, like the dependency):
 
 - a pull request from `develop` into `master` builds the application on Linux (in a Docker image) and on Windows (`.github/workflows/pull-request.yml`),
 - nothing runs on pushes to a branch or on a merge into `master`,
