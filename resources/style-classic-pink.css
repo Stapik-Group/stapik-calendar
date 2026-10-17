@@ -140,3 +140,13 @@ popover modelbutton * {
     font-weight: bold;
     padding: 0 4px;
 }
+
+.calendar-entry-time {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.calendar-entry-location {
+    font-size: 9px;
+    opacity: 0.75;
+}

@@ -6,6 +6,8 @@ Kliknij dwukrotnie puste miejsce w komórce dnia. Otworzy się okno **Nowy wpis*
 
 - **Nazwa** — wymagana. Bez nazwy wpis nie zostanie utworzony.
 - **Link (opcjonalny)** — adres strony internetowej, który później otworzysz jednym kliknięciem.
+- **Godzina (opcjonalna)** — godzina wydarzenia, na przykład `14:30`. Zrozumiałe są też `9:30`, `9.30` i `930`. Nieprawidłowa godzina podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie poprawisz lub nie wyczyścisz.
+- **Miejsce (opcjonalne)** — adres lub miejsce, wyświetlane pod nazwą wpisu.
 - **Kolor** — pierwszy, pusty kwadracik oznacza brak koloru; pozostałe to kolory (zobacz *Kolory*).
 
 Zatwierdź przyciskiem **OK** albo wybierz **Anuluj**, aby odrzucić.
@@ -41,6 +43,10 @@ Kliknij wpis prawym przyciskiem myszy, aby otworzyć rząd kwadracików, i wybie
 Przeciągnij wpis i upuść go na innym dniu, aby go **przenieść**. Przytrzymaj `Ctrl` podczas przeciągania, aby zamiast tego go **skopiować**. Upuszczenie wpisu na jego własnym dniu niczego nie zmienia.
 
 ![Wpis przeciągany z jednego dnia na drugi](images/drag-and-drop.png)
+
+## Kolejność wpisów w dniu
+
+Wpisy z godziną są wyświetlane najpierw, od najwcześniejszego do najpóźniejszego. Wpisy bez godziny następują po nich, w kolejności dodawania.
 
 ## Dni z wieloma wpisami
 

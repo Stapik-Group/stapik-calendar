@@ -6,6 +6,8 @@ Double-click an empty area of a day cell. The **New entry** window opens:
 
 - **Name** — required. Without a name the entry is not created.
 - **Link (optional)** — a web address that you can open later with one click.
+- **Time (optional)** — the hour of the event, for example `14:30`. `9:30`, `9.30` and `930` are understood too. A time that is not valid turns the field red and **OK** stays disabled until you fix or clear it.
+- **Location (optional)** — an address or a place, shown under the name of the entry.
 - **Color** — the first, empty square means no color; the others are colors (see *Colors*).
 
 Confirm with **OK**, or choose **Cancel** to discard.
@@ -41,6 +43,10 @@ Right-click an entry to open a row of squares and click the color you want. You 
 Drag an entry and drop it on another day to **move** it. Hold `Ctrl` while dragging to **copy** it instead. Dropping an entry on its own day changes nothing.
 
 ![An entry being dragged from one day to another](images/drag-and-drop.png)
+
+## Order of entries in a day
+
+Entries that have a time are shown first, from the earliest to the latest. Entries without a time follow, in the order in which you added them.
 
 ## Days with many entries
 

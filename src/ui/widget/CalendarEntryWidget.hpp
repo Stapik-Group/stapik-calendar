@@ -30,7 +30,11 @@ private:
     int m_cellIndex = -1;
     int m_entryIndex = -1;
 
+    Gtk::Box m_textBox;
+    Gtk::Box m_titleRow;
+    Gtk::Label m_timeLabel;
     Gtk::Label m_nameLabel;
+    Gtk::Label m_locationLabel;
     Gtk::Label m_linkLabel;
     Gtk::Button m_deleteButton;
     Gtk::Popover m_colorPopover;

@@ -6,6 +6,8 @@ Doppelklicken Sie auf eine leere Stelle einer Tageszelle. Das Fenster **Neuer Ei
 
 - **Name** — erforderlich. Ohne Namen wird der Eintrag nicht angelegt.
 - **Link (optional)** — eine Webadresse, die Sie später mit einem Klick öffnen können.
+- **Uhrzeit (optional)** — die Uhrzeit des Termins, zum Beispiel `14:30`. Auch `9:30`, `9.30` und `930` werden verstanden. Eine ungültige Uhrzeit färbt das Feld rot, und **OK** bleibt deaktiviert, bis Sie sie korrigieren oder löschen.
+- **Ort (optional)** — eine Adresse oder ein Ort, der unter dem Namen des Eintrags angezeigt wird.
 - **Farbe** — das erste, leere Quadrat bedeutet keine Farbe; die übrigen sind Farben (siehe *Farben*).
 
 Bestätigen Sie mit **OK** oder wählen Sie **Abbrechen**, um zu verwerfen.
@@ -41,6 +43,10 @@ Klicken Sie mit der rechten Maustaste auf einen Eintrag, um eine Reihe von Quadr
 Ziehen Sie einen Eintrag und lassen Sie ihn auf einem anderen Tag los, um ihn zu **verschieben**. Halten Sie beim Ziehen `Strg` gedrückt, um ihn stattdessen zu **kopieren**. Wird ein Eintrag auf seinem eigenen Tag losgelassen, ändert sich nichts.
 
 ![Ein Eintrag wird von einem Tag auf einen anderen gezogen](images/drag-and-drop.png)
+
+## Reihenfolge der Einträge an einem Tag
+
+Einträge mit Uhrzeit erscheinen zuerst, von der frühesten bis zur spätesten. Einträge ohne Uhrzeit folgen in der Reihenfolge, in der Sie sie hinzugefügt haben.
 
 ## Tage mit vielen Einträgen
 

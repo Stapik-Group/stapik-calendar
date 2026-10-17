@@ -6,6 +6,8 @@
 #include <glibmm/main.h>
 #include <gtkmm/adjustment.h>
 
+#include <algorithm>
+#include <numeric>
 #include <string>
 
 namespace
@@ -210,7 +212,22 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
     while (auto* child = m_entriesBox.get_first_child())
         m_entriesBox.remove(*child);
 
-    for (int i = 0; i < static_cast<int>(entries.size()); ++i)
+    // Entries with a time come first, in the order of the clock; the others follow in the order of adding.
+    // Only the display order changes, the entry keeps its real index in the day (for editing, deleting, dragging).
+    std::vector<int> displayOrder(entries.size());
+    std::iota(displayOrder.begin(), displayOrder.end(), 0);
+    std::ranges::stable_sort(displayOrder, [&entries](const int left, const int right)
+    {
+        const auto& leftTime = entries[left].time;
+        const auto& rightTime = entries[right].time;
+
+        if (leftTime.empty() != rightTime.empty())
+            return !leftTime.empty();
+
+        return leftTime < rightTime;
+    });
+
+    for (const int i : displayOrder)
     {
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 

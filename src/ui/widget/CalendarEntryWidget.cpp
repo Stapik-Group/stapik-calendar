@@ -7,7 +7,9 @@
 #include "../../core/util/EntryDragPayload.hpp"
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
-    Box(Gtk::Orientation::HORIZONTAL, 4)
+    Box(Gtk::Orientation::HORIZONTAL, 4),
+    m_textBox(Gtk::Orientation::VERTICAL, 0),
+    m_titleRow(Gtk::Orientation::HORIZONTAL, 4)
 {
     initLayout(entry);
     initGesture();
@@ -30,6 +32,30 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
     m_nameLabel.set_hexpand(true);
     m_nameLabel.add_css_class("calendar-entry-label");
 
+    m_textBox.set_hexpand(true);
+    m_titleRow.set_hexpand(true);
+
+    if (!entry.time.empty())
+    {
+        m_timeLabel.set_text(entry.time);
+        m_timeLabel.set_halign(Gtk::Align::START);
+        m_timeLabel.add_css_class("calendar-entry-time");
+        m_titleRow.append(m_timeLabel);
+    }
+
+    m_titleRow.append(m_nameLabel);
+    m_textBox.append(m_titleRow);
+
+    if (!entry.location.empty())
+    {
+        m_locationLabel.set_text(entry.location);
+        m_locationLabel.set_halign(Gtk::Align::START);
+        m_locationLabel.set_ellipsize(Pango::EllipsizeMode::END);
+        m_locationLabel.set_tooltip_text(entry.location);
+        m_locationLabel.add_css_class("calendar-entry-location");
+        m_textBox.append(m_locationLabel);
+    }
+
     m_deleteButton.set_label("✕");
     m_deleteButton.set_has_frame(false);
     m_deleteButton.add_css_class("calendar-entry-delete");
@@ -38,7 +64,7 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
     add_css_class("calendar-entry");
     add_css_class(entryColorCssClass(entry.color));
 
-    append(m_nameLabel);
+    append(m_textBox);
     if (!entry.link.empty())
     {
         initLinkSymbol(entry.link);
@@ -49,7 +75,7 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
 
 void CalendarEntryWidget::initGesture()
 {
-    // A single click on the name edits the entry; opening the link is left to the link symbol.
+    // A single click on the text (time, name, location) edits the entry; opening the link is left to the link symbol.
     const auto gesture = Gtk::GestureClick::create();
     gesture->set_button(1);
     gesture->signal_released().connect(
@@ -59,7 +85,7 @@ void CalendarEntryWidget::initGesture()
                 m_signalEditRequested.emit();
         });
 
-    m_nameLabel.add_controller(gesture);
+    m_textBox.add_controller(gesture);
 }
 
 void CalendarEntryWidget::initLinkSymbol(const std::string& link)
