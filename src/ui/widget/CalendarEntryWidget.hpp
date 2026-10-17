@@ -4,7 +4,8 @@
 #include <gtkmm/label.h>
 #include <gtkmm/popover.h>
 #include <gtkmm/dragsource.h>
-#include <sigc++/connection.h>
+
+#include <string>
 
 #include "EntryColorPickerWidget.hpp"
 #include "../../core/model/CalendarEntry.hpp"
@@ -17,33 +18,33 @@ public:
     ~CalendarEntryWidget() override;
 
     void setSourceLocator(int cellIndex, int entryIndex);
-    sigc::signal<void()>& signalClicked();
+    sigc::signal<void()>& signalLinkClicked();
     sigc::signal<void()>& signalEditRequested();
     sigc::signal<void()>& signalDeleteRequested();
     sigc::signal<void(EntryColor)>& signalColorChangeRequested();
 private:
     static constexpr int SINGLE_CLICK_COUNT = 1;
-    static constexpr int DOUBLE_CLICK_COUNT = 2;
+    // A plain text character on purpose: an emoji would be drawn with a separate color font and ignore the theme colors.
+    static constexpr auto LINK_SYMBOL = "↗";
 
     int m_cellIndex = -1;
     int m_entryIndex = -1;
 
     Gtk::Label m_nameLabel;
+    Gtk::Label m_linkLabel;
     Gtk::Button m_deleteButton;
     Gtk::Popover m_colorPopover;
     EntryColorPickerWidget m_colorPicker;
     Glib::RefPtr<Gtk::DragSource> m_dragSource;
 
-    sigc::connection m_pendingClick;
-
-    sigc::signal<void()> m_signalClicked;
+    sigc::signal<void()> m_signalLinkClicked;
     sigc::signal<void()> m_signalEditRequested;
     sigc::signal<void()> m_signalDeleteRequested;
     sigc::signal<void(EntryColor)> m_signalColorChangeRequested;
 
     void initLayout(const CalendarEntry& entry);
     void initGesture();
+    void initLinkSymbol(const std::string& link);
     void initColorPopover(EntryColor currentColor);
     void initDragSource();
-    void scheduleSingleClick();
 };

@@ -18,13 +18,13 @@ Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`)
 
 ## Einen Link öffnen
 
-Hat ein Eintrag einen Link, wird der Mauszeiger über seinem Namen zu einer Hand. **Klicken Sie einmal auf den Eintrag**, um den Link im Standardbrowser zu öffnen. Die Anwendung wartet einen Moment (die in Ihrem System eingestellte Doppelklickzeit), um sicherzugehen, dass Sie keinen Doppelklick meinten; die Seite öffnet sich daher mit kurzer Verzögerung.
+Hat ein Eintrag einen Link, erscheint an seinem rechten Rand, neben der Schaltfläche **✕**, ein kleines Link-Symbol (↗). **Klicken Sie auf dieses Symbol**, um den Link im Standardbrowser zu öffnen. Der Mauszeiger wird darüber zu einer Hand, und beim Verweilen wird die Adresse angezeigt. Einträge ohne Link haben kein Symbol.
 
 > Es werden nur `http`- und `https`-Links geöffnet. Ein Link ohne Schema, etwa `example.com`, wird als `https://example.com` geöffnet.
 
 ## Einen Eintrag bearbeiten
 
-**Doppelklicken** Sie auf einen Eintrag, um das Fenster **Eintrag bearbeiten** zu öffnen, in dem Sie Name, Link und Farbe ändern können.
+**Klicken Sie einmal auf den Namen eines Eintrags**, um das Fenster **Eintrag bearbeiten** zu öffnen, in dem Sie Name, Link und Farbe ändern können.
 
 ## Einen Eintrag löschen
 

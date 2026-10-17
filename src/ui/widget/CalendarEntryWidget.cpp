@@ -1,26 +1,10 @@
 #include "CalendarEntryWidget.hpp"
 
 #include <gtkmm/gestureclick.h>
-#include <gtkmm/settings.h>
 #include <gdkmm/contentprovider.h>
-#include <glibmm/main.h>
 
 #include "EntryColorStyle.hpp"
 #include "../../core/util/EntryDragPayload.hpp"
-
-namespace
-{
-    constexpr unsigned FALLBACK_DOUBLE_CLICK_MS = 400;
-
-    unsigned doubleClickTimeMs()
-    {
-        const auto settings = Gtk::Settings::get_default();
-        if (!settings)
-            return FALLBACK_DOUBLE_CLICK_MS;
-
-        return static_cast<unsigned>(settings->property_gtk_double_click_time().get_value());
-    }
-}
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
     Box(Gtk::Orientation::HORIZONTAL, 4)
@@ -33,8 +17,6 @@ CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
 
 CalendarEntryWidget::~CalendarEntryWidget()
 {
-    m_pendingClick.disconnect();
-
     // The popover was parented with set_parent(), so GTK requires it to be unparented before this widget goes away.
     // The cells are rebuilt on every document change, so this runs often, also while the popover is still shown.
     m_colorPopover.unparent();
@@ -47,8 +29,6 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
     m_nameLabel.set_ellipsize(Pango::EllipsizeMode::END);
     m_nameLabel.set_hexpand(true);
     m_nameLabel.add_css_class("calendar-entry-label");
-    if (!entry.link.empty())
-        m_nameLabel.set_cursor("pointer");
 
     m_deleteButton.set_label("✕");
     m_deleteButton.set_has_frame(false);
@@ -59,41 +39,47 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
     add_css_class(entryColorCssClass(entry.color));
 
     append(m_nameLabel);
+    if (!entry.link.empty())
+    {
+        initLinkSymbol(entry.link);
+        append(m_linkLabel);
+    }
     append(m_deleteButton);
 }
 
 void CalendarEntryWidget::initGesture()
 {
+    // A single click on the name edits the entry; opening the link is left to the link symbol.
     const auto gesture = Gtk::GestureClick::create();
     gesture->set_button(1);
-    gesture->signal_pressed().connect(
-        [this](const int nPress, double, double)
-        {
-            if (nPress >= DOUBLE_CLICK_COUNT)
-                m_pendingClick.disconnect();
-        });
     gesture->signal_released().connect(
         [this](const int nPress, double, double)
         {
             if (nPress == SINGLE_CLICK_COUNT)
-                scheduleSingleClick();
-            else if (nPress == DOUBLE_CLICK_COUNT)
                 m_signalEditRequested.emit();
         });
 
     m_nameLabel.add_controller(gesture);
 }
 
-void CalendarEntryWidget::scheduleSingleClick()
+void CalendarEntryWidget::initLinkSymbol(const std::string& link)
 {
-    m_pendingClick.disconnect();
-    m_pendingClick = Glib::signal_timeout().connect(
-        [this]
+    m_linkLabel.set_text(LINK_SYMBOL);
+    m_linkLabel.set_valign(Gtk::Align::CENTER);
+    m_linkLabel.set_cursor("pointer");
+    m_linkLabel.set_tooltip_text(link);
+    m_linkLabel.add_css_class("calendar-entry-link");
+
+    const auto gesture = Gtk::GestureClick::create();
+    gesture->set_button(1);
+    gesture->signal_released().connect(
+        [this](const int nPress, double, double)
         {
-            m_signalClicked.emit();
-            return false;
-        },
-        doubleClickTimeMs());
+            if (nPress == SINGLE_CLICK_COUNT)
+                m_signalLinkClicked.emit();
+        });
+
+    m_linkLabel.add_controller(gesture);
 }
 
 void CalendarEntryWidget::initColorPopover(const EntryColor currentColor)
@@ -142,9 +128,9 @@ void CalendarEntryWidget::setSourceLocator(const int cellIndex, const int entryI
     m_entryIndex = entryIndex;
 }
 
-sigc::signal<void()>& CalendarEntryWidget::signalClicked()
+sigc::signal<void()>& CalendarEntryWidget::signalLinkClicked()
 {
-    return m_signalClicked;
+    return m_signalLinkClicked;
 }
 
 sigc::signal<void()>& CalendarEntryWidget::signalEditRequested()

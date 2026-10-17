@@ -126,7 +126,7 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
     {
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 
-        widget->signalClicked().connect([this, i] { m_signalEntryClicked.emit(i); });
+        widget->signalLinkClicked().connect([this, i] { m_signalEntryLinkClicked.emit(i); });
         widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
         widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
         widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
@@ -158,9 +158,9 @@ sigc::signal<void()>& CalendarCell::signalDoubleClicked()
     return m_signalDoubleClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEntryClicked()
+sigc::signal<void(int)>& CalendarCell::signalEntryLinkClicked()
 {
-    return m_signalEntryClicked;
+    return m_signalEntryLinkClicked;
 }
 
 sigc::signal<void(int)>& CalendarCell::signalEditRequested()

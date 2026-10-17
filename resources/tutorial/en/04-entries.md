@@ -18,13 +18,13 @@ If you copied a web address (starting with `http://` or `https://`), **right-cli
 
 ## Opening a link
 
-When an entry has a link, the mouse pointer turns into a hand over its name. **Click the entry once** to open the link in your default browser. The application waits a moment (the double-click time set in your system) to be sure that you did not mean to double-click, so the page opens with a short delay.
+When an entry has a link, a small link symbol (↗) appears at its right edge, next to the **✕** button. **Click the symbol** to open the link in your default browser. The mouse pointer turns into a hand over it, and pausing on it shows the address. Entries without a link have no symbol.
 
 > Only `http` and `https` links are opened. A link typed without a scheme, such as `example.com`, is opened as `https://example.com`.
 
 ## Editing an entry
 
-**Double-click** an entry to open the **Edit entry** window, where you can change the name, the link and the color.
+**Click the name of an entry** once to open the **Edit entry** window, where you can change the name, the link and the color.
 
 ## Deleting an entry
 

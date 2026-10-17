@@ -1,12 +1,8 @@
 # Rozwiązywanie problemów
 
-**Kliknięcie wpisu nie otwiera strony.**
+**Kliknięcie symbolu linku nie otwiera strony.**
 
-Sprawdź, czy wpis ma link. Otwierane są tylko linki `http` i `https`, a system musi mieć ustawioną domyślną przeglądarkę.
-
-**Dwuklik otwiera stronę zamiast edytora.**
-
-Kliknij trochę szybciej albo wydłuż czas dwukliku w ustawieniach myszy w systemie.
+Otwierane są tylko linki `http` i `https`, a system musi mieć ustawioną domyślną przeglądarkę.
 
 **Prawy przycisk na dniu nic nie robi.**
 

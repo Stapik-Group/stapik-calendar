@@ -18,13 +18,13 @@ Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), 
 
 ## Otwieranie linku
 
-Gdy wpis ma link, wskaźnik myszy nad jego nazwą zmienia się w rączkę. **Kliknij wpis jeden raz**, aby otworzyć link w domyślnej przeglądarce. Aplikacja czeka chwilę (czas dwukliku ustawiony w systemie), żeby upewnić się, że nie chodziło o dwuklik, więc strona otwiera się z lekkim opóźnieniem.
+Gdy wpis ma link, przy jego prawej krawędzi, obok przycisku **✕**, pojawia się mały symbol linku (↗). **Kliknij ten symbol**, aby otworzyć link w domyślnej przeglądarce. Wskaźnik myszy zmienia się nad nim w rączkę, a po chwili zatrzymania pokazuje się adres. Wpisy bez linku nie mają symbolu.
 
 > Otwierane są wyłącznie linki `http` i `https`. Link wpisany bez schematu, na przykład `example.com`, zostanie otwarty jako `https://example.com`.
 
 ## Edycja wpisu
 
-**Kliknij wpis dwukrotnie**, aby otworzyć okno **Edytuj wpis**, w którym możesz zmienić nazwę, link i kolor.
+**Kliknij nazwę wpisu** jeden raz, aby otworzyć okno **Edytuj wpis**, w którym możesz zmienić nazwę, link i kolor.
 
 ## Usuwanie wpisu
 

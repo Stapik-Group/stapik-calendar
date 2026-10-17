@@ -50,7 +50,7 @@ void CalendarGrid::connectCellSignals()
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
         m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
-        m_cells[i].signalEntryClicked().connect([this, i](const int entryIndex) { onEntryClicked(i, entryIndex); });
+        m_cells[i].signalEntryLinkClicked().connect([this, i](const int entryIndex) { onEntryLinkClicked(i, entryIndex); });
         m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
@@ -120,7 +120,7 @@ void CalendarGrid::onCellDoubleClicked(const int cellIndex)
     showEntryDialog(*window, cellDate(day), std::nullopt);
 }
 
-void CalendarGrid::onEntryClicked(const int cellIndex, const int entryIndex)
+void CalendarGrid::onEntryLinkClicked(const int cellIndex, const int entryIndex)
 {
     int day = 0;
     if (validatedWindowForCell(cellIndex, day) == nullptr || entryIndex < 0)
