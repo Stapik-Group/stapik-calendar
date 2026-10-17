@@ -1,12 +1,8 @@
 # Troubleshooting
 
-**Clicking an entry does not open a page.**
+**Clicking the link symbol does not open a page.**
 
-Check that the entry has a link. Only `http` and `https` links are opened, and your system needs a default web browser.
-
-**A double-click opens the page instead of the editor.**
-
-Click a little faster, or make the double-click time longer in your system's mouse settings.
+Only `http` and `https` links are opened, and your system needs a default web browser.
 
 **Right-clicking a day does nothing.**
 

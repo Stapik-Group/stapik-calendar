@@ -39,6 +39,14 @@ frame > border {
     border-radius: 0;
 }
 
+.weekend {
+    background-color: #b4bde0;
+}
+
+.other-month .calendar-day-number {
+    color: #808080;
+}
+
 .today {
     background-color: #000080;
 }
@@ -67,6 +75,12 @@ frame > border {
 
 .drag-over {
     border: 2px dashed #000080;
+}
+
+label.calendar-overflow-indicator {
+    background-color: #000080;
+    color: #ffffff;
+    border-radius: 0;
 }
 
 headerbar {
@@ -122,4 +136,25 @@ popover modelbutton * {
 
 .calendar-entry-delete {
     font-size: 10px;
+}
+
+.calendar-entry-link {
+    font-size: 10px;
+    padding: 0 2px;
+}
+
+.calendar-overflow-indicator {
+    font-size: 9px;
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+.calendar-entry-time {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.calendar-entry-location {
+    font-size: 9px;
+    opacity: 0.75;
 }

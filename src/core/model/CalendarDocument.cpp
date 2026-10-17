@@ -70,13 +70,15 @@ namespace
 
         for (const auto& [date, dayEntries] : entries)
         {
-            for (const auto& [name, link, color] : dayEntries)
+            for (const auto& entry : dayEntries)
             {
                 json.push_back({
                     { "date", serializeDate(date) },
-                    { "name", name },
-                    { "link", link },
-                    { "color", serializeColor(color) }
+                    { "name", entry.name },
+                    { "link", entry.link },
+                    { "color", serializeColor(entry.color) },
+                    { "location", entry.location },
+                    { "time", entry.time }
                 });
             }
         }
@@ -93,7 +95,9 @@ namespace
             entries[deserializeDate(item.at("date").get<std::string>())].push_back(CalendarEntry{
                 item.at("name").get<std::string>(),
                 item.at("link").get<std::string>(),
-                stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID}))
+                stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
+                item.value("location", std::string{}),
+                item.value("time", std::string{})
             });
         }
 

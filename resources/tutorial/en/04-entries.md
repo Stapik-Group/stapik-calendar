@@ -6,6 +6,8 @@ Double-click an empty area of a day cell. The **New entry** window opens:
 
 - **Name** — required. Without a name the entry is not created.
 - **Link (optional)** — a web address that you can open later with one click.
+- **Time (optional)** — the hour of the event, for example `14:30`. `9:30`, `9.30` and `930` are understood too. A time that is not valid turns the field red and **OK** stays disabled until you fix or clear it.
+- **Location (optional)** — an address or a place, shown under the name of the entry.
 - **Color** — the first, empty square means no color; the others are colors (see *Colors*).
 
 Confirm with **OK**, or choose **Cancel** to discard.
@@ -14,17 +16,17 @@ Confirm with **OK**, or choose **Cancel** to discard.
 
 ## Quick add from the clipboard
 
-If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The application creates an entry for that day with the address as the link and the title of the web page as the name. This needs an internet connection; if the title cannot be read, the entry is named *No name*. When the clipboard does not contain a web address, nothing happens.
+If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The **New entry** window opens at once with the address in the **Link** field, and the application fetches the title of the web page and puts it in the **Name** field. This needs an internet connection; if the title cannot be read, type the name yourself. Confirm with **OK**. When the clipboard does not contain a web address, nothing happens.
 
 ## Opening a link
 
-When an entry has a link, the mouse pointer turns into a hand over its name. **Click the entry once** to open the link in your default browser. The application waits a moment (the double-click time set in your system) to be sure that you did not mean to double-click, so the page opens with a short delay.
+When an entry has a link, a small link symbol (↗) appears at its right edge, next to the **✕** button. **Click the symbol** to open the link in your default browser. The mouse pointer turns into a hand over it, and pausing on it shows the address. Entries without a link have no symbol.
 
 > Only `http` and `https` links are opened. A link typed without a scheme, such as `example.com`, is opened as `https://example.com`.
 
 ## Editing an entry
 
-**Double-click** an entry to open the **Edit entry** window, where you can change the name, the link and the color.
+**Click the name of an entry** once to open the **Edit entry** window, where you can change the name, the link and the color.
 
 ## Deleting an entry
 
@@ -42,8 +44,12 @@ Drag an entry and drop it on another day to **move** it. Hold `Ctrl` while dragg
 
 ![An entry being dragged from one day to another](images/drag-and-drop.png)
 
+## Order of entries in a day
+
+Entries that have a time are shown first, from the earliest to the latest. Entries without a time follow, in the order in which you added them.
+
 ## Days with many entries
 
-When a day has more entries than fit in its cell, the cell can be scrolled. Entries are listed in the order in which you added them.
+When a day has more entries than fit in its cell, the cell can be scrolled. A small marker in the corner of the cell (▲ or ▼ with a number) shows how many entries are hidden above or below; scroll with the mouse wheel or touchpad to reach them. Entries are listed in the order in which you added them.
 
 ![A day cell with several entries, some of them colored](images/entries-in-cell.png)

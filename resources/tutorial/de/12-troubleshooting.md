@@ -1,12 +1,8 @@
 # Problemlösung
 
-**Ein Klick auf einen Eintrag öffnet keine Seite.**
+**Ein Klick auf das Link-Symbol öffnet keine Seite.**
 
-Prüfen Sie, ob der Eintrag einen Link hat. Es werden nur `http`- und `https`-Links geöffnet, und Ihr System braucht einen Standard-Webbrowser.
-
-**Ein Doppelklick öffnet die Seite statt des Editors.**
-
-Klicken Sie etwas schneller oder verlängern Sie die Doppelklickzeit in den Mauseinstellungen Ihres Systems.
+Es werden nur `http`- und `https`-Links geöffnet, und Ihr System braucht einen Standard-Webbrowser.
 
 **Ein Rechtsklick auf einen Tag bewirkt nichts.**
 

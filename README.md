@@ -7,11 +7,11 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 ## Features
 
 - **Monthly view** - calendar grid with month and year navigation, and a month picker to jump to any month
-- **Calendar entries** - add, edit and delete entries with a name, optional link and color
-- **Entry links** - a single click on an entry that has a link opens it in the default browser (only `http` and `https` links; a link without a scheme is opened as `https://`); a double-click opens the entry for editing
+- **Calendar entries** - add, edit and delete entries with a name, optional link, location, time and color; entries with a time are listed first, in the order of the clock
+- **Entry links** - an entry that has a link shows a small link symbol; clicking it opens the link in the default browser (only `http` and `https` links; a link without a scheme is opened as `https://`), while a single click on the entry name opens the entry for editing
 - **Entry colors** - assign one of ten shared category colors to an entry, either from the entry dialog or via a quick right-click popover on an existing entry
 - **Drag and drop** - drag an entry to another day to move it; hold **Ctrl** while dragging to copy it instead
-- **Quick add from clipboard** - right-clicking an empty cell automatically fetches the page title from a URL copied to the clipboard and creates an entry
+- **Quick add from clipboard** - right-clicking a day while a URL is in the clipboard opens the new entry window with the link filled in; the page title is fetched in the background and put into the name
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), one cloud partition per year loaded as you navigate, automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
@@ -170,12 +170,12 @@ Calendar data is stored locally in `~/.local/share/stapikcalendar/`, one file pe
   "schemaVersion": 1,
   "document": {
     "lastUpdate": "2026-10-04T12:00:00Z",
-    "entries": [ { "date": "2026-10-04", "name": "...", "link": "...", "color": "teal" } ]
+    "entries": [ { "date": "2026-10-04", "name": "...", "link": "...", "color": "teal", "location": "...", "time": "14:30" } ]
   }
 }
 ```
 
-Each entry stores a name, an optional link and a color id (`default`, `red`, `orange`, `yellow`, `green`, `teal`, `blue`, `purple`, `pink`, `brown` or `gray`). Files written by older versions (a bare entries array, or the `lastUpdate` / `payload` envelope) are migrated automatically on the first start. The single `calendar.json` of earlier versions is split into the year files once and kept as `calendar.json.migrated`.
+Each entry stores a name, an optional link, an optional location, an optional time (`HH:MM`) and a color id (`default`, `red`, `orange`, `yellow`, `green`, `teal`, `blue`, `purple`, `pink`, `brown` or `gray`). Files written by older versions (a bare entries array, or the `lastUpdate` / `payload` envelope) are migrated automatically on the first start. The single `calendar.json` of earlier versions is split into the year files once and kept as `calendar.json.migrated`.
 
 Next to it:
 

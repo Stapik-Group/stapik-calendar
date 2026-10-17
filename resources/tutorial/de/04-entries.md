@@ -6,6 +6,8 @@ Doppelklicken Sie auf eine leere Stelle einer Tageszelle. Das Fenster **Neuer Ei
 
 - **Name** — erforderlich. Ohne Namen wird der Eintrag nicht angelegt.
 - **Link (optional)** — eine Webadresse, die Sie später mit einem Klick öffnen können.
+- **Uhrzeit (optional)** — die Uhrzeit des Termins, zum Beispiel `14:30`. Auch `9:30`, `9.30` und `930` werden verstanden. Eine ungültige Uhrzeit färbt das Feld rot, und **OK** bleibt deaktiviert, bis Sie sie korrigieren oder löschen.
+- **Ort (optional)** — eine Adresse oder ein Ort, der unter dem Namen des Eintrags angezeigt wird.
 - **Farbe** — das erste, leere Quadrat bedeutet keine Farbe; die übrigen sind Farben (siehe *Farben*).
 
 Bestätigen Sie mit **OK** oder wählen Sie **Abbrechen**, um zu verwerfen.
@@ -14,17 +16,17 @@ Bestätigen Sie mit **OK** oder wählen Sie **Abbrechen**, um zu verwerfen.
 
 ## Schnell aus der Zwischenablage hinzufügen
 
-Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`), klicken Sie mit der **rechten Maustaste** auf einen Tag. Die Anwendung legt für diesen Tag einen Eintrag an, mit der Adresse als Link und dem Titel der Webseite als Name. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, heißt der Eintrag *Ohne Namen*. Enthält die Zwischenablage keine Webadresse, passiert nichts.
+Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`), klicken Sie mit der **rechten Maustaste** auf einen Tag. Das Fenster **Neuer Eintrag** öffnet sich sofort mit der Adresse im Feld **Link**, und die Anwendung lädt den Titel der Webseite und trägt ihn in das Feld **Name** ein. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, geben Sie den Namen selbst ein. Bestätigen Sie mit **OK**. Enthält die Zwischenablage keine Webadresse, passiert nichts.
 
 ## Einen Link öffnen
 
-Hat ein Eintrag einen Link, wird der Mauszeiger über seinem Namen zu einer Hand. **Klicken Sie einmal auf den Eintrag**, um den Link im Standardbrowser zu öffnen. Die Anwendung wartet einen Moment (die in Ihrem System eingestellte Doppelklickzeit), um sicherzugehen, dass Sie keinen Doppelklick meinten; die Seite öffnet sich daher mit kurzer Verzögerung.
+Hat ein Eintrag einen Link, erscheint an seinem rechten Rand, neben der Schaltfläche **✕**, ein kleines Link-Symbol (↗). **Klicken Sie auf dieses Symbol**, um den Link im Standardbrowser zu öffnen. Der Mauszeiger wird darüber zu einer Hand, und beim Verweilen wird die Adresse angezeigt. Einträge ohne Link haben kein Symbol.
 
 > Es werden nur `http`- und `https`-Links geöffnet. Ein Link ohne Schema, etwa `example.com`, wird als `https://example.com` geöffnet.
 
 ## Einen Eintrag bearbeiten
 
-**Doppelklicken** Sie auf einen Eintrag, um das Fenster **Eintrag bearbeiten** zu öffnen, in dem Sie Name, Link und Farbe ändern können.
+**Klicken Sie einmal auf den Namen eines Eintrags**, um das Fenster **Eintrag bearbeiten** zu öffnen, in dem Sie Name, Link und Farbe ändern können.
 
 ## Einen Eintrag löschen
 
@@ -42,8 +44,12 @@ Ziehen Sie einen Eintrag und lassen Sie ihn auf einem anderen Tag los, um ihn zu
 
 ![Ein Eintrag wird von einem Tag auf einen anderen gezogen](images/drag-and-drop.png)
 
+## Reihenfolge der Einträge an einem Tag
+
+Einträge mit Uhrzeit erscheinen zuerst, von der frühesten bis zur spätesten. Einträge ohne Uhrzeit folgen in der Reihenfolge, in der Sie sie hinzugefügt haben.
+
 ## Tage mit vielen Einträgen
 
-Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.
+Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Ein kleines Symbol in der Ecke der Zelle (▲ oder ▼ mit einer Zahl) zeigt, wie viele Einträge oberhalb oder unterhalb verborgen sind; mit Mausrad oder Touchpad scrollen Sie dorthin. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.
 
 ![Eine Tageszelle mit mehreren Einträgen, einige davon farbig](images/entries-in-cell.png)

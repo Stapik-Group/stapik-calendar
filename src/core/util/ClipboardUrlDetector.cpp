@@ -1,5 +1,21 @@
 #include "ClipboardUrlDetector.hpp"
 #include <regex>
+#include <string>
+
+namespace
+{
+    // Text copied from a page or an address bar often carries a trailing space or line break (CRLF on Windows).
+    std::string trimmed(const std::string& text)
+    {
+        constexpr auto whitespace = " \t\r\n";
+
+        const auto first = text.find_first_not_of(whitespace);
+        if (first == std::string::npos)
+            return {};
+
+        return text.substr(first, text.find_last_not_of(whitespace) - first + 1);
+    }
+}
 
 void ClipboardUrlDetector::detectAsync(const Glib::RefPtr<Gdk::Clipboard>& clipboard,
                                        const Callback& onUrlFound,
@@ -9,8 +25,8 @@ void ClipboardUrlDetector::detectAsync(const Glib::RefPtr<Gdk::Clipboard>& clipb
     {
         try
         {
-            if (const auto text = clipboard->read_text_finish(result); !text.empty() && isValidUrl(text))
-                onUrlFound(text);
+            if (const auto url = trimmed(clipboard->read_text_finish(result)); isValidUrl(url))
+                onUrlFound(url);
             else
                 onNoUrl({});
         }

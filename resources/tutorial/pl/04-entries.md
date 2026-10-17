@@ -6,6 +6,8 @@ Kliknij dwukrotnie puste miejsce w komórce dnia. Otworzy się okno **Nowy wpis*
 
 - **Nazwa** — wymagana. Bez nazwy wpis nie zostanie utworzony.
 - **Link (opcjonalny)** — adres strony internetowej, który później otworzysz jednym kliknięciem.
+- **Godzina (opcjonalna)** — godzina wydarzenia, na przykład `14:30`. Zrozumiałe są też `9:30`, `9.30` i `930`. Nieprawidłowa godzina podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie poprawisz lub nie wyczyścisz.
+- **Miejsce (opcjonalne)** — adres lub miejsce, wyświetlane pod nazwą wpisu.
 - **Kolor** — pierwszy, pusty kwadracik oznacza brak koloru; pozostałe to kolory (zobacz *Kolory*).
 
 Zatwierdź przyciskiem **OK** albo wybierz **Anuluj**, aby odrzucić.
@@ -14,17 +16,17 @@ Zatwierdź przyciskiem **OK** albo wybierz **Anuluj**, aby odrzucić.
 
 ## Szybkie dodawanie ze schowka
 
-Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Aplikacja utworzy w tym dniu wpis z tym adresem jako linkiem i tytułem strony jako nazwą. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpis dostanie nazwę *Bez nazwy*. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
+Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Od razu otworzy się okno **Nowy wpis** z adresem w polu **Link**, a aplikacja pobierze tytuł strony i wstawi go w pole **Nazwa**. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpisz nazwę samodzielnie. Zatwierdź przyciskiem **OK**. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
 
 ## Otwieranie linku
 
-Gdy wpis ma link, wskaźnik myszy nad jego nazwą zmienia się w rączkę. **Kliknij wpis jeden raz**, aby otworzyć link w domyślnej przeglądarce. Aplikacja czeka chwilę (czas dwukliku ustawiony w systemie), żeby upewnić się, że nie chodziło o dwuklik, więc strona otwiera się z lekkim opóźnieniem.
+Gdy wpis ma link, przy jego prawej krawędzi, obok przycisku **✕**, pojawia się mały symbol linku (↗). **Kliknij ten symbol**, aby otworzyć link w domyślnej przeglądarce. Wskaźnik myszy zmienia się nad nim w rączkę, a po chwili zatrzymania pokazuje się adres. Wpisy bez linku nie mają symbolu.
 
 > Otwierane są wyłącznie linki `http` i `https`. Link wpisany bez schematu, na przykład `example.com`, zostanie otwarty jako `https://example.com`.
 
 ## Edycja wpisu
 
-**Kliknij wpis dwukrotnie**, aby otworzyć okno **Edytuj wpis**, w którym możesz zmienić nazwę, link i kolor.
+**Kliknij nazwę wpisu** jeden raz, aby otworzyć okno **Edytuj wpis**, w którym możesz zmienić nazwę, link i kolor.
 
 ## Usuwanie wpisu
 
@@ -42,8 +44,12 @@ Przeciągnij wpis i upuść go na innym dniu, aby go **przenieść**. Przytrzyma
 
 ![Wpis przeciągany z jednego dnia na drugi](images/drag-and-drop.png)
 
+## Kolejność wpisów w dniu
+
+Wpisy z godziną są wyświetlane najpierw, od najwcześniejszego do najpóźniejszego. Wpisy bez godziny następują po nich, w kolejności dodawania.
+
 ## Dni z wieloma wpisami
 
-Gdy dzień ma więcej wpisów, niż mieści się w komórce, komórkę można przewijać. Wpisy są wyświetlane w kolejności dodawania.
+Gdy dzień ma więcej wpisów, niż mieści się w komórce, komórkę można przewijać. Mały znacznik w rogu komórki (▲ lub ▼ z liczbą) pokazuje, ile wpisów jest ukrytych powyżej lub poniżej; przewiń kółkiem myszy lub gładzikiem, aby do nich dotrzeć. Wpisy są wyświetlane w kolejności dodawania.
 
 ![Komórka dnia z kilkoma wpisami, część z nich kolorowa](images/entries-in-cell.png)

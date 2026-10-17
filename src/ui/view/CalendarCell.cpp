@@ -3,6 +3,24 @@
 #include "../../core/util/EntryDragPayload.hpp"
 #include "../widget/CalendarEntryWidget.hpp"
 
+#include <glibmm/main.h>
+#include <gtkmm/adjustment.h>
+
+#include <algorithm>
+#include <numeric>
+#include <string>
+
+namespace
+{
+    void showOverflowCount(Gtk::Label& indicator, const std::string& arrow, const int count)
+    {
+        indicator.set_visible(count > 0);
+
+        if (count > 0)
+            indicator.set_text(arrow + " " + std::to_string(count));
+    }
+}
+
 CalendarCell::CalendarCell() :
     m_outerBox(Gtk::Orientation::VERTICAL, 0),
     m_entriesBox(Gtk::Orientation::VERTICAL, ENTRIES_SPACING)
@@ -12,11 +30,17 @@ CalendarCell::CalendarCell() :
     initDropTarget();
 }
 
+CalendarCell::~CalendarCell()
+{
+    m_overflowUpdate.disconnect();
+}
+
 void CalendarCell::initLayout()
 {
     m_dayLabel.set_halign(Gtk::Align::END);
     m_dayLabel.set_valign(Gtk::Align::START);
     m_dayLabel.set_margin(CELL_MARGIN);
+    m_dayLabel.add_css_class("calendar-day-number");
 
     m_scrolledWindow.set_child(m_entriesBox);
     // EXTERNAL keeps scrolling (wheel, touchpad, touch) but never shows a scrollbar, in any theme.
@@ -27,10 +51,77 @@ void CalendarCell::initLayout()
     m_entriesBox.set_margin_end(CELL_MARGIN);
     m_entriesBox.set_margin_bottom(CELL_MARGIN);
 
+    initOverflowIndicators();
+
     m_outerBox.append(m_dayLabel);
-    m_outerBox.append(m_scrolledWindow);
+    m_outerBox.append(m_overlay);
 
     set_child(m_outerBox);
+}
+
+void CalendarCell::initOverflowIndicators()
+{
+    // The indicators float over the entries instead of taking space from them, so showing or hiding one never
+    // changes the width or the position of an entry. They ignore the mouse, so clicks and drops reach the entries.
+    m_overlay.set_vexpand(true);
+    m_overlay.set_child(m_scrolledWindow);
+
+    for (auto* indicator : { &m_moreAbove, &m_moreBelow })
+    {
+        indicator->set_halign(Gtk::Align::END);
+        indicator->set_margin(OVERFLOW_INDICATOR_MARGIN);
+        indicator->set_can_target(false);
+        indicator->set_visible(false);
+        indicator->add_css_class("calendar-overflow-indicator");
+        m_overlay.add_overlay(*indicator);
+    }
+
+    m_moreAbove.set_valign(Gtk::Align::START);
+    m_moreBelow.set_valign(Gtk::Align::END);
+
+    const auto adjustment = m_scrolledWindow.get_vadjustment();
+    adjustment->signal_value_changed().connect(sigc::mem_fun(*this, &CalendarCell::updateOverflowIndicators));
+    adjustment->signal_changed().connect(sigc::mem_fun(*this, &CalendarCell::scheduleOverflowUpdate));
+}
+
+void CalendarCell::scheduleOverflowUpdate()
+{
+    // The size of the entries is known only after the layout, which comes after the change of the adjustment.
+    if (m_overflowUpdate.connected())
+        return;
+
+    m_overflowUpdate = Glib::signal_idle().connect([this]
+    {
+        updateOverflowIndicators();
+        return false;
+    });
+}
+
+void CalendarCell::updateOverflowIndicators()
+{
+    const auto adjustment = m_scrolledWindow.get_vadjustment();
+    const double visibleTop = adjustment->get_value();
+    const double visibleBottom = visibleTop + adjustment->get_page_size();
+
+    int hiddenAbove = 0;
+    int hiddenBelow = 0;
+    double entryTop = 0.0;
+
+    for (auto* entry = m_entriesBox.get_first_child(); entry != nullptr; entry = entry->get_next_sibling())
+    {
+        const double entryBottom = entryTop + entry->get_height();
+
+        if (entryTop < visibleTop - OVERFLOW_TOLERANCE)
+            ++hiddenAbove;
+
+        if (entryBottom > visibleBottom + OVERFLOW_TOLERANCE)
+            ++hiddenBelow;
+
+        entryTop = entryBottom + ENTRIES_SPACING;
+    }
+
+    showOverflowCount(m_moreAbove, "▲", hiddenAbove);
+    showOverflowCount(m_moreBelow, "▼", hiddenBelow);
 }
 
 void CalendarCell::initGesture()
@@ -68,17 +159,28 @@ void CalendarCell::initDropTarget()
 void CalendarCell::setDay(const int day)
 {
     m_dayLabel.set_text(std::to_string(day));
+    remove_css_class("other-month");
+}
+
+void CalendarCell::setAdjacentMonthDay(const int day)
+{
+    m_dayLabel.set_text(std::to_string(day));
+    add_css_class("other-month");
+    remove_css_class("today");
+    refreshEntries({});
+}
+
+void CalendarCell::setWeekend(const bool isWeekend)
+{
+    if (isWeekend)
+        add_css_class("weekend");
+    else
+        remove_css_class("weekend");
 }
 
 void CalendarCell::setCellIndex(const int cellIndex)
 {
     m_cellIndex = cellIndex;
-}
-
-void CalendarCell::clearDay()
-{
-    m_dayLabel.set_text("");
-    refreshEntries({});
 }
 
 void CalendarCell::markAsToday(const bool isToday)
@@ -110,11 +212,26 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
     while (auto* child = m_entriesBox.get_first_child())
         m_entriesBox.remove(*child);
 
-    for (int i = 0; i < static_cast<int>(entries.size()); ++i)
+    // Entries with a time come first, in the order of the clock; the others follow in the order of adding.
+    // Only the display order changes, the entry keeps its real index in the day (for editing, deleting, dragging).
+    std::vector<int> displayOrder(entries.size());
+    std::iota(displayOrder.begin(), displayOrder.end(), 0);
+    std::ranges::stable_sort(displayOrder, [&entries](const int left, const int right)
+    {
+        const auto& leftTime = entries[left].time;
+        const auto& rightTime = entries[right].time;
+
+        if (leftTime.empty() != rightTime.empty())
+            return !leftTime.empty();
+
+        return leftTime < rightTime;
+    });
+
+    for (const int i : displayOrder)
     {
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 
-        widget->signalClicked().connect([this, i] { m_signalEntryClicked.emit(i); });
+        widget->signalLinkClicked().connect([this, i] { m_signalEntryLinkClicked.emit(i); });
         widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
         widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
         widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
@@ -146,9 +263,9 @@ sigc::signal<void()>& CalendarCell::signalDoubleClicked()
     return m_signalDoubleClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEntryClicked()
+sigc::signal<void(int)>& CalendarCell::signalEntryLinkClicked()
 {
-    return m_signalEntryClicked;
+    return m_signalEntryLinkClicked;
 }
 
 sigc::signal<void(int)>& CalendarCell::signalEditRequested()

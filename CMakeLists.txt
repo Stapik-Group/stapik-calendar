@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(stapikcalendar VERSION 1.3.2 LANGUAGES CXX)
+project(stapikcalendar VERSION 1.3.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,9 +14,9 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v1.5.5
+        GIT_TAG v1.5.6
         # Lets an installed stapik-common be used instead of a download; the Flatpak build has no network.
-        FIND_PACKAGE_ARGS 1.5.5
+        FIND_PACKAGE_ARGS 1.5.6
 )
 FetchContent_MakeAvailable(stapikcommon)
 
@@ -52,6 +52,7 @@ stapik_add_application(
                 src/core/command/IndexedEntryCommand.cpp
                 src/core/command/MoveEntryCommand.cpp
                 src/core/util/UrlOpener.cpp
+                src/core/util/EntryTime.cpp
                 src/core/util/UrlTitleFetcher.cpp
                 src/core/util/ClipboardUrlDetector.cpp
                 src/core/util/DateUtils.cpp
@@ -68,4 +69,4 @@ stapik_add_application(
                 src/ui/view/CalendarNavBar.cpp
                 src/ui/widget/CalendarEntryWidget.cpp
                 src/ui/widget/EntryColorPickerWidget.cpp
-        LINK_LIBRARIES PkgConfig::GTKMM CURL::libcurl nlohmann_json::nlohmann_json)
+        LINK_LIBRARIES PkgConfig::GTKMM CURL::libcurl nlohmann_json::nlohmann_json $<$<BOOL:${WIN32}>:shell32>)

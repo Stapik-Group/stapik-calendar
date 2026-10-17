@@ -3,11 +3,12 @@
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
 #include "../../core/util/UrlOpener.hpp"
-#include "stapik/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
+
+#include <memory>
 
 #include "../../core/util/DateUtils.hpp"
 
@@ -40,6 +41,7 @@ void CalendarGrid::initLayout()
         {
             const int index = row * COLUMNS + col;
             m_cells[index].setCellIndex(index);
+            m_cells[index].setWeekend(col >= FIRST_WEEKEND_COLUMN);
             attach(m_cells[index], col, row);
         }
 }
@@ -49,7 +51,7 @@ void CalendarGrid::connectCellSignals()
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
         m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
-        m_cells[i].signalEntryClicked().connect([this, i](const int entryIndex) { onEntryClicked(i, entryIndex); });
+        m_cells[i].signalEntryLinkClicked().connect([this, i](const int entryIndex) { onEntryLinkClicked(i, entryIndex); });
         m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
         m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
@@ -68,12 +70,19 @@ void CalendarGrid::populateCells()
 {
     const int offset  = firstWeekdayOffset();
     const int numDays = daysInMonth();
+    const int numDaysPreviousMonth = daysInPreviousMonth();
 
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
-        if (const int day = i - offset + 1; day < 1 || day > numDays)
+        const int day = i - offset + 1;
+
+        if (day < 1)
         {
-            m_cells[i].clearDay();
+            m_cells[i].setAdjacentMonthDay(numDaysPreviousMonth + day);
+        }
+        else if (day > numDays)
+        {
+            m_cells[i].setAdjacentMonthDay(day - numDays);
         }
         else
         {
@@ -112,7 +121,7 @@ void CalendarGrid::onCellDoubleClicked(const int cellIndex)
     showEntryDialog(*window, cellDate(day), std::nullopt);
 }
 
-void CalendarGrid::onEntryClicked(const int cellIndex, const int entryIndex)
+void CalendarGrid::onEntryLinkClicked(const int cellIndex, const int entryIndex)
 {
     int day = 0;
     if (validatedWindowForCell(cellIndex, day) == nullptr || entryIndex < 0)
@@ -148,7 +157,12 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
     if (entryIndex < 0)
         return;
 
-    m_controller.deleteEntry(cellDate(day), static_cast<std::size_t>(entryIndex));
+    // Changing the document rebuilds the cells and destroys the entry widget that raised this request.
+    // Letting its signal handler return first avoids destroying a widget from inside its own signal.
+    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex)]
+    {
+        m_controller.deleteEntry(date, index);
+    });
 }
 
 void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
@@ -161,11 +175,15 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sou
     if (sourceEntryIndex < 0)
         return;
 
-    const auto index = static_cast<std::size_t>(sourceEntryIndex);
-    if (isCopy)
-        m_controller.copyEntry(cellDate(sourceDay), index, cellDate(destDay));
-    else
-        m_controller.moveEntry(cellDate(sourceDay), index, cellDate(destDay));
+    // The drag source widget is destroyed by the rebuild that follows, so the change waits until the drop is handled.
+    Glib::signal_idle().connect_once(
+        [this, sourceDate = cellDate(sourceDay), index = static_cast<std::size_t>(sourceEntryIndex), destDate = cellDate(destDay), isCopy]
+        {
+            if (isCopy)
+                m_controller.copyEntry(sourceDate, index, destDate);
+            else
+                m_controller.moveEntry(sourceDate, index, destDate);
+        });
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
@@ -186,6 +204,37 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
     {
         dialog = new CalendarEntryDialog(window);
     }
+
+    presentEntryDialog(*dialog, date, editIndex);
+}
+
+void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date, const std::string& url)
+{
+    auto* window = dynamic_cast<Gtk::Window*>(get_root());
+    if (window == nullptr)
+        return;
+
+    auto* dialog = new CalendarEntryDialog(*window);
+    dialog->setLink(url);
+
+    // The page title arrives after a while, when the dialog may already be closed and deleted.
+    const auto isOpen = std::make_shared<bool>(true);
+    dialog->signal_hide().connect([isOpen] { *isOpen = false; });
+
+    UrlTitleFetcher::fetchAsync(url, [dialog, isOpen](const std::string& title)
+    {
+        if (*isOpen && !title.empty())
+            dialog->suggestName(title);
+    });
+
+    presentEntryDialog(*dialog, date, std::nullopt);
+}
+
+void CalendarGrid::presentEntryDialog(CalendarEntryDialog& entryDialog,
+                                      const std::chrono::year_month_day date,
+                                      const std::optional<int> editIndex)
+{
+    auto* dialog = &entryDialog;
 
     dialog->signal_response().connect([this, dialog, date, editIndex](const int responseId)
     {
@@ -234,6 +283,15 @@ int CalendarGrid::daysInMonth() const
     return static_cast<int>(static_cast<unsigned>(lastDay.day()));
 }
 
+int CalendarGrid::daysInPreviousMonth() const
+{
+    using namespace std::chrono;
+
+    const year_month previousMonth = m_currentYearMonth - months{1};
+    const year_month_day lastDay{previousMonth / last};
+    return static_cast<int>(static_cast<unsigned>(lastDay.day()));
+}
+
 bool CalendarGrid::isToday(const int day) const
 {
     using namespace std::chrono;
@@ -246,23 +304,10 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     if (day < 1 || day > daysInMonth())
         return;
 
-    const auto date = cellDate(day);
-    const auto clipboard = get_clipboard();
-
+    // A copied address opens the new entry window at once, with the link filled in; the page title follows into the name.
     ClipboardUrlDetector::detectAsync(
-        clipboard,
-        [this, date](const std::string& url)
-        {
-            UrlTitleFetcher::fetchAsync(url, [this, date, url](const std::string& title)
-            {
-                const CalendarEntry entry{ title.empty() ? LocaleManager::instance().translate("entry.default_name") : title, url };
-
-                Glib::signal_idle().connect_once([this, date, entry]
-                {
-                    m_controller.addEntry(date, entry);
-                });
-            });
-        },
+        get_clipboard(),
+        [this, date = cellDate(day)](const std::string& url) { showEntryDialogForLink(date, url); },
         [](const std::string&) { /* no URL in clipboard — do nothing */ }
     );
 }
@@ -276,5 +321,9 @@ void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int en
     if (entryIndex < 0)
         return;
 
-    m_controller.changeEntryColor(cellDate(day), static_cast<std::size_t>(entryIndex), color);
+    // Raised from inside the color popover of the entry widget that the rebuild destroys, so it must not run in place.
+    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex), color]
+    {
+        m_controller.changeEntryColor(date, index, color);
+    });
 }
