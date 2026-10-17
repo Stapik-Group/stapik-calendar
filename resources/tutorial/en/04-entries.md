@@ -44,6 +44,6 @@ Drag an entry and drop it on another day to **move** it. Hold `Ctrl` while dragg
 
 ## Days with many entries
 
-When a day has more entries than fit in its cell, the cell can be scrolled. Entries are listed in the order in which you added them.
+When a day has more entries than fit in its cell, the cell can be scrolled. A small marker in the corner of the cell (▲ or ▼ with a number) shows how many entries are hidden above or below; scroll with the mouse wheel or touchpad to reach them. Entries are listed in the order in which you added them.
 
 ![A day cell with several entries, some of them colored](images/entries-in-cell.png)

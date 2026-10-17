@@ -3,6 +3,22 @@
 #include "../../core/util/EntryDragPayload.hpp"
 #include "../widget/CalendarEntryWidget.hpp"
 
+#include <glibmm/main.h>
+#include <gtkmm/adjustment.h>
+
+#include <string>
+
+namespace
+{
+    void showOverflowCount(Gtk::Label& indicator, const std::string& arrow, const int count)
+    {
+        indicator.set_visible(count > 0);
+
+        if (count > 0)
+            indicator.set_text(arrow + " " + std::to_string(count));
+    }
+}
+
 CalendarCell::CalendarCell() :
     m_outerBox(Gtk::Orientation::VERTICAL, 0),
     m_entriesBox(Gtk::Orientation::VERTICAL, ENTRIES_SPACING)
@@ -10,6 +26,11 @@ CalendarCell::CalendarCell() :
     initLayout();
     initGesture();
     initDropTarget();
+}
+
+CalendarCell::~CalendarCell()
+{
+    m_overflowUpdate.disconnect();
 }
 
 void CalendarCell::initLayout()
@@ -28,10 +49,77 @@ void CalendarCell::initLayout()
     m_entriesBox.set_margin_end(CELL_MARGIN);
     m_entriesBox.set_margin_bottom(CELL_MARGIN);
 
+    initOverflowIndicators();
+
     m_outerBox.append(m_dayLabel);
-    m_outerBox.append(m_scrolledWindow);
+    m_outerBox.append(m_overlay);
 
     set_child(m_outerBox);
+}
+
+void CalendarCell::initOverflowIndicators()
+{
+    // The indicators float over the entries instead of taking space from them, so showing or hiding one never
+    // changes the width or the position of an entry. They ignore the mouse, so clicks and drops reach the entries.
+    m_overlay.set_vexpand(true);
+    m_overlay.set_child(m_scrolledWindow);
+
+    for (auto* indicator : { &m_moreAbove, &m_moreBelow })
+    {
+        indicator->set_halign(Gtk::Align::END);
+        indicator->set_margin(OVERFLOW_INDICATOR_MARGIN);
+        indicator->set_can_target(false);
+        indicator->set_visible(false);
+        indicator->add_css_class("calendar-overflow-indicator");
+        m_overlay.add_overlay(*indicator);
+    }
+
+    m_moreAbove.set_valign(Gtk::Align::START);
+    m_moreBelow.set_valign(Gtk::Align::END);
+
+    const auto adjustment = m_scrolledWindow.get_vadjustment();
+    adjustment->signal_value_changed().connect(sigc::mem_fun(*this, &CalendarCell::updateOverflowIndicators));
+    adjustment->signal_changed().connect(sigc::mem_fun(*this, &CalendarCell::scheduleOverflowUpdate));
+}
+
+void CalendarCell::scheduleOverflowUpdate()
+{
+    // The size of the entries is known only after the layout, which comes after the change of the adjustment.
+    if (m_overflowUpdate.connected())
+        return;
+
+    m_overflowUpdate = Glib::signal_idle().connect([this]
+    {
+        updateOverflowIndicators();
+        return false;
+    });
+}
+
+void CalendarCell::updateOverflowIndicators()
+{
+    const auto adjustment = m_scrolledWindow.get_vadjustment();
+    const double visibleTop = adjustment->get_value();
+    const double visibleBottom = visibleTop + adjustment->get_page_size();
+
+    int hiddenAbove = 0;
+    int hiddenBelow = 0;
+    double entryTop = 0.0;
+
+    for (auto* entry = m_entriesBox.get_first_child(); entry != nullptr; entry = entry->get_next_sibling())
+    {
+        const double entryBottom = entryTop + entry->get_height();
+
+        if (entryTop < visibleTop - OVERFLOW_TOLERANCE)
+            ++hiddenAbove;
+
+        if (entryBottom > visibleBottom + OVERFLOW_TOLERANCE)
+            ++hiddenBelow;
+
+        entryTop = entryBottom + ENTRIES_SPACING;
+    }
+
+    showOverflowCount(m_moreAbove, "▲", hiddenAbove);
+    showOverflowCount(m_moreBelow, "▼", hiddenBelow);
 }
 
 void CalendarCell::initGesture()

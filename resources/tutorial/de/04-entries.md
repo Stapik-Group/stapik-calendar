@@ -44,6 +44,6 @@ Ziehen Sie einen Eintrag und lassen Sie ihn auf einem anderen Tag los, um ihn zu
 
 ## Tage mit vielen Einträgen
 
-Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.
+Hat ein Tag mehr Einträge, als in die Zelle passen, lässt sich die Zelle scrollen. Ein kleines Symbol in der Ecke der Zelle (▲ oder ▼ mit einer Zahl) zeigt, wie viele Einträge oberhalb oder unterhalb verborgen sind; mit Mausrad oder Touchpad scrollen Sie dorthin. Die Einträge erscheinen in der Reihenfolge, in der Sie sie hinzugefügt haben.
 
 ![Eine Tageszelle mit mehreren Einträgen, einige davon farbig](images/entries-in-cell.png)

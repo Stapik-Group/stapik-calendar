@@ -61,6 +61,12 @@ frame > border {
     border: 2px dashed #316ac5;
 }
 
+label.calendar-overflow-indicator {
+    background-color: #316ac5;
+    color: #ffffff;
+    border-radius: 3px;
+}
+
 .calendar-entry-label:hover {
     background-color: #316ac5;
     color: #ffffff;
@@ -139,4 +145,10 @@ popover modelbutton * {
 .calendar-entry-link {
     font-size: 10px;
     padding: 0 2px;
+}
+
+.calendar-overflow-indicator {
+    font-size: 9px;
+    font-weight: bold;
+    padding: 0 4px;
 }

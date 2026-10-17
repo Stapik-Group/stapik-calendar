@@ -44,6 +44,6 @@ Przeciągnij wpis i upuść go na innym dniu, aby go **przenieść**. Przytrzyma
 
 ## Dni z wieloma wpisami
 
-Gdy dzień ma więcej wpisów, niż mieści się w komórce, komórkę można przewijać. Wpisy są wyświetlane w kolejności dodawania.
+Gdy dzień ma więcej wpisów, niż mieści się w komórce, komórkę można przewijać. Mały znacznik w rogu komórki (▲ lub ▼ z liczbą) pokazuje, ile wpisów jest ukrytych powyżej lub poniżej; przewiń kółkiem myszy lub gładzikiem, aby do nich dotrzeć. Wpisy są wyświetlane w kolejności dodawania.
 
 ![Komórka dnia z kilkoma wpisami, część z nich kolorowa](images/entries-in-cell.png)
