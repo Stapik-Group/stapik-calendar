@@ -68,4 +68,4 @@ stapik_add_application(
                 src/ui/view/CalendarNavBar.cpp
                 src/ui/widget/CalendarEntryWidget.cpp
                 src/ui/widget/EntryColorPickerWidget.cpp
-        LINK_LIBRARIES PkgConfig::GTKMM CURL::libcurl nlohmann_json::nlohmann_json)
+        LINK_LIBRARIES PkgConfig::GTKMM CURL::libcurl nlohmann_json::nlohmann_json $<$<BOOL:${WIN32}>:shell32>)

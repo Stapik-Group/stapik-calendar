@@ -8,6 +8,11 @@
 #include <algorithm>
 #include <cctype>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
 namespace
 {
     constexpr std::string_view SCHEME_SEPARATOR = "://";
@@ -24,6 +29,24 @@ namespace
     {
         return std::iscntrl(static_cast<unsigned char>(character)) != 0;
     }
+
+#ifdef _WIN32
+    // GIO on Windows often has no registered handler for http(s), so ask the shell, which knows the default browser.
+    bool openWithShell(const std::string& url)
+    {
+        const int length = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, nullptr, 0);
+        if (length <= 0)
+            return false;
+
+        std::wstring wideUrl(static_cast<size_t>(length), L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, url.c_str(), -1, wideUrl.data(), length);
+
+        // ShellExecuteW returns a value greater than 32 on success.
+        const auto result = reinterpret_cast<INT_PTR>(
+            ShellExecuteW(nullptr, L"open", wideUrl.c_str(), nullptr, nullptr, SW_SHOWNORMAL));
+        return result > 32;
+    }
+#endif
 
     bool equalsIgnoreCase(const std::string_view left, const std::string_view right)
     {
@@ -62,6 +85,13 @@ bool UrlOpener::open(const std::string& link)
         stapik::log::warning("Not opening the entry link, it is not a valid http(s) address: {}", link);
         return false;
     }
+
+#ifdef _WIN32
+    if (openWithShell(*url))
+        return true;
+
+    stapik::log::warning("The shell could not open {}, trying GIO", *url);
+#endif
 
     try
     {
