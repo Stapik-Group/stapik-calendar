@@ -14,7 +14,7 @@ Bestätigen Sie mit **OK** oder wählen Sie **Abbrechen**, um zu verwerfen.
 
 ## Schnell aus der Zwischenablage hinzufügen
 
-Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`), klicken Sie mit der **rechten Maustaste** auf einen Tag. Die Anwendung legt für diesen Tag einen Eintrag an, mit der Adresse als Link und dem Titel der Webseite als Name. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, heißt der Eintrag *Ohne Namen*. Enthält die Zwischenablage keine Webadresse, passiert nichts.
+Wenn Sie eine Webadresse kopiert haben (beginnend mit `http://` oder `https://`), klicken Sie mit der **rechten Maustaste** auf einen Tag. Das Fenster **Neuer Eintrag** öffnet sich sofort mit der Adresse im Feld **Link**, und die Anwendung lädt den Titel der Webseite und trägt ihn in das Feld **Name** ein. Dafür ist eine Internetverbindung nötig; kann der Titel nicht gelesen werden, geben Sie den Namen selbst ein. Bestätigen Sie mit **OK**. Enthält die Zwischenablage keine Webadresse, passiert nichts.
 
 ## Einen Link öffnen
 

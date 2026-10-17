@@ -10,7 +10,7 @@
 ## Mouse
 
 - Empty area of a day, double-click — new entry
-- Empty area of a day, right-click — quick add from a copied web address
+- Empty area of a day, right-click — new entry from a copied web address
 - Entry, click on its name — edit the entry
 - Link symbol ↗ on an entry, click — opens the link
 - Entry, right-click — choose a color

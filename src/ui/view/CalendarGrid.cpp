@@ -3,11 +3,12 @@
 #include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
 #include "../../core/util/UrlOpener.hpp"
-#include "stapik/locale/LocaleManager.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
 
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
+
+#include <memory>
 
 #include "../../core/util/DateUtils.hpp"
 
@@ -204,6 +205,37 @@ void CalendarGrid::showEntryDialog(Gtk::Window& window,
         dialog = new CalendarEntryDialog(window);
     }
 
+    presentEntryDialog(*dialog, date, editIndex);
+}
+
+void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date, const std::string& url)
+{
+    auto* window = dynamic_cast<Gtk::Window*>(get_root());
+    if (window == nullptr)
+        return;
+
+    auto* dialog = new CalendarEntryDialog(*window);
+    dialog->setLink(url);
+
+    // The page title arrives after a while, when the dialog may already be closed and deleted.
+    const auto isOpen = std::make_shared<bool>(true);
+    dialog->signal_hide().connect([isOpen] { *isOpen = false; });
+
+    UrlTitleFetcher::fetchAsync(url, [dialog, isOpen](const std::string& title)
+    {
+        if (*isOpen && !title.empty())
+            dialog->suggestName(title);
+    });
+
+    presentEntryDialog(*dialog, date, std::nullopt);
+}
+
+void CalendarGrid::presentEntryDialog(CalendarEntryDialog& entryDialog,
+                                      const std::chrono::year_month_day date,
+                                      const std::optional<int> editIndex)
+{
+    auto* dialog = &entryDialog;
+
     dialog->signal_response().connect([this, dialog, date, editIndex](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
@@ -272,23 +304,10 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     if (day < 1 || day > daysInMonth())
         return;
 
-    const auto date = cellDate(day);
-    const auto clipboard = get_clipboard();
-
+    // A copied address opens the new entry window at once, with the link filled in; the page title follows into the name.
     ClipboardUrlDetector::detectAsync(
-        clipboard,
-        [this, date](const std::string& url)
-        {
-            UrlTitleFetcher::fetchAsync(url, [this, date, url](const std::string& title)
-            {
-                const CalendarEntry entry{ title.empty() ? LocaleManager::instance().translate("entry.default_name") : title, url };
-
-                Glib::signal_idle().connect_once([this, date, entry]
-                {
-                    m_controller.addEntry(date, entry);
-                });
-            });
-        },
+        get_clipboard(),
+        [this, date = cellDate(day)](const std::string& url) { showEntryDialogForLink(date, url); },
         [](const std::string&) { /* no URL in clipboard — do nothing */ }
     );
 }

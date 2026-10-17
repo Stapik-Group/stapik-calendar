@@ -10,7 +10,7 @@
 ## Maus
 
 - Leere Stelle eines Tages, Doppelklick — neuer Eintrag
-- Leere Stelle eines Tages, Rechtsklick — schnelles Hinzufügen aus einer kopierten Webadresse
+- Leere Stelle eines Tages, Rechtsklick — neuer Eintrag aus einer kopierten Webadresse
 - Eintrag, Klick auf den Namen — Eintrag bearbeiten
 - Link-Symbol ↗ am Eintrag, Klick — öffnet den Link
 - Eintrag, Rechtsklick — Farbe wählen

@@ -10,7 +10,7 @@
 ## Mysz
 
 - Puste miejsce w dniu, dwuklik — nowy wpis
-- Puste miejsce w dniu, prawy przycisk — szybkie dodanie ze skopiowanego adresu strony
+- Puste miejsce w dniu, prawy przycisk — nowy wpis ze skopiowanego adresu strony
 - Wpis, kliknięcie nazwy — edycja wpisu
 - Symbol linku ↗ przy wpisie, kliknięcie — otwiera link
 - Wpis, prawy przycisk — wybór koloru

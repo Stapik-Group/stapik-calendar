@@ -14,7 +14,7 @@ Zatwierdź przyciskiem **OK** albo wybierz **Anuluj**, aby odrzucić.
 
 ## Szybkie dodawanie ze schowka
 
-Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Aplikacja utworzy w tym dniu wpis z tym adresem jako linkiem i tytułem strony jako nazwą. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpis dostanie nazwę *Bez nazwy*. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
+Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Od razu otworzy się okno **Nowy wpis** z adresem w polu **Link**, a aplikacja pobierze tytuł strony i wstawi go w pole **Nazwa**. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpisz nazwę samodzielnie. Zatwierdź przyciskiem **OK**. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
 
 ## Otwieranie linku
 

@@ -57,6 +57,21 @@ void CalendarEntryDialog::initLayout()
     set_default_size(DEFAULT_WIDTH, -1);
 }
 
+void CalendarEntryDialog::setLink(const std::string& link)
+{
+    m_linkEntry.set_text(link);
+}
+
+void CalendarEntryDialog::suggestName(const std::string& name)
+{
+    if (!m_nameEntry.get_text().empty())
+        return;
+
+    m_nameEntry.set_text(name);
+    // Selected, so that typing a different name simply replaces the suggestion.
+    m_nameEntry.select_region(0, -1);
+}
+
 std::optional<CalendarEntry> CalendarEntryDialog::getResult() const
 {
     const auto name = m_nameEntry.get_text();

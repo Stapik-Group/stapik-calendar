@@ -7,6 +7,10 @@
 #include <sigc++/connection.h>
 #include <array>
 #include <chrono>
+#include <optional>
+#include <string>
+
+class CalendarEntryDialog;
 
 class CalendarGrid : public Gtk::Grid
 {
@@ -39,6 +43,8 @@ private:
     void onEntryMoveRequested(int sourceCellIndex, int sourceEntryIndex, int destCellIndex, bool isCopy);
 
     void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, std::optional<int> editIndex);
+    void showEntryDialogForLink(std::chrono::year_month_day date, const std::string& url);
+    void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, std::optional<int> editIndex);
     [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);
     [[nodiscard]] bool isValidEntryIndex(std::chrono::year_month_day date, int entryIndex) const;
 
