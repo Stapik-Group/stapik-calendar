@@ -15,7 +15,8 @@ class CalendarCell : public Gtk::Frame {
 public:
     explicit CalendarCell();
     void setDay(int day);
-    void clearDay();
+    void setAdjacentMonthDay(int day);
+    void setWeekend(bool isWeekend);
     void markAsToday(bool isToday);
     void setEntries(const std::vector<CalendarEntry>& entries);
     void setCellIndex(int cellIndex);

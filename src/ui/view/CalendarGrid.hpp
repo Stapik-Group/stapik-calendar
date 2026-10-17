@@ -19,6 +19,7 @@ private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;
     static constexpr int TOTAL_CELLS = ROWS * COLUMNS;
+    static constexpr int FIRST_WEEKEND_COLUMN = 5; // weeks start on Monday: Saturday = 5, Sunday = 6
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
@@ -43,6 +44,7 @@ private:
 
     int firstWeekdayOffset() const;
     int daysInMonth() const;
+    int daysInPreviousMonth() const;
     bool isToday(int day) const;
 
     std::chrono::year_month_day cellDate(int day) const;

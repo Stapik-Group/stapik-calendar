@@ -40,6 +40,7 @@ void CalendarGrid::initLayout()
         {
             const int index = row * COLUMNS + col;
             m_cells[index].setCellIndex(index);
+            m_cells[index].setWeekend(col >= FIRST_WEEKEND_COLUMN);
             attach(m_cells[index], col, row);
         }
 }
@@ -68,12 +69,19 @@ void CalendarGrid::populateCells()
 {
     const int offset  = firstWeekdayOffset();
     const int numDays = daysInMonth();
+    const int numDaysPreviousMonth = daysInPreviousMonth();
 
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
-        if (const int day = i - offset + 1; day < 1 || day > numDays)
+        const int day = i - offset + 1;
+
+        if (day < 1)
         {
-            m_cells[i].clearDay();
+            m_cells[i].setAdjacentMonthDay(numDaysPreviousMonth + day);
+        }
+        else if (day > numDays)
+        {
+            m_cells[i].setAdjacentMonthDay(day - numDays);
         }
         else
         {
@@ -231,6 +239,15 @@ int CalendarGrid::daysInMonth() const
     using namespace std::chrono;
 
     const year_month_day lastDay{m_currentYearMonth / last};
+    return static_cast<int>(static_cast<unsigned>(lastDay.day()));
+}
+
+int CalendarGrid::daysInPreviousMonth() const
+{
+    using namespace std::chrono;
+
+    const year_month previousMonth = m_currentYearMonth - months{1};
+    const year_month_day lastDay{previousMonth / last};
     return static_cast<int>(static_cast<unsigned>(lastDay.day()));
 }
 

@@ -39,6 +39,14 @@ frame > border {
     border-radius: 0;
 }
 
+.weekend {
+    background-color: #b4bde0;
+}
+
+.other-month .calendar-day-number {
+    color: #808080;
+}
+
 .today {
     background-color: #000080;
 }

@@ -17,6 +17,7 @@ void CalendarCell::initLayout()
     m_dayLabel.set_halign(Gtk::Align::END);
     m_dayLabel.set_valign(Gtk::Align::START);
     m_dayLabel.set_margin(CELL_MARGIN);
+    m_dayLabel.add_css_class("calendar-day-number");
 
     m_scrolledWindow.set_child(m_entriesBox);
     // EXTERNAL keeps scrolling (wheel, touchpad, touch) but never shows a scrollbar, in any theme.
@@ -68,17 +69,28 @@ void CalendarCell::initDropTarget()
 void CalendarCell::setDay(const int day)
 {
     m_dayLabel.set_text(std::to_string(day));
+    remove_css_class("other-month");
+}
+
+void CalendarCell::setAdjacentMonthDay(const int day)
+{
+    m_dayLabel.set_text(std::to_string(day));
+    add_css_class("other-month");
+    remove_css_class("today");
+    refreshEntries({});
+}
+
+void CalendarCell::setWeekend(const bool isWeekend)
+{
+    if (isWeekend)
+        add_css_class("weekend");
+    else
+        remove_css_class("weekend");
 }
 
 void CalendarCell::setCellIndex(const int cellIndex)
 {
     m_cellIndex = cellIndex;
-}
-
-void CalendarCell::clearDay()
-{
-    m_dayLabel.set_text("");
-    refreshEntries({});
 }
 
 void CalendarCell::markAsToday(const bool isToday)
