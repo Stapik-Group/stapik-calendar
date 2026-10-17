@@ -34,6 +34,10 @@ CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
 CalendarEntryWidget::~CalendarEntryWidget()
 {
     m_pendingClick.disconnect();
+
+    // The popover was parented with set_parent(), so GTK requires it to be unparented before this widget goes away.
+    // The cells are rebuilt on every document change, so this runs often, also while the popover is still shown.
+    m_colorPopover.unparent();
 }
 
 void CalendarEntryWidget::initLayout(const CalendarEntry &entry)

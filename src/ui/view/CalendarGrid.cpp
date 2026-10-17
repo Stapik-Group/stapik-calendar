@@ -156,7 +156,12 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIn
     if (entryIndex < 0)
         return;
 
-    m_controller.deleteEntry(cellDate(day), static_cast<std::size_t>(entryIndex));
+    // Changing the document rebuilds the cells and destroys the entry widget that raised this request.
+    // Letting its signal handler return first avoids destroying a widget from inside its own signal.
+    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex)]
+    {
+        m_controller.deleteEntry(date, index);
+    });
 }
 
 void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
@@ -169,11 +174,15 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sou
     if (sourceEntryIndex < 0)
         return;
 
-    const auto index = static_cast<std::size_t>(sourceEntryIndex);
-    if (isCopy)
-        m_controller.copyEntry(cellDate(sourceDay), index, cellDate(destDay));
-    else
-        m_controller.moveEntry(cellDate(sourceDay), index, cellDate(destDay));
+    // The drag source widget is destroyed by the rebuild that follows, so the change waits until the drop is handled.
+    Glib::signal_idle().connect_once(
+        [this, sourceDate = cellDate(sourceDay), index = static_cast<std::size_t>(sourceEntryIndex), destDate = cellDate(destDay), isCopy]
+        {
+            if (isCopy)
+                m_controller.copyEntry(sourceDate, index, destDate);
+            else
+                m_controller.moveEntry(sourceDate, index, destDate);
+        });
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
@@ -293,5 +302,9 @@ void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int en
     if (entryIndex < 0)
         return;
 
-    m_controller.changeEntryColor(cellDate(day), static_cast<std::size_t>(entryIndex), color);
+    // Raised from inside the color popover of the entry widget that the rebuild destroys, so it must not run in place.
+    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex), color]
+    {
+        m_controller.changeEntryColor(date, index, color);
+    });
 }
