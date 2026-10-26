@@ -115,10 +115,12 @@ private:
         std::optional<TimePoint> baseline;
     };
 
-    struct LegacyRead
+    struct CloudProbe
     {
         bool ok = false;
-        std::optional<CloudDocument> document;
+        std::vector<int> years;
+        bool legacyRead = false;
+        std::optional<CloudDocument> legacyDocument;
         std::string message;
     };
 
@@ -131,7 +133,7 @@ private:
     void onPartitionStatusChanged(const std::string& partition, stapik::sync::SyncStatus status);
     void onAvailableYears(const std::optional<std::vector<int>>& years);
     void onPartitionOutcome(const std::string& partition, const stapik::sync::SyncOutcome<CalendarDocument>& outcome);
-    void onLegacyRead(const std::optional<LegacyRead>& result, bool migrate);
+    void onCloudProbed(const std::optional<CloudProbe>& result, bool migrate);
     void clearHistorySilently();
     CalendarDocument loadFromStore();
 
@@ -143,6 +145,7 @@ private:
     void reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure);
 
     void startCloud();
+    [[nodiscard]] static CloudProbe probeCloud(const std::function<std::unique_ptr<ICloudStorage>(const CloudStorageConfig&)>& createStorage, const CloudStorageConfig& config, bool readLegacyDocument);
     void importLegacy(const std::optional<CloudDocument>& legacy);
     void ensureYearLoaded(int year);
     void ensureYearsLoaded();
@@ -163,7 +166,7 @@ private:
     stapik::command::UndoStack m_history;
     sigc::connection m_historyConnection;
     Session m_session;
-    std::unique_ptr<stapik::task::BackgroundTaskRunner> m_legacyRunner;
+    std::unique_ptr<stapik::task::BackgroundTaskRunner> m_probeRunner;
     std::set<int> m_availableYears;
     std::map<std::string, stapik::sync::SyncStatus> m_statuses;
     stapik::sync::SyncStatus m_combinedStatus = stapik::sync::SyncStatus::Idle;

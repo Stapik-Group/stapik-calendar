@@ -24,7 +24,7 @@ static_assert(stapik::sync::SyncableDocument<CalendarDocument>);
 namespace
 {
     constexpr auto LEGACY_MIGRATED_KEY = "cloud.legacyMigratedFor";
-    constexpr auto LEGACY_STATUS_SOURCE = "legacy";
+    constexpr auto CONNECTION_STATUS_SOURCE = "connection";
 
     // Which status wins when the partitions report different ones: the worst news first.
     int statusSeverity(const stapik::sync::SyncStatus status)
@@ -58,6 +58,20 @@ namespace
             case LostRaceKeptLocal:
             default: return std::nullopt;
         }
+    }
+
+    std::vector<int> yearsOf(const std::vector<CloudPartitionInfo>& partitions)
+    {
+        std::vector<int> years;
+
+        for (const auto& info : partitions)
+        {
+            if (const auto year = stapik::sync::yearFromPartitionKey(info.partition))
+                years.push_back(*year);
+        }
+
+        std::ranges::sort(years);
+        return years;
     }
 
     // Adds the entries of `source` that `target` does not have yet. Returns whether anything was added.
@@ -267,7 +281,7 @@ void CalendarController::connect(const CloudStorageConfig& config)
 
 void CalendarController::disconnect()
 {
-    m_legacyRunner.reset();
+    m_probeRunner.reset();
     m_awaitingConnectionResult = false;
     m_reportedProblem.reset();
     m_session.disconnect();
@@ -417,7 +431,7 @@ void CalendarController::onAvailableYears(const std::optional<std::vector<int>>&
     if (years)
     {
         m_availableYears = std::set<int>(years->begin(), years->end());
-        setStatus(LEGACY_STATUS_SOURCE, std::nullopt);
+        setStatus(CONNECTION_STATUS_SOURCE, std::nullopt);
     }
 
     ensureYearsLoaded();
@@ -444,7 +458,7 @@ void CalendarController::onPartitionOutcome(const std::string& partition, const 
         m_reportedProblem.reset();
 }
 
-void CalendarController::onLegacyRead(const std::optional<LegacyRead>& result, const bool migrate)
+void CalendarController::onCloudProbed(const std::optional<CloudProbe>& result, const bool migrate)
 {
     const bool ok = result && result->ok;
 
@@ -454,20 +468,19 @@ void CalendarController::onLegacyRead(const std::optional<LegacyRead>& result, c
         m_signalConnectionResult.emit(ConnectionResult{ ok, ok ? std::string{} : (result ? result->message : std::string{}) });
     }
 
-    if (ok)
+    if (!ok)
     {
-        setStatus(LEGACY_STATUS_SOURCE, std::nullopt);
-
-        if (migrate)
-            importLegacy(result->document);
-    }
-    else
-    {
-        setStatus(LEGACY_STATUS_SOURCE, stapik::sync::SyncStatus::Offline);
+        setStatus(CONNECTION_STATUS_SOURCE, stapik::sync::SyncStatus::Offline);
+        m_session.fetchAvailableYears();
+        return;
     }
 
-    // The years follow in any case; when the cloud is out of reach they are sent as soon as it is back.
-    m_session.fetchAvailableYears();
+    setStatus(CONNECTION_STATUS_SOURCE, std::nullopt);
+
+    if (migrate && result->legacyRead)
+        importLegacy(result->legacyDocument);
+
+    onAvailableYears(result->years);
 }
 
 void CalendarController::clearHistorySilently()
@@ -581,32 +594,58 @@ void CalendarController::startCloud()
 
     m_cloudReady = false;
     m_availableYears.clear();
-    setStatus(LEGACY_STATUS_SOURCE, stapik::sync::SyncStatus::Syncing);
+    setStatus(CONNECTION_STATUS_SOURCE, stapik::sync::SyncStatus::Syncing);
 
     const bool migrate = m_legacyMigratedFor.get() != config->normalizedApiUrl();
 
-    if (!m_legacyRunner)
-        m_legacyRunner = std::make_unique<stapik::task::BackgroundTaskRunner>();
+    if (!m_probeRunner)
+        m_probeRunner = std::make_unique<stapik::task::BackgroundTaskRunner>();
 
-    // Reading the old single document is also what shows whether the address and the key work.
-    // It is only read, never written: the old document stays as it is for older versions of the application.
-    m_legacyRunner->submit(
-        [create = m_createStorage, config = *config]() -> LegacyRead
+    m_probeRunner->submit(
+        [create = m_createStorage, config = *config, migrate]() { return probeCloud(create, config, migrate); },
+        [this, migrate](const std::optional<CloudProbe> result) { onCloudProbed(result, migrate); });
+}
+
+CalendarController::CloudProbe CalendarController::probeCloud(
+    const std::function<std::unique_ptr<ICloudStorage>(const CloudStorageConfig&)>& createStorage,
+    const CloudStorageConfig& config,
+    const bool readLegacyDocument)
+{
+    CloudProbe probe;
+    std::unique_ptr<ICloudStorage> storage;
+
+    try
+    {
+        storage = createStorage(config);
+        if (!storage)
         {
-            try
-            {
-                const auto storage = create(config);
-                if (!storage)
-                    return LegacyRead{ .ok = false, .document = std::nullopt, .message = "Cannot create the cloud client" };
+            probe.message = "Cannot create the cloud client";
+            return probe;
+        }
 
-                return LegacyRead{ .ok = true, .document = storage->loadDocument(), .message = {} };
-            }
-            catch (const CloudStorageException& exception)
-            {
-                return LegacyRead{ .ok = false, .document = std::nullopt, .message = exception.what() };
-            }
-        },
-        [this, migrate](const std::optional<LegacyRead> result) { onLegacyRead(result, migrate); });
+        probe.years = yearsOf(storage->listPartitions());
+        probe.ok = true;
+    }
+    catch (const CloudStorageException& exception)
+    {
+        probe.message = exception.what();
+        return probe;
+    }
+
+    if (!readLegacyDocument)
+        return probe;
+
+    try
+    {
+        probe.legacyDocument = storage->loadDocument();
+        probe.legacyRead = true;
+    }
+    catch (const CloudStorageException& exception)
+    {
+        stapik::log::warning("Cannot read the calendar document of older versions from the cloud; it is tried again at the next connection: {}", exception.what());
+    }
+
+    return probe;
 }
 
 void CalendarController::importLegacy(const std::optional<CloudDocument>& legacy)
