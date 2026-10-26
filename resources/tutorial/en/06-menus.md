@@ -4,6 +4,7 @@
 
 - Connect to cloud — Opens the window for connecting to Stapik Cloud.
 - Sync — Synchronizes with the cloud right now.
+- Disconnect from cloud — Stops the synchronization and removes the saved address, API key and passphrase from this computer. Available only while you are connected.
 - Restore from backup… — Lists the saved copies of the calendar by date and time and goes back to the one you choose. What you had before becomes the newest copy, so the restore can be taken back the same way. The undo history is cleared and, when you are connected, the restored calendar is sent to the cloud.
 - Exit `Ctrl`+`Q` — Closes the application. Pending changes are sent to the cloud first.
 

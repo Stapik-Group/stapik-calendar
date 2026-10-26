@@ -42,5 +42,9 @@
   "archive.import.failed.unsupported": "The backup was written by a newer version of the program. Your current calendar was not changed.",
   "archive.import.failed.corrupted": "The backup file is damaged. Your current calendar was not changed.",
   "archive.import.failed.io": "The backup cannot be read: {reason}. Your current calendar was not changed.",
-  "cloud.apiKeyExpiring.title": "API key expires soon"
+  "cloud.apiKeyExpiring.title": "API key expires soon",
+  "menu.file.disconnect": "Disconnect from cloud",
+  "dialog.disconnect.title": "Disconnect from cloud",
+  "dialog.disconnect.message": "The cloud address, the API key and the encryption passphrase will be removed from this computer and synchronization will stop. Your calendar on this computer and in the cloud stays as it is.",
+  "dialog.disconnect.button": "Disconnect"
 }

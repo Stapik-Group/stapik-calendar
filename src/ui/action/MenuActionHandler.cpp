@@ -65,16 +65,22 @@ MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, CalendarCon
 MenuActionHandler::~MenuActionHandler()
 {
     m_connectionResult.disconnect();
+    m_connectionChanged.disconnect();
 }
 
 void MenuActionHandler::registerActions()
 {
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
+    m_disconnectAction = m_window.add_action("disconnect", sigc::mem_fun(*this, &MenuActionHandler::onActionDisconnect));
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
     m_window.add_action("restoreBackup", sigc::mem_fun(*this, &MenuActionHandler::onActionRestoreBackup));
     m_window.add_action("exportArchive", sigc::mem_fun(*this, &MenuActionHandler::onActionExportArchive));
     m_window.add_action("importArchive", sigc::mem_fun(*this, &MenuActionHandler::onActionImportArchive));
+
+    m_connectionChanged = m_controller.signalConnectionChanged().connect(
+        sigc::mem_fun(*this, &MenuActionHandler::updateDisconnectAvailability));
+    updateDisconnectAvailability();
 }
 
 void MenuActionHandler::onActionConnect() const
@@ -83,6 +89,19 @@ void MenuActionHandler::onActionConnect() const
         m_window,
         m_controller.savedCloudConfig(),
         [this](const CloudStorageConfig& config) { m_controller.connect(config); });
+}
+
+void MenuActionHandler::onActionDisconnect() const
+{
+    const auto& loc = LocaleManager::instance();
+
+    const ConfirmDialogOptions confirmation{
+        .title = loc.translate("dialog.disconnect.title"),
+        .message = loc.translate("dialog.disconnect.message"),
+        .confirmLabel = loc.translate("dialog.disconnect.button"),
+        .destructive = true };
+
+    showConfirmDialog(m_window, confirmation, [this] { m_controller.disconnect(); });
 }
 
 void MenuActionHandler::onActionQuit() const
@@ -173,6 +192,11 @@ void MenuActionHandler::importArchiveFrom(const std::filesystem::path& source) c
     // Read after the reload, so that the message is in the restored language.
     const auto& loc = LocaleManager::instance();
     showMessageDialog(m_window, loc.translate("archive.import.done.title"), loc.translate("archive.import.done.text"));
+}
+
+void MenuActionHandler::updateDisconnectAvailability() const
+{
+    m_disconnectAction->set_enabled(m_controller.isConnected());
 }
 
 void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const

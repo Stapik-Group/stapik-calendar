@@ -58,6 +58,6 @@ When the server version wins, it replaces the calendar on your computer and the 
 
 ## Changing the server or stopping synchronization
 
-To use another server or key, open **File → Connect to cloud** again and enter the new values. There is no disconnect button: to stop using the cloud, close the application and delete the file `~/.config/stapikcalendar/config.json`. Your local calendar is not affected.
+To use another server or key, open **File → Connect to cloud** again and enter the new values. To stop using the cloud, choose **File → Disconnect from cloud** and confirm. The address, the API key and the encryption passphrase are removed from this computer and the status bar disappears. Changes that are still waiting are sent first, which can take up to 3 seconds. Your local calendar and the calendar in the cloud are not affected, and you can connect again at any time.
 
 The API key is stored in that file in plain text, readable only by you, so keep your home directory protected.

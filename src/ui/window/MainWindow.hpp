@@ -34,6 +34,7 @@ private:
     stapik::settings::ObservableSetting<bool> m_checkForUpdates;
     StandardMenu m_menu;
     sigc::connection m_statusConnection;
+    sigc::connection m_connectionChangedConnection;
     sigc::connection m_saveFailedConnection;
     sigc::connection m_apiKeyExpiringConnection;
 

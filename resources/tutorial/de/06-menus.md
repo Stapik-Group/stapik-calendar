@@ -4,6 +4,7 @@
 
 - Mit Cloud verbinden — Öffnet das Fenster zum Verbinden mit Stapik Cloud.
 - Synchronisieren — Synchronisiert sofort mit der Cloud.
+- Von der Cloud trennen — Beendet die Synchronisierung und entfernt die gespeicherte Adresse, den API-Schlüssel und die Passphrase von diesem Computer. Nur verfügbar, wenn eine Verbindung besteht.
 - Aus Sicherung wiederherstellen… — Zeigt die gespeicherten Kopien des Kalenders nach Datum und Uhrzeit und kehrt zu der gewählten zurück. Der bisherige Stand wird zur neuesten Kopie, die Wiederherstellung lässt sich also auf demselben Weg zurücknehmen. Der Rückgängig-Verlauf wird geleert, und bei bestehender Verbindung wird der wiederhergestellte Kalender in die Cloud gesendet.
 - Beenden `Strg`+`Q` — Schließt die Anwendung. Ausstehende Änderungen werden zuvor an die Cloud gesendet.
 

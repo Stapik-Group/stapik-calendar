@@ -212,20 +212,31 @@ void CalendarController::connect(const CloudStorageConfig& config)
 {
     m_awaitingConnectionResult = true;
     m_statuses.clear();
-
-    // The baselines belong to the cloud they came from; with a new connection every year is resolved afresh.
-    for (auto& [year, state] : m_years)
-        state.baseline.reset();
-    persistBaselines();
+    discardBaselinesOfPreviousCloud();
 
     if (m_session.connectPartitionsOnly(config))
     {
         startCloud();
+        m_signalConnectionChanged.emit();
         return;
     }
 
     m_awaitingConnectionResult = false;
     m_signalConnectionResult.emit(ConnectionResult{ false, {} });
+    m_signalConnectionChanged.emit();
+}
+
+void CalendarController::disconnect()
+{
+    m_legacyRunner.reset();
+    m_awaitingConnectionResult = false;
+    m_session.disconnect();
+
+    m_cloudReady = false;
+    m_availableYears.clear();
+    discardBaselinesOfPreviousCloud();
+    clearStatuses();
+    m_signalConnectionChanged.emit();
 }
 
 void CalendarController::syncNow()
@@ -274,6 +285,11 @@ sigc::signal<void(stapik::sync::SyncStatus)>& CalendarController::signalSyncStat
 sigc::signal<void(const ConnectionResult&)>& CalendarController::signalConnectionResult()
 {
     return m_signalConnectionResult;
+}
+
+sigc::signal<void()>& CalendarController::signalConnectionChanged()
+{
+    return m_signalConnectionChanged;
 }
 
 sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
@@ -454,6 +470,14 @@ void CalendarController::persistBaselines()
     reportSaveResult(saved ? std::nullopt : std::optional<stapik::storage::FileError>(saved.error()));
 }
 
+void CalendarController::discardBaselinesOfPreviousCloud()
+{
+    for (auto& [year, state] : m_years)
+        state.baseline.reset();
+
+    persistBaselines();
+}
+
 void CalendarController::reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure)
 {
     if (!calendarFailure.has_value())
@@ -622,6 +646,17 @@ void CalendarController::setStatus(const std::string& source, const std::optiona
     else
         m_statuses.erase(source);
 
+    updateCombinedStatus();
+}
+
+void CalendarController::clearStatuses()
+{
+    m_statuses.clear();
+    updateCombinedStatus();
+}
+
+void CalendarController::updateCombinedStatus()
+{
     auto combined = stapik::sync::SyncStatus::Idle;
     for (const auto& [name, value] : m_statuses)
     {

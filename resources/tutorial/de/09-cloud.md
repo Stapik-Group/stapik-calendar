@@ -58,6 +58,6 @@ Gewinnt die Serverversion, ersetzt sie den Kalender auf Ihrem Computer, und der 
 
 ## Server wechseln oder Synchronisierung beenden
 
-Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie **Datei → Mit Cloud verbinden** erneut und geben Sie die neuen Werte ein. Es gibt keine Schaltfläche zum Trennen: Um die Cloud nicht mehr zu nutzen, schließen Sie die Anwendung und löschen Sie die Datei `~/.config/stapikcalendar/config.json`. Ihr lokaler Kalender bleibt unberührt.
+Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie **Datei → Mit Cloud verbinden** erneut und geben Sie die neuen Werte ein. Um die Cloud nicht mehr zu nutzen, wählen Sie **Datei → Von der Cloud trennen** und bestätigen Sie. Adresse, API-Schlüssel und Verschlüsselungs-Passphrase werden von diesem Computer entfernt, und die Statusleiste verschwindet. Noch ausstehende Änderungen werden zuvor gesendet, was bis zu 3 Sekunden dauern kann. Ihr lokaler Kalender und der Kalender in der Cloud bleiben unberührt, und Sie können sich jederzeit erneut verbinden.
 
 Der API-Schlüssel steht in dieser Datei im Klartext und ist nur für Sie lesbar; schützen Sie daher Ihr Home-Verzeichnis.

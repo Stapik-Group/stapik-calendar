@@ -42,5 +42,9 @@
   "archive.import.failed.unsupported": "Die Sicherung stammt von einer neueren Programmversion. Ihr aktueller Kalender wurde nicht verändert.",
   "archive.import.failed.corrupted": "Die Sicherungsdatei ist beschädigt. Ihr aktueller Kalender wurde nicht verändert.",
   "archive.import.failed.io": "Die Sicherung kann nicht gelesen werden: {reason}. Ihr aktueller Kalender wurde nicht verändert.",
-  "cloud.apiKeyExpiring.title": "API-Schlüssel läuft bald ab"
+  "cloud.apiKeyExpiring.title": "API-Schlüssel läuft bald ab",
+  "menu.file.disconnect": "Von der Cloud trennen",
+  "dialog.disconnect.title": "Von der Cloud trennen",
+  "dialog.disconnect.message": "Die Cloud-Adresse, der API-Schlüssel und die Verschlüsselungs-Passphrase werden von diesem Computer entfernt und die Synchronisierung wird beendet. Ihr Kalender auf diesem Computer und in der Cloud bleibt unverändert.",
+  "dialog.disconnect.button": "Trennen"
 }

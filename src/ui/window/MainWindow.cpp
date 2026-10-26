@@ -31,6 +31,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
 MainWindow::~MainWindow()
 {
     m_statusConnection.disconnect();
+    m_connectionChangedConnection.disconnect();
     m_saveFailedConnection.disconnect();
     m_apiKeyExpiringConnection.disconnect();
 }
@@ -59,6 +60,10 @@ void MainWindow::initFileMenu()
 {
     m_menu.addToMenu(StandardMenu::Target::File, [](Gio::Menu& menu)
     {
+        const auto disconnectSection = Gio::Menu::create();
+        disconnectSection->append(LocaleManager::instance().translate("menu.file.disconnect"), "win.disconnect");
+        menu.append_section(disconnectSection);
+
         const auto backupSection = Gio::Menu::create();
         backupSection->append(LocaleManager::instance().translate("menu.file.restoreBackup"), "win.restoreBackup");
         menu.append_section(backupSection);
@@ -103,6 +108,7 @@ void MainWindow::initSyncStatus()
         m_statusIndicator.setStatus(status);
         refreshStatusBar();
     });
+    m_connectionChangedConnection = m_controller.signalConnectionChanged().connect(sigc::mem_fun(*this, &MainWindow::refreshStatusBar));
 
     refreshStatusBar();
 }

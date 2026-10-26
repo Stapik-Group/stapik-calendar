@@ -42,5 +42,9 @@
   "archive.import.failed.unsupported": "Kopia została zapisana przez nowszą wersję programu. Obecny kalendarz nie został zmieniony.",
   "archive.import.failed.corrupted": "Plik kopii jest uszkodzony. Obecny kalendarz nie został zmieniony.",
   "archive.import.failed.io": "Nie można odczytać kopii: {reason}. Obecny kalendarz nie został zmieniony.",
-  "cloud.apiKeyExpiring.title": "Klucz API wkrótce wygaśnie"
+  "cloud.apiKeyExpiring.title": "Klucz API wkrótce wygaśnie",
+  "menu.file.disconnect": "Odłącz od chmury",
+  "dialog.disconnect.title": "Odłączenie od chmury",
+  "dialog.disconnect.message": "Adres chmury, klucz API i hasło szyfrowania zostaną usunięte z tego komputera, a synchronizacja się zatrzyma. Kalendarz na tym komputerze i w chmurze pozostanie bez zmian.",
+  "dialog.disconnect.button": "Odłącz"
 }

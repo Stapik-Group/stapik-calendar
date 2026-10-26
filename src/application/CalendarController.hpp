@@ -70,6 +70,7 @@ public:
     // single calendar document of older versions (which stays untouched). Years are loaded from the cloud when
     // they are shown: the displayed year at once, the others as the user moves to them.
     void connect(const CloudStorageConfig& config);
+    void disconnect();
     void syncNow();
     void flushAndWait();
     [[nodiscard]] bool isConnected() const;
@@ -79,6 +80,7 @@ public:
     sigc::signal<void()>& signalDocumentChanged();
     sigc::signal<void(stapik::sync::SyncStatus)>& signalSyncStatusChanged();
     sigc::signal<void(const ConnectionResult&)>& signalConnectionResult();
+    sigc::signal<void()>& signalConnectionChanged();
     // Emitted with the reason when saving to disk starts to fail; not repeated until a save succeeds again.
     sigc::signal<void(const std::string&)>& signalSaveFailed();
     // Emitted with the expiry time when the cloud reports that the API key is about to expire; once per reported time.
@@ -116,6 +118,7 @@ private:
     // Returns the years that changed.
     std::vector<int> persist(TimePoint stamp);
     void persistBaselines();
+    void discardBaselinesOfPreviousCloud();
     void reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure);
 
     void startCloud();
@@ -124,6 +127,8 @@ private:
     void ensureYearsLoaded();
     void pushYears(const std::vector<int>& years);
     void setStatus(const std::string& source, std::optional<stapik::sync::SyncStatus> status);
+    void clearStatuses();
+    void updateCombinedStatus();
     [[nodiscard]] CalendarDocument yearDocument(int year) const;
 
     CalendarDocumentStore m_store;
@@ -148,5 +153,6 @@ private:
     sigc::signal<void(stapik::sync::SyncStatus)> m_signalSyncStatusChanged;
     sigc::signal<void()> m_signalDocumentChanged;
     sigc::signal<void(const ConnectionResult&)> m_signalConnectionResult;
+    sigc::signal<void()> m_signalConnectionChanged;
     sigc::signal<void(const std::string&)> m_signalSaveFailed;
 };
