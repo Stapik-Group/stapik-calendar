@@ -213,7 +213,6 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
         m_entriesBox.remove(*child);
 
     // Entries with a time come first, in the order of the clock; the others follow in the order of adding.
-    // Only the display order changes, the entry keeps its real index in the day (for editing, deleting, dragging).
     std::vector<int> displayOrder(entries.size());
     std::iota(displayOrder.begin(), displayOrder.end(), 0);
     std::ranges::stable_sort(displayOrder, [&entries](const int left, const int right)
@@ -229,13 +228,14 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
 
     for (const int i : displayOrder)
     {
+        const EntryId entryId = entries[i].id;
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 
-        widget->signalLinkClicked().connect([this, i] { m_signalEntryLinkClicked.emit(i); });
-        widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
-        widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
-        widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
-        widget->setSourceLocator(m_cellIndex, i);
+        widget->signalLinkClicked().connect([this, entryId] { m_signalEntryLinkClicked.emit(entryId); });
+        widget->signalEditRequested().connect([this, entryId] { m_signalEditRequested.emit(entryId); });
+        widget->signalDeleteRequested().connect([this, entryId] { m_signalDeleteRequested.emit(entryId); });
+        widget->signalColorChangeRequested().connect([this, entryId](const EntryColor color) { m_signalColorChangeRequested.emit(entryId, color); });
+        widget->setCellIndex(m_cellIndex);
 
         m_entriesBox.append(*widget);
     }
@@ -253,8 +253,8 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
     if (!parsed.has_value())
         return false;
 
-    const auto [sourceCellIndex, sourceEntryIndex, isCopy] = parsed.value();
-    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryIndex, isCopy);
+    const auto& [sourceCellIndex, sourceEntryId, isCopy] = parsed.value();
+    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryId, isCopy);
     return true;
 }
 
@@ -263,17 +263,17 @@ sigc::signal<void()>& CalendarCell::signalDoubleClicked()
     return m_signalDoubleClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEntryLinkClicked()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalEntryLinkClicked()
 {
     return m_signalEntryLinkClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEditRequested()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalEditRequested()
 {
     return m_signalEditRequested;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalDeleteRequested()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalDeleteRequested()
 {
     return m_signalDeleteRequested;
 }
@@ -283,12 +283,12 @@ sigc::signal<void()> &CalendarCell::signalRightClicked()
     return m_signalRightClicked;
 }
 
-sigc::signal<void(int, EntryColor)>& CalendarCell::signalColorChangeRequested()
+sigc::signal<void(const EntryId&, EntryColor)>& CalendarCell::signalColorChangeRequested()
 {
     return m_signalColorChangeRequested;
 }
 
-sigc::signal<void(int, int, bool)>& CalendarCell::signalEntryMoveRequested()
+sigc::signal<void(int, const EntryId&, bool)>& CalendarCell::signalEntryMoveRequested()
 {
     return m_signalEntryMoveRequested;
 }

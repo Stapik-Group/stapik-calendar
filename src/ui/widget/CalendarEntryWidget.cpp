@@ -8,6 +8,7 @@
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
     Box(Gtk::Orientation::HORIZONTAL, 4),
+    m_entryId(entry.id),
     m_textBox(Gtk::Orientation::VERTICAL, 0),
     m_titleRow(Gtk::Orientation::HORIZONTAL, 4)
 {
@@ -142,16 +143,15 @@ void CalendarEntryWidget::initDragSource()
             const bool isCopy = (m_dragSource->get_current_event_state() & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
             Glib::Value<Glib::ustring> value;
             value.init(Glib::Value<Glib::ustring>::value_type());
-            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryIndex, isCopy));
+            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryId, isCopy));
             return Gdk::ContentProvider::create(value);
         }, false);
     add_controller(m_dragSource);
 }
 
-void CalendarEntryWidget::setSourceLocator(const int cellIndex, const int entryIndex)
+void CalendarEntryWidget::setCellIndex(const int cellIndex)
 {
     m_cellIndex = cellIndex;
-    m_entryIndex = entryIndex;
 }
 
 sigc::signal<void()>& CalendarEntryWidget::signalLinkClicked()

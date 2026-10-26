@@ -17,7 +17,7 @@ public:
     explicit CalendarEntryWidget(const CalendarEntry& entry);
     ~CalendarEntryWidget() override;
 
-    void setSourceLocator(int cellIndex, int entryIndex);
+    void setCellIndex(int cellIndex);
     sigc::signal<void()>& signalLinkClicked();
     sigc::signal<void()>& signalEditRequested();
     sigc::signal<void()>& signalDeleteRequested();
@@ -28,7 +28,7 @@ private:
     static constexpr auto LINK_SYMBOL = "↗";
 
     int m_cellIndex = -1;
-    int m_entryIndex = -1;
+    EntryId m_entryId;
 
     Gtk::Box m_textBox;
     Gtk::Box m_titleRow;

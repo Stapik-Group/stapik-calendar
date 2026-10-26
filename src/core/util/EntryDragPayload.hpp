@@ -1,11 +1,13 @@
 #pragma once
+#include "../model/EntryId.hpp"
+
 #include <glibmm/ustring.h>
 #include <optional>
-#include <utility>
+#include <tuple>
 
 class EntryDragPayload
 {
 public:
-    static Glib::ustring serialize(int cellIndex, int entryIndex, bool isCopy);
-    static std::optional<std::tuple<int, int, bool>> deserialize(const Glib::ustring& payload);
+    static Glib::ustring serialize(int cellIndex, const EntryId& entryId, bool isCopy);
+    static std::optional<std::tuple<int, EntryId, bool>> deserialize(const Glib::ustring& payload);
 };

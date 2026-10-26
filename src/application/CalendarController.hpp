@@ -60,15 +60,15 @@ public:
     CalendarController& operator=(const CalendarController&) = delete;
 
     [[nodiscard]] const std::vector<CalendarEntry>* entriesOn(Date date) const;
-    [[nodiscard]] const CalendarEntry* findEntry(Date date, std::size_t index) const;
+    [[nodiscard]] const CalendarEntry* findEntry(Date date, const EntryId& id) const;
     [[nodiscard]] stapik::command::UndoStack& undoStack();
 
     void addEntry(Date date, CalendarEntry entry);
-    void editEntry(Date date, std::size_t index, CalendarEntry entry);
-    void deleteEntry(Date date, std::size_t index);
-    void moveEntry(Date sourceDate, std::size_t index, Date destDate);
-    void copyEntry(Date sourceDate, std::size_t index, Date destDate);
-    void changeEntryColor(Date date, std::size_t index, EntryColor color);
+    void saveEditedEntry(Date date, const EntryId& id, CalendarEntry entry);
+    void deleteEntry(Date date, const EntryId& id);
+    void moveEntry(Date sourceDate, const EntryId& id, Date destDate);
+    void copyEntry(Date sourceDate, const EntryId& id, Date destDate);
+    void changeEntryColor(Date date, const EntryId& id, EntryColor color);
 
     // The year the user is looking at. Backups are kept and restored per year, for this year.
     void setDisplayedYear(int year);
@@ -121,6 +121,9 @@ private:
         std::optional<CloudDocument> document;
         std::string message;
     };
+
+    [[nodiscard]] std::optional<std::size_t> indexOf(Date date, const EntryId& id) const;
+    void replaceEntryAt(Date date, std::size_t index, CalendarEntry entry);
 
     void onHistoryChanged();
     void onPartitionReplaced(const std::string& partition, const CalendarDocument& replacement);

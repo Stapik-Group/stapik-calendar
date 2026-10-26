@@ -26,11 +26,11 @@ public:
 
     sigc::signal<void()>& signalDoubleClicked();
     sigc::signal<void()>& signalRightClicked();
-    sigc::signal<void(int)>& signalEntryLinkClicked();
-    sigc::signal<void(int)>& signalEditRequested();
-    sigc::signal<void(int)>& signalDeleteRequested();
-    sigc::signal<void(int, EntryColor)>& signalColorChangeRequested();
-    sigc::signal<void(int, int, bool)>& signalEntryMoveRequested();
+    sigc::signal<void(const EntryId&)>& signalEntryLinkClicked();
+    sigc::signal<void(const EntryId&)>& signalEditRequested();
+    sigc::signal<void(const EntryId&)>& signalDeleteRequested();
+    sigc::signal<void(const EntryId&, EntryColor)>& signalColorChangeRequested();
+    sigc::signal<void(int, const EntryId&, bool)>& signalEntryMoveRequested();
 private:
     static constexpr int ENTRIES_SPACING = 2;
     static constexpr int CELL_MARGIN = 4;
@@ -56,12 +56,12 @@ private:
     Glib::RefPtr<Gtk::GestureClick> m_gestureRightClick;
     sigc::signal<void()> m_signalDoubleClicked;
     sigc::signal<void()> m_signalRightClicked;
-    sigc::signal<void(int)> m_signalEntryLinkClicked;
-    sigc::signal<void(int)> m_signalEditRequested;
-    sigc::signal<void(int)> m_signalDeleteRequested;
-    sigc::signal<void(int, EntryColor)> m_signalColorChangeRequested;
+    sigc::signal<void(const EntryId&)> m_signalEntryLinkClicked;
+    sigc::signal<void(const EntryId&)> m_signalEditRequested;
+    sigc::signal<void(const EntryId&)> m_signalDeleteRequested;
+    sigc::signal<void(const EntryId&, EntryColor)> m_signalColorChangeRequested;
     Glib::RefPtr<Gtk::DropTarget> m_dropTarget;
-    sigc::signal<void(int, int, bool)> m_signalEntryMoveRequested;
+    sigc::signal<void(int, const EntryId&, bool)> m_signalEntryMoveRequested;
 
     void initLayout();
     void initOverflowIndicators();

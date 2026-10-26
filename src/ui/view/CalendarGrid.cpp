@@ -59,12 +59,12 @@ void CalendarGrid::connectCellSignals()
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
         m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
-        m_cells[i].signalEntryLinkClicked().connect([this, i](const int entryIndex) { onEntryLinkClicked(i, entryIndex); });
-        m_cells[i].signalEditRequested().connect([this, i](const int entryIndex) { onEntryEditRequested(i, entryIndex); });
-        m_cells[i].signalDeleteRequested().connect([this, i](const int entryIndex) { onEntryDeleteRequested(i, entryIndex); });
+        m_cells[i].signalEntryLinkClicked().connect([this, i](const EntryId& entryId) { onEntryLinkClicked(i, entryId); });
+        m_cells[i].signalEditRequested().connect([this, i](const EntryId& entryId) { onEntryEditRequested(i, entryId); });
+        m_cells[i].signalDeleteRequested().connect([this, i](const EntryId& entryId) { onEntryDeleteRequested(i, entryId); });
         m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
-        m_cells[i].signalColorChangeRequested().connect([this, i](const int entryIndex, const EntryColor color) { onEntryColorChangeRequested(i, entryIndex, color); });
-        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const int sourceEntryIndex, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, sourceEntryIndex, i, isCopy); });
+        m_cells[i].signalColorChangeRequested().connect([this, i](const EntryId& entryId, const EntryColor color) { onEntryColorChangeRequested(i, entryId, color); });
+        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const EntryId& entryId, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, entryId, i, isCopy); });
     }
 }
 
@@ -122,11 +122,6 @@ Gtk::Window* CalendarGrid::validatedWindowForCell(const int cellIndex, int& outD
     return dynamic_cast<Gtk::Window*>(get_root());
 }
 
-bool CalendarGrid::isValidEntryIndex(const std::chrono::year_month_day date, const int entryIndex) const
-{
-    return entryIndex >= 0 && m_controller.findEntry(date, static_cast<std::size_t>(entryIndex)) != nullptr;
-}
-
 void CalendarGrid::onCellDoubleClicked(const int cellIndex)
 {
     int day = 0;
@@ -137,20 +132,20 @@ void CalendarGrid::onCellDoubleClicked(const int cellIndex)
     showEntryDialog(*window, cellDate(day), std::nullopt);
 }
 
-void CalendarGrid::onEntryLinkClicked(const int cellIndex, const int entryIndex)
+void CalendarGrid::onEntryLinkClicked(const int cellIndex, const EntryId& entryId)
 {
     int day = 0;
-    if (validatedWindowForCell(cellIndex, day) == nullptr || entryIndex < 0)
+    if (validatedWindowForCell(cellIndex, day) == nullptr)
         return;
 
-    const auto* entry = m_controller.findEntry(cellDate(day), static_cast<std::size_t>(entryIndex));
+    const auto* entry = m_controller.findEntry(cellDate(day), entryId);
     if (entry == nullptr || entry->link.empty())
         return;
 
     UrlOpener::open(entry->link);
 }
 
-void CalendarGrid::onEntryEditRequested(const int cellIndex, const int entryIndex)
+void CalendarGrid::onEntryEditRequested(const int cellIndex, const EntryId& entryId)
 {
     int day = 0;
     auto* window = validatedWindowForCell(cellIndex, day);
@@ -158,70 +153,55 @@ void CalendarGrid::onEntryEditRequested(const int cellIndex, const int entryInde
         return;
 
     const auto date = cellDate(day);
-    if (!isValidEntryIndex(date, entryIndex))
+    if (m_controller.findEntry(date, entryId) == nullptr)
         return;
 
-    showEntryDialog(*window, date, entryIndex);
+    showEntryDialog(*window, date, entryId);
 }
 
-void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const int entryIndex)
+void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const EntryId& entryId)
 {
     const int day = cellDay(cellIndex);
     if (day < 1 || day > daysInMonth())
         return;
 
-    if (entryIndex < 0)
-        return;
-
     // Changing the document rebuilds the cells and destroys the entry widget that raised this request.
     // Letting its signal handler return first avoids destroying a widget from inside its own signal.
-    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex)]
+    Glib::signal_idle().connect_once([this, date = cellDate(day), entryId]
     {
-        m_controller.deleteEntry(date, index);
+        m_controller.deleteEntry(date, entryId);
     });
 }
 
-void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const int sourceEntryIndex, const int destCellIndex, const bool isCopy)
+void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const EntryId& entryId, const int destCellIndex, const bool isCopy)
 {
     const int sourceDay = cellDay(sourceCellIndex);
     const int destDay = cellDay(destCellIndex);
     if (sourceDay < 1 || sourceDay > daysInMonth() || destDay < 1 || destDay > daysInMonth())
         return;
 
-    if (sourceEntryIndex < 0)
-        return;
-
     // The drag source widget is destroyed by the rebuild that follows, so the change waits until the drop is handled.
     Glib::signal_idle().connect_once(
-        [this, sourceDate = cellDate(sourceDay), index = static_cast<std::size_t>(sourceEntryIndex), destDate = cellDate(destDay), isCopy]
+        [this, sourceDate = cellDate(sourceDay), entryId, destDate = cellDate(destDay), isCopy]
         {
             if (isCopy)
-                m_controller.copyEntry(sourceDate, index, destDate);
+                m_controller.copyEntry(sourceDate, entryId, destDate);
             else
-                m_controller.moveEntry(sourceDate, index, destDate);
+                m_controller.moveEntry(sourceDate, entryId, destDate);
         });
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
                                    std::chrono::year_month_day date,
-                                   std::optional<int> editIndex)
+                                   const std::optional<EntryId>& editId)
 {
-    CalendarEntryDialog* dialog = nullptr;
+    const auto* existing = editId.has_value() ? m_controller.findEntry(date, *editId) : nullptr;
 
-    const auto* existing = editIndex.has_value()
-        ? m_controller.findEntry(date, static_cast<std::size_t>(editIndex.value()))
-        : nullptr;
+    auto* dialog = existing != nullptr
+        ? new CalendarEntryDialog(window, *existing)
+        : new CalendarEntryDialog(window);
 
-    if (existing != nullptr)
-    {
-        dialog = new CalendarEntryDialog(window, *existing);
-    }
-    else
-    {
-        dialog = new CalendarEntryDialog(window);
-    }
-
-    presentEntryDialog(*dialog, date, editIndex);
+    presentEntryDialog(*dialog, date, editId);
 }
 
 void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date, const std::string& url)
@@ -248,18 +228,18 @@ void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date
 
 void CalendarGrid::presentEntryDialog(CalendarEntryDialog& entryDialog,
                                       const std::chrono::year_month_day date,
-                                      const std::optional<int> editIndex)
+                                      const std::optional<EntryId>& editId)
 {
     auto* dialog = &entryDialog;
 
-    dialog->signal_response().connect([this, dialog, date, editIndex](const int responseId)
+    dialog->signal_response().connect([this, dialog, date, editId](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
         {
             if (auto result = dialog->getResult(); result.has_value())
             {
-                if (editIndex.has_value())
-                    m_controller.editEntry(date, static_cast<std::size_t>(editIndex.value()), std::move(result.value()));
+                if (editId.has_value())
+                    m_controller.saveEditedEntry(date, *editId, std::move(result.value()));
                 else
                     m_controller.addEntry(date, std::move(result.value()));
             }
@@ -328,18 +308,15 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     );
 }
 
-void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const int entryIndex, const EntryColor color)
+void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const EntryId& entryId, const EntryColor color)
 {
     const int day = cellDay(cellIndex);
     if (day < 1 || day > daysInMonth())
         return;
 
-    if (entryIndex < 0)
-        return;
-
     // Raised from inside the color popover of the entry widget that the rebuild destroys, so it must not run in place.
-    Glib::signal_idle().connect_once([this, date = cellDate(day), index = static_cast<std::size_t>(entryIndex), color]
+    Glib::signal_idle().connect_once([this, date = cellDate(day), entryId, color]
     {
-        m_controller.changeEntryColor(date, index, color);
+        m_controller.changeEntryColor(date, entryId, color);
     });
 }

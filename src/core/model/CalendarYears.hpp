@@ -14,6 +14,8 @@ namespace calendar_years
 
     [[nodiscard]] CalendarEntries entriesOfYear(const CalendarEntries& entries, int year);
 
+    [[nodiscard]] bool haveSameContent(const CalendarEntries& left, const CalendarEntries& right);
+
     // Replaces all entries of `year` in `entries` with `replacement` (which should contain only that year).
     void replaceYear(CalendarEntries& entries, int year, const CalendarEntries& replacement);
 }

@@ -8,6 +8,7 @@
 
 #include "stapik/app/AppContext.hpp"
 #include "stapik/cloud/CloudStorageException.hpp"
+#include "stapik/domain/IdGenerator.hpp"
 #include "stapik/log/Log.hpp"
 #include "stapik/storage/CloudStorageConfigStorage.hpp"
 #include "stapik/sync/PartitionKey.hpp"
@@ -70,7 +71,9 @@ namespace
 
             for (const auto& entry : dayEntries)
             {
-                if (std::ranges::find(existing, entry) == existing.end())
+                const auto isKnown = [&entry](const CalendarEntry& known) { return known.hasSameContentAs(entry); };
+
+                if (std::ranges::none_of(existing, isKnown))
                 {
                     existing.push_back(entry);
                     added = true;
@@ -114,13 +117,23 @@ const std::vector<CalendarEntry>* CalendarController::entriesOn(const Date date)
     return day == entries.end() ? nullptr : &day->second;
 }
 
-const CalendarEntry* CalendarController::findEntry(const Date date, const std::size_t index) const
+std::optional<std::size_t> CalendarController::indexOf(const Date date, const EntryId& id) const
 {
     const auto* day = entriesOn(date);
-    if (day == nullptr || index >= day->size())
-        return nullptr;
+    if (day == nullptr)
+        return std::nullopt;
 
-    return &(*day)[index];
+    const auto found = std::ranges::find(*day, id, &CalendarEntry::id);
+    if (found == day->end())
+        return std::nullopt;
+
+    return static_cast<std::size_t>(found - day->begin());
+}
+
+const CalendarEntry* CalendarController::findEntry(const Date date, const EntryId& id) const
+{
+    const auto index = indexOf(date, id);
+    return index.has_value() ? &(*entriesOn(date))[*index] : nullptr;
 }
 
 stapik::command::UndoStack& CalendarController::undoStack()
@@ -130,51 +143,53 @@ stapik::command::UndoStack& CalendarController::undoStack()
 
 void CalendarController::addEntry(const Date date, CalendarEntry entry)
 {
+    entry.id = stapik::domain::generateId();
     m_history.execute(std::make_unique<AddEntryCommand>(m_document.entries(), date, std::move(entry)));
 }
 
-void CalendarController::editEntry(const Date date, const std::size_t index, CalendarEntry entry)
+void CalendarController::saveEditedEntry(const Date date, const EntryId& id, CalendarEntry entry)
 {
-    if (findEntry(date, index) == nullptr)
+    const auto index = indexOf(date, id);
+    if (!index.has_value())
+    {
+        addEntry(date, std::move(entry));
         return;
+    }
 
-    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, index, std::move(entry)));
+    entry.id = id;
+    replaceEntryAt(date, *index, std::move(entry));
 }
 
-void CalendarController::deleteEntry(const Date date, const std::size_t index)
+void CalendarController::deleteEntry(const Date date, const EntryId& id)
 {
-    if (findEntry(date, index) == nullptr)
-        return;
-
-    m_history.execute(std::make_unique<DeleteEntryCommand>(m_document.entries(), date, index));
+    if (const auto index = indexOf(date, id); index.has_value())
+        m_history.execute(std::make_unique<DeleteEntryCommand>(m_document.entries(), date, *index));
 }
 
-void CalendarController::moveEntry(const Date sourceDate, const std::size_t index, const Date destDate)
+void CalendarController::moveEntry(const Date sourceDate, const EntryId& id, const Date destDate)
 {
-    if (sourceDate == destDate || findEntry(sourceDate, index) == nullptr)
+    if (sourceDate == destDate)
         return;
 
-    m_history.execute(std::make_unique<MoveEntryCommand>(m_document.entries(), sourceDate, index, destDate));
+    if (const auto index = indexOf(sourceDate, id); index.has_value())
+        m_history.execute(std::make_unique<MoveEntryCommand>(m_document.entries(), sourceDate, *index, destDate));
 }
 
-void CalendarController::copyEntry(const Date sourceDate, const std::size_t index, const Date destDate)
+void CalendarController::copyEntry(const Date sourceDate, const EntryId& id, const Date destDate)
 {
-    const auto* entry = findEntry(sourceDate, index);
-    if (entry == nullptr)
-        return;
-
-    addEntry(destDate, *entry);
+    if (const auto* entry = findEntry(sourceDate, id); entry != nullptr)
+        addEntry(destDate, *entry);
 }
 
-void CalendarController::changeEntryColor(const Date date, const std::size_t index, const EntryColor color)
+void CalendarController::changeEntryColor(const Date date, const EntryId& id, const EntryColor color)
 {
-    const auto* entry = findEntry(date, index);
-    if (entry == nullptr)
+    const auto index = indexOf(date, id);
+    if (!index.has_value())
         return;
 
-    auto updated = *entry;
+    auto updated = (*entriesOn(date))[*index];
     updated.color = color;
-    editEntry(date, index, std::move(updated));
+    replaceEntryAt(date, *index, std::move(updated));
 }
 
 void CalendarController::setDisplayedYear(const int year)
@@ -342,6 +357,11 @@ sigc::signal<void(std::chrono::system_clock::time_point)>& CalendarController::s
     return m_session.signalApiKeyExpiring();
 }
 
+void CalendarController::replaceEntryAt(const Date date, const std::size_t index, CalendarEntry entry)
+{
+    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, index, std::move(entry)));
+}
+
 void CalendarController::onHistoryChanged()
 {
     const auto now = std::chrono::system_clock::now();
@@ -361,7 +381,7 @@ void CalendarController::onPartitionReplaced(const std::string& partition, const
     auto& state = m_years[*year];
     state.baseline = replacement.lastKnownCloudUpdate();
 
-    if (calendar_years::entriesOfYear(m_document.entries(), *year) != entries)
+    if (!calendar_years::haveSameContent(calendar_years::entriesOfYear(m_document.entries(), *year), entries))
     {
         // Commands hold indices into the old entries, so they must not outlive the replacement.
         clearHistorySilently();

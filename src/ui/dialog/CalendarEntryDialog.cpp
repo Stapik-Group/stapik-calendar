@@ -116,5 +116,5 @@ std::optional<CalendarEntry> CalendarEntryDialog::getResult() const
     if (!time.has_value())
         return std::nullopt;
 
-    return CalendarEntry{ name, m_linkEntry.get_text(), m_colorPicker.getSelectedColor(), m_locationEntry.get_text(), *time };
+    return CalendarEntry{ name, m_linkEntry.get_text(), m_colorPicker.getSelectedColor(), m_locationEntry.get_text(), *time, EntryId{} };
 }

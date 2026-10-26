@@ -1,11 +1,13 @@
 #include "CalendarDocument.hpp"
 
 #include "stapik/domain/CategoryColor.hpp"
+#include "stapik/domain/IdGenerator.hpp"
 #include "stapik/sync/Timestamp.hpp"
 
 #include <charconv>
 #include <utility>
 #include <format>
+#include <set>
 #include <stdexcept>
 #include <string>
 
@@ -64,6 +66,15 @@ namespace
         return color.has_value() ? std::string(stapik::domain::categoryColorId(*color)) : DEFAULT_COLOR_ID;
     }
 
+    EntryId claimUniqueId(EntryId candidate, std::set<EntryId>& usedIds)
+    {
+        if (candidate.empty() || usedIds.contains(candidate))
+            candidate = stapik::domain::generateId();
+
+        usedIds.insert(candidate);
+        return candidate;
+    }
+
     nlohmann::json entriesToJson(const CalendarEntries& entries)
     {
         auto json = nlohmann::json::array();
@@ -78,7 +89,8 @@ namespace
                     { "link", entry.link },
                     { "color", serializeColor(entry.color) },
                     { "location", entry.location },
-                    { "time", entry.time }
+                    { "time", entry.time },
+                    { "id", entry.id }
                 });
             }
         }
@@ -89,6 +101,7 @@ namespace
     CalendarEntries entriesFromJson(const nlohmann::json& json)
     {
         CalendarEntries entries;
+        std::set<EntryId> usedIds;
 
         for (const auto& item : json)
         {
@@ -97,7 +110,8 @@ namespace
                 item.at("link").get<std::string>(),
                 stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
                 item.value("location", std::string{}),
-                item.value("time", std::string{})
+                item.value("time", std::string{}),
+                claimUniqueId(item.value("id", EntryId{}), usedIds)
             });
         }
 

@@ -40,17 +40,16 @@ private:
 
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);
-    void onEntryLinkClicked(int cellIndex, int entryIndex);
-    void onEntryEditRequested(int cellIndex, int entryIndex);
-    void onEntryDeleteRequested(int cellIndex, int entryIndex);
-    void onEntryColorChangeRequested(int cellIndex, int entryIndex, EntryColor color);
-    void onEntryMoveRequested(int sourceCellIndex, int sourceEntryIndex, int destCellIndex, bool isCopy);
+    void onEntryLinkClicked(int cellIndex, const EntryId& entryId);
+    void onEntryEditRequested(int cellIndex, const EntryId& entryId);
+    void onEntryDeleteRequested(int cellIndex, const EntryId& entryId);
+    void onEntryColorChangeRequested(int cellIndex, const EntryId& entryId, EntryColor color);
+    void onEntryMoveRequested(int sourceCellIndex, const EntryId& entryId, int destCellIndex, bool isCopy);
 
-    void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, std::optional<int> editIndex);
+    void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
     void showEntryDialogForLink(std::chrono::year_month_day date, const std::string& url);
-    void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, std::optional<int> editIndex);
+    void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
     [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);
-    [[nodiscard]] bool isValidEntryIndex(std::chrono::year_month_day date, int entryIndex) const;
 
     int firstWeekdayOffset() const;
     int daysInMonth() const;
