@@ -24,9 +24,11 @@ private:
     static constexpr int STATUS_BAR_MARGIN = 6;
     static constexpr auto WINDOW_TITLE = "Stapik Calendar";
     static constexpr auto TUTORIAL_DIRECTORY = "tutorial";
+    static constexpr auto SHOW_WEEK_NUMBERS_SETTING = "view.showWeekNumbers";
 
     Gtk::Box m_mainBox;
     CalendarController m_controller;
+    stapik::settings::ObservableSetting<bool> m_showWeekNumbers;
     CalendarView m_calendarView;
     Gtk::Box m_statusBar;
     StatusIndicator m_statusIndicator;

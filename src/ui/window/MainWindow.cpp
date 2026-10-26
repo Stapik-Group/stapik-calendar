@@ -35,7 +35,8 @@ namespace
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
-    m_calendarView(m_controller),
+    m_showWeekNumbers(stapik::app::AppContext::instance().settings(), SHOW_WEEK_NUMBERS_SETTING, true),
+    m_calendarView(m_controller, m_showWeekNumbers),
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
     m_actionHandler(*this, m_controller, [this] { m_checkForUpdates.reload(); }),
     m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
@@ -106,6 +107,7 @@ void MainWindow::initSettings()
 {
     // The check runs once, at startup, so a change takes effect on the next start.
     m_menu.settings().addBool("menu.settings.checkForUpdates", m_checkForUpdates);
+    m_menu.settings().addBool("menu.settings.showWeekNumbers", m_showWeekNumbers);
 }
 
 void MainWindow::initSaveErrors()

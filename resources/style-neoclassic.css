@@ -162,3 +162,7 @@ popover modelbutton * {
     font-size: 9px;
     opacity: 0.75;
 }
+
+.calendar-week-number {
+    opacity: 0.6;
+}

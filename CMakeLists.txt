@@ -67,6 +67,7 @@ stapik_add_application(
                 src/ui/view/CalendarGrid.cpp
                 src/ui/view/CalendarHeader.cpp
                 src/ui/view/CalendarView.cpp
+                src/ui/view/CalendarWeekNumbers.cpp
                 src/ui/view/CalendarNavBar.cpp
                 src/ui/widget/CalendarEntryWidget.cpp
                 src/ui/widget/EntryColorPickerWidget.cpp
