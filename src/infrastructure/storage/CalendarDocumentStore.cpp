@@ -92,7 +92,12 @@ std::map<int, CalendarDocument> CalendarDocumentStore::loadYears() const
         const auto result = createFile(path).load();
 
         if (result.status == LoadStatus::Loaded && result.document.has_value())
+        {
+            if (result.document->skippedEntryCount() > 0)
+                setAsideUnreadableEntries(year, path, *result.document);
+
             years.emplace(year, *result.document);
+        }
         else if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
             preserveUnreadableFile(path);
     }
@@ -281,7 +286,15 @@ stapik::storage::FileResult CalendarDocumentStore::saveBaselines(const std::map<
     return written;
 }
 
-void CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& path) const
+void CalendarDocumentStore::setAsideUnreadableEntries(const int year, const std::filesystem::path& path, const CalendarDocument& document) const
+{
+    stapik::log::warning("{} entries of the calendar for {} cannot be read and are left out", document.skippedEntryCount(), year);
+
+    if (preserveUnreadableFile(path))
+        static_cast<void>(saveYear(year, document));
+}
+
+bool CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& path) const
 {
     const auto stamp = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
     const auto target = std::filesystem::path(std::format("{}.unreadable-{}", path.string(), stamp));
@@ -290,7 +303,11 @@ void CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& 
     std::filesystem::copy_file(path, target, std::filesystem::copy_options::skip_existing, errorCode);
 
     if (errorCode)
+    {
         stapik::log::warning("Cannot keep a copy of the unreadable calendar file: {}", errorCode.message());
-    else
-        stapik::log::warning("The calendar file {} cannot be read by this version; a copy was kept as {}", path.string(), target.string());
+        return false;
+    }
+
+    stapik::log::warning("The calendar file {} cannot be read completely by this version; a copy was kept as {}", path.string(), target.string());
+    return true;
 }

@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <chrono>
+#include <cstddef>
 #include <optional>
 
 // The whole calendar as one syncable and persistable unit.
@@ -21,6 +22,7 @@ public:
     [[nodiscard]] const CalendarEntries& entries() const;
     [[nodiscard]] TimePoint lastUpdate() const;
     [[nodiscard]] std::optional<TimePoint> lastKnownCloudUpdate() const;
+    [[nodiscard]] std::size_t skippedEntryCount() const;
 
     void markUpdated(TimePoint when = std::chrono::system_clock::now());
     void setLastKnownCloudUpdate(TimePoint cloudUpdatedAt);
@@ -33,4 +35,5 @@ private:
     CalendarEntries m_entries;
     TimePoint m_lastUpdate{};
     std::optional<TimePoint> m_lastKnownCloudUpdate;
+    std::size_t m_skippedEntryCount = 0;
 };

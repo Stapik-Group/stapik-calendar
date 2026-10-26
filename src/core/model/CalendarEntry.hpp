@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <string>
 #include <tuple>
 
@@ -15,11 +17,12 @@ struct CalendarEntry
     std::string location;
     std::string time;
     EntryId id;
+    nlohmann::json unknownFields = nlohmann::json::object();
 
     bool operator==(const CalendarEntry&) const = default;
 
     [[nodiscard]] bool hasSameContentAs(const CalendarEntry& other) const
     {
-        return std::tie(name, link, color, location, time) == std::tie(other.name, other.link, other.color, other.location, other.time);
+        return std::tie(name, link, color, location, time, unknownFields) == std::tie(other.name, other.link, other.color, other.location, other.time, other.unknownFields);
     }
 };

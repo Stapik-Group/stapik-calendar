@@ -46,7 +46,8 @@ private:
     [[nodiscard]] std::filesystem::path yearPath(int year) const;
     [[nodiscard]] std::map<int, std::filesystem::path> findYearFiles() const;
     void migrateLegacyFile() const;
-    void preserveUnreadableFile(const std::filesystem::path& path) const;
+    bool preserveUnreadableFile(const std::filesystem::path& path) const;
+    void setAsideUnreadableEntries(int year, const std::filesystem::path& path, const CalendarDocument& document) const;
 
     std::filesystem::path m_directory;
     // Only used to read and write the single-document formats: the legacy file, backups and archives.

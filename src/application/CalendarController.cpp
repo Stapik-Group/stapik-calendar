@@ -157,6 +157,7 @@ void CalendarController::saveEditedEntry(const Date date, const EntryId& id, Cal
     }
 
     entry.id = id;
+    entry.unknownFields = (*entriesOn(date))[*index].unknownFields;
     replaceEntryAt(date, *index, std::move(entry));
 }
 
