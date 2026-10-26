@@ -17,8 +17,6 @@ public:
     explicit CalendarEntryDialog(Window& parent);
     explicit CalendarEntryDialog(Window& parent, const CalendarEntry& existing);
     void setLink(const std::string& link);
-    // Fills the name only while it is still empty, so what the user has typed in the meantime is never replaced.
-    void suggestName(const std::string& name);
     [[nodiscard]] std::optional<CalendarEntry> getResult() const;
 private:
     static constexpr int CONTENT_SPACING = 8;

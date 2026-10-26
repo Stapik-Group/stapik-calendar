@@ -16,7 +16,7 @@ Confirm with **OK**, or choose **Cancel** to discard.
 
 ## Quick add from the clipboard
 
-If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The **New entry** window opens at once with the address in the **Link** field, and the application fetches the title of the web page and puts it in the **Name** field. This needs an internet connection; if the title cannot be read, type the name yourself. Confirm with **OK**. When the clipboard does not contain a web address, nothing happens.
+If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The **New entry** window opens at once with the address in the **Link** field. Type the name and confirm with **OK**. When the clipboard does not contain a web address, nothing happens.
 
 ## Opening a link
 

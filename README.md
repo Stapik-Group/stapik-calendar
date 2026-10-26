@@ -11,7 +11,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 - **Entry links** - an entry that has a link shows a small link symbol; clicking it opens the link in the default browser (only `http` and `https` links; a link without a scheme is opened as `https://`), while a single click on the entry name opens the entry for editing
 - **Entry colors** - assign one of ten shared category colors to an entry, either from the entry dialog or via a quick right-click popover on an existing entry
 - **Drag and drop** - drag an entry to another day to move it; hold **Ctrl** while dragging to copy it instead
-- **Quick add from clipboard** - right-clicking a day while a URL is in the clipboard opens the new entry window with the link filled in; the page title is fetched in the background and put into the name
+- **Quick add from clipboard** - right-clicking a day while a URL is in the clipboard opens the new entry window with the link filled in
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), one cloud partition per year loaded as you navigate, automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
@@ -29,8 +29,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 ## Dependencies
 
 - `gtkmm-4.0` and `sigc++-3.0`
-- `libcurl`
-- `libsodium` and `zlib` (required by `stapik-common`)
+- `libcurl`, `libsodium` and `zlib` (required by `stapik-common`)
 - `libsecret` and `libx11` (Linux, optional: the cloud API key is kept in the system keyring and the window position is remembered)
 - CMake 4.2 or newer
 - [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.6.0 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync

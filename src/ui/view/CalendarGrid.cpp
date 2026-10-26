@@ -1,6 +1,5 @@
 #include "CalendarGrid.hpp"
 
-#include "../../core/util/UrlTitleFetcher.hpp"
 #include "../../core/util/ClipboardUrlDetector.hpp"
 #include "../../core/util/UrlOpener.hpp"
 #include "../dialog/CalendarEntryDialog.hpp"
@@ -8,7 +7,6 @@
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
 
-#include <memory>
 
 #include "../../core/util/DateUtils.hpp"
 
@@ -212,17 +210,6 @@ void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date
 
     auto* dialog = new CalendarEntryDialog(*window);
     dialog->setLink(url);
-
-    // The page title arrives after a while, when the dialog may already be closed and deleted.
-    const auto isOpen = std::make_shared<bool>(true);
-    dialog->signal_hide().connect([isOpen] { *isOpen = false; });
-
-    UrlTitleFetcher::fetchAsync(url, [dialog, isOpen](const std::string& title)
-    {
-        if (*isOpen && !title.empty())
-            dialog->suggestName(title);
-    });
-
     presentEntryDialog(*dialog, date, std::nullopt);
 }
 
@@ -300,7 +287,7 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
     if (day < 1 || day > daysInMonth())
         return;
 
-    // A copied address opens the new entry window at once, with the link filled in; the page title follows into the name.
+    // A copied address opens the new entry window at once, with the link filled in.
     ClipboardUrlDetector::detectAsync(
         get_clipboard(),
         [this, date = cellDate(day)](const std::string& url) { showEntryDialogForLink(date, url); },
