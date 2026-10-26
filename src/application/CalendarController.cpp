@@ -241,9 +241,9 @@ void CalendarController::syncNow()
     m_session.fetchAvailableYears();
 }
 
-void CalendarController::flush()
+void CalendarController::flushAndWait()
 {
-    m_session.flush();
+    m_session.flushAndWait();
 }
 
 bool CalendarController::isConnected() const

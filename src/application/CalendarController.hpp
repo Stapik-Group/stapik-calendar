@@ -71,7 +71,7 @@ public:
     // they are shown: the displayed year at once, the others as the user moves to them.
     void connect(const CloudStorageConfig& config);
     void syncNow();
-    void flush();
+    void flushAndWait();
     [[nodiscard]] bool isConnected() const;
     [[nodiscard]] std::optional<CloudStorageConfig> savedCloudConfig() const;
     [[nodiscard]] stapik::sync::SyncStatus syncStatus() const;

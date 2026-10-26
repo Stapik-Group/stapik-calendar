@@ -114,6 +114,6 @@ void MainWindow::refreshStatusBar()
 
 bool MainWindow::onCloseRequest()
 {
-    m_controller.flush();
+    m_controller.flushAndWait();
     return false;
 }
