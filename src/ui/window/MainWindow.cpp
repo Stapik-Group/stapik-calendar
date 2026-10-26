@@ -47,6 +47,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     initSaveErrors();
     initApiKeyWarning();
     initSyncProblems();
+    initKeyringWarning();
     init();
     initLayout();
     initSyncStatus();
@@ -59,6 +60,7 @@ MainWindow::~MainWindow()
     m_saveFailedConnection.disconnect();
     m_apiKeyExpiringConnection.disconnect();
     m_syncProblemConnection.disconnect();
+    m_mapConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -132,6 +134,20 @@ void MainWindow::initSyncProblems()
         const auto& loc = LocaleManager::instance();
         const auto texts = problemTexts(report.problem);
         showMessageDialog(*this, loc.translate(texts.title), loc.translate(texts.text, { { "year", std::to_string(report.year) } }));
+    });
+}
+
+void MainWindow::initKeyringWarning()
+{
+    m_mapConnection = signal_map().connect([this]
+    {
+        m_mapConnection.disconnect();
+
+        if (!m_controller.cloudSecretsUnreadable())
+            return;
+
+        const auto& loc = LocaleManager::instance();
+        showMessageDialog(*this, loc.translate("cloud.keyring.title"), loc.translate("cloud.keyring.text"));
     });
 }
 

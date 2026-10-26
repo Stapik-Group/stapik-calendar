@@ -85,10 +85,15 @@ void MenuActionHandler::registerActions()
 
 void MenuActionHandler::onActionConnect() const
 {
-    showConnectDialog(
-        m_window,
-        m_controller.savedCloudConfig(),
-        [this](const CloudStorageConfig& config) { m_controller.connect(config); });
+    const auto saved = m_controller.savedCloudConfig();
+    const bool secretsUnreadable = saved && saved->secretsUnreadable;
+
+    showConnectDialog(m_window, saved, [this, secretsUnreadable](const CloudStorageConfig& chosen)
+    {
+        auto config = chosen;
+        config.secretsUnreadable = secretsUnreadable;
+        m_controller.connect(config);
+    });
 }
 
 void MenuActionHandler::onActionDisconnect() const
@@ -203,8 +208,15 @@ void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
 {
     const auto& loc = LocaleManager::instance();
 
-    if (result.connected)
-        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
-    else
+    if (!result.connected)
+    {
         showMessageDialog(m_window, loc.translate("cloud.failed.header"), result.message);
+        return;
+    }
+
+    std::string text = loc.translate("cloud.connected.secondary");
+    if (m_controller.secretsKeptInPlainText())
+        text += "\n\n" + loc.translate("cloud.secretsInConfigFile");
+
+    showMessageDialog(m_window, loc.translate("cloud.connected"), text);
 }

@@ -62,4 +62,6 @@ Jeśli zmienisz rok w trakcie jego synchronizacji i zostanie on zastąpiony nows
 
 Aby użyć innego serwera lub klucza, otwórz ponownie **Plik → Połącz z chmurą** i wpisz nowe wartości. Aby przestać korzystać z chmury, wybierz **Plik → Odłącz od chmury** i potwierdź. Adres, klucz API i hasło szyfrowania zostaną usunięte z tego komputera, a pasek stanu zniknie. Zmiany, które jeszcze czekają, są najpierw wysyłane, co może potrwać do 3 sekund. Twój lokalny kalendarz i kalendarz w chmurze nie zostaną naruszone, a ponowne połączenie jest możliwe w każdej chwili.
 
-Klucz API jest zapisany w tym pliku jawnym tekstem i odczytać go możesz tylko Ty, więc dbaj o ochronę swojego katalogu domowego.
+Klucz API i hasło szyfrowania są przechowywane w systemowym schowku kluczy. Tylko gdy schowek nie jest dostępny, zapisywane są jawnym tekstem w `~/.config/stapikcalendar/config.json` i odczytać je możesz tylko Ty; aplikacja informuje o tym po połączeniu, więc dbaj o ochronę swojego katalogu domowego.
+
+Jeśli schowka kluczy nie da się odczytać przy uruchamianiu aplikacji (na przykład jest zablokowany), aplikacja informuje o tym i nie łączy się z chmurą. Odblokuj schowek i uruchom aplikację ponownie albo wpisz klucz jeszcze raz w **Plik → Połącz z chmurą**.

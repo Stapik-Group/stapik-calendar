@@ -38,6 +38,7 @@ private:
     sigc::connection m_saveFailedConnection;
     sigc::connection m_apiKeyExpiringConnection;
     sigc::connection m_syncProblemConnection;
+    sigc::connection m_mapConnection;
 
     void init();
     void initLayout();
@@ -46,6 +47,7 @@ private:
     void initSaveErrors();
     void initApiKeyWarning();
     void initSyncProblems();
+    void initKeyringWarning();
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();

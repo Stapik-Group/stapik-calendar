@@ -52,5 +52,8 @@
   "sync.problem.decryptionFailed": "The calendar in the cloud cannot be decrypted with the passphrase saved on this computer, so it is neither read nor changed. Enter the passphrase used on your other devices in File → Connect to cloud. Your calendar on this computer is not affected.",
   "sync.problem.documentTooLarge": "The calendar for {year} is too large for the cloud server and cannot be sent. It stays on this computer.",
   "sync.discarded.title": "A change was replaced",
-  "sync.discarded.text": "A change you made in {year} while it was being synchronized was replaced by a newer version from the cloud. The earlier version is available in File → Restore from backup…"
+  "sync.discarded.text": "A change you made in {year} while it was being synchronized was replaced by a newer version from the cloud. The earlier version is available in File → Restore from backup…",
+  "cloud.secretsInConfigFile": "No system keyring is available, so the API key and the encryption passphrase are kept in the configuration file of the application. Keep your user account and your disk protected.",
+  "cloud.keyring.title": "The saved cloud key cannot be read",
+  "cloud.keyring.text": "The system keyring could not be read, so the API key and the encryption passphrase saved for the cloud are not available and the calendar is not synchronized. Unlock the keyring and restart the application, or enter the key again in File → Connect to cloud. Your calendar on this computer is not affected."
 }

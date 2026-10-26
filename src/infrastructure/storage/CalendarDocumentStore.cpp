@@ -8,6 +8,7 @@
 #include "stapik/storage/AtomicFile.hpp"
 #include "stapik/storage/PathText.hpp"
 #include "stapik/sync/Timestamp.hpp"
+#include "stapik/text/JsonText.hpp"
 
 #include <chrono>
 #include <format>
@@ -273,7 +274,7 @@ stapik::storage::FileResult CalendarDocumentStore::saveBaselines(const std::map<
     for (const auto& [year, baseline] : baselines)
         json[std::format("{:04}", year)] = stapik::sync::toIso8601(baseline, stapik::sync::TimestampPrecision::Microseconds);
 
-    const auto written = stapik::storage::writeFileAtomically(m_baselinePath, json.dump(2) + "\n");
+    const auto written = stapik::storage::writeFileAtomically(m_baselinePath, stapik::text::dumpJson(json, 2) + "\n");
     if (!written)
         stapik::log::warning("Cannot save the cloud baselines: {}", written.error().message());
 

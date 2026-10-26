@@ -52,5 +52,8 @@
   "sync.problem.decryptionFailed": "Der Kalender in der Cloud lässt sich mit der auf diesem Computer gespeicherten Passphrase nicht entschlüsseln und wird daher weder gelesen noch geändert. Geben Sie unter Datei → Mit Cloud verbinden die Passphrase Ihrer anderen Geräte ein. Ihr Kalender auf diesem Computer bleibt unverändert.",
   "sync.problem.documentTooLarge": "Der Kalender für {year} ist für den Cloud-Server zu groß und kann nicht gesendet werden. Er bleibt auf diesem Computer.",
   "sync.discarded.title": "Eine Änderung wurde ersetzt",
-  "sync.discarded.text": "Eine Änderung, die Sie in {year} während der Synchronisierung vorgenommen haben, wurde durch eine neuere Version aus der Cloud ersetzt. Die frühere Version finden Sie unter Datei → Aus Sicherung wiederherstellen…"
+  "sync.discarded.text": "Eine Änderung, die Sie in {year} während der Synchronisierung vorgenommen haben, wurde durch eine neuere Version aus der Cloud ersetzt. Die frühere Version finden Sie unter Datei → Aus Sicherung wiederherstellen…",
+  "cloud.secretsInConfigFile": "Es ist kein System-Schlüsselbund verfügbar, daher werden der API-Schlüssel und die Verschlüsselungs-Passphrase in der Konfigurationsdatei der Anwendung gespeichert. Schützen Sie Ihr Benutzerkonto und Ihren Datenträger.",
+  "cloud.keyring.title": "Der gespeicherte Cloud-Schlüssel kann nicht gelesen werden",
+  "cloud.keyring.text": "Der System-Schlüsselbund konnte nicht gelesen werden, daher sind der gespeicherte API-Schlüssel und die Verschlüsselungs-Passphrase der Cloud nicht verfügbar und der Kalender wird nicht synchronisiert. Entsperren Sie den Schlüsselbund und starten Sie die Anwendung neu, oder geben Sie den Schlüssel unter Datei → Mit Cloud verbinden erneut ein. Ihr Kalender auf diesem Computer bleibt unverändert."
 }

@@ -186,7 +186,7 @@ Next to it:
 
 Language, theme and font preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
 
-The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
+The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available, which the app points out after connecting. When the keyring exists but cannot be read (for example when it is locked), the app says so at startup instead of connecting silently. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
 
 ## Architecture
 

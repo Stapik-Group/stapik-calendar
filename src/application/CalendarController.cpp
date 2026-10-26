@@ -8,6 +8,7 @@
 #include "stapik/app/AppContext.hpp"
 #include "stapik/cloud/CloudStorageException.hpp"
 #include "stapik/log/Log.hpp"
+#include "stapik/storage/CloudStorageConfigStorage.hpp"
 #include "stapik/sync/PartitionKey.hpp"
 #include "stapik/sync/SyncEnvelope.hpp"
 
@@ -286,6 +287,17 @@ bool CalendarController::isConnected() const
 std::optional<CloudStorageConfig> CalendarController::savedCloudConfig() const
 {
     return m_loadCloudConfig ? m_loadCloudConfig() : std::nullopt;
+}
+
+bool CalendarController::cloudSecretsUnreadable() const
+{
+    const auto config = savedCloudConfig();
+    return config && config->secretsUnreadable;
+}
+
+bool CalendarController::secretsKeptInPlainText() const
+{
+    return CloudStorageConfigStorage::secretsKeptInConfigFile(stapik::app::AppContext::instance().info().internalName).any();
 }
 
 stapik::sync::SyncStatus CalendarController::syncStatus() const

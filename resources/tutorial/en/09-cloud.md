@@ -62,4 +62,6 @@ If you change a year while it is being synchronized, a message tells you if your
 
 To use another server or key, open **File → Connect to cloud** again and enter the new values. To stop using the cloud, choose **File → Disconnect from cloud** and confirm. The address, the API key and the encryption passphrase are removed from this computer and the status bar disappears. Changes that are still waiting are sent first, which can take up to 3 seconds. Your local calendar and the calendar in the cloud are not affected, and you can connect again at any time.
 
-The API key is stored in that file in plain text, readable only by you, so keep your home directory protected.
+The API key and the encryption passphrase are kept in the system keyring. Only when no keyring is available are they stored in `~/.config/stapikcalendar/config.json` in plain text, readable only by you; the application tells you so after connecting, so keep your home directory protected.
+
+If the keyring cannot be read when the application starts (for example because it is locked), the application says so and does not connect. Unlock the keyring and restart the application, or enter the key again in **File → Connect to cloud**.

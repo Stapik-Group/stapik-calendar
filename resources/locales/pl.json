@@ -52,5 +52,8 @@
   "sync.problem.decryptionFailed": "Kalendarza z chmury nie da się odszyfrować hasłem zapisanym na tym komputerze, więc nie jest on ani odczytywany, ani zmieniany. Wpisz w Plik → Połącz z chmurą hasło używane na pozostałych urządzeniach. Kalendarz na tym komputerze pozostaje bez zmian.",
   "sync.problem.documentTooLarge": "Kalendarz na rok {year} jest za duży dla serwera chmury i nie można go wysłać. Pozostaje na tym komputerze.",
   "sync.discarded.title": "Zmiana została zastąpiona",
-  "sync.discarded.text": "Zmiana wprowadzona w roku {year} w trakcie synchronizacji została zastąpiona nowszą wersją z chmury. Wcześniejszą wersję znajdziesz w Plik → Przywróć z kopii zapasowej…"
+  "sync.discarded.text": "Zmiana wprowadzona w roku {year} w trakcie synchronizacji została zastąpiona nowszą wersją z chmury. Wcześniejszą wersję znajdziesz w Plik → Przywróć z kopii zapasowej…",
+  "cloud.secretsInConfigFile": "Brak systemowego schowka kluczy, więc klucz API i hasło szyfrowania są przechowywane w pliku konfiguracyjnym aplikacji. Dbaj o ochronę swojego konta użytkownika i dysku.",
+  "cloud.keyring.title": "Nie można odczytać zapisanego klucza chmury",
+  "cloud.keyring.text": "Nie udało się odczytać systemowego schowka kluczy, więc zapisany klucz API i hasło szyfrowania chmury są niedostępne, a kalendarz nie jest synchronizowany. Odblokuj schowek i uruchom aplikację ponownie albo wpisz klucz jeszcze raz w Plik → Połącz z chmurą. Kalendarz na tym komputerze pozostaje bez zmian."
 }

@@ -62,4 +62,6 @@ Wenn Sie ein Jahr während seiner Synchronisierung ändern und es durch eine neu
 
 Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie **Datei → Mit Cloud verbinden** erneut und geben Sie die neuen Werte ein. Um die Cloud nicht mehr zu nutzen, wählen Sie **Datei → Von der Cloud trennen** und bestätigen Sie. Adresse, API-Schlüssel und Verschlüsselungs-Passphrase werden von diesem Computer entfernt, und die Statusleiste verschwindet. Noch ausstehende Änderungen werden zuvor gesendet, was bis zu 3 Sekunden dauern kann. Ihr lokaler Kalender und der Kalender in der Cloud bleiben unberührt, und Sie können sich jederzeit erneut verbinden.
 
-Der API-Schlüssel steht in dieser Datei im Klartext und ist nur für Sie lesbar; schützen Sie daher Ihr Home-Verzeichnis.
+Der API-Schlüssel und die Verschlüsselungs-Passphrase liegen im System-Schlüsselbund. Nur wenn kein Schlüsselbund verfügbar ist, stehen sie im Klartext in `~/.config/stapikcalendar/config.json` und sind nur für Sie lesbar; die Anwendung weist Sie nach dem Verbinden darauf hin, schützen Sie daher Ihr Home-Verzeichnis.
+
+Kann der Schlüsselbund beim Start der Anwendung nicht gelesen werden (zum Beispiel weil er gesperrt ist), meldet die Anwendung das und verbindet sich nicht. Entsperren Sie den Schlüsselbund und starten Sie die Anwendung neu, oder geben Sie den Schlüssel unter **Datei → Mit Cloud verbinden** erneut ein.

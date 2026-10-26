@@ -89,6 +89,8 @@ public:
     void flushAndWait();
     [[nodiscard]] bool isConnected() const;
     [[nodiscard]] std::optional<CloudStorageConfig> savedCloudConfig() const;
+    [[nodiscard]] bool cloudSecretsUnreadable() const;
+    [[nodiscard]] bool secretsKeptInPlainText() const;
     [[nodiscard]] stapik::sync::SyncStatus syncStatus() const;
 
     sigc::signal<void()>& signalDocumentChanged();
