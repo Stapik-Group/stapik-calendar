@@ -1,7 +1,8 @@
 #include "CalendarHeader.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 
-CalendarHeader::CalendarHeader()
+CalendarHeader::CalendarHeader(const WeekRules& weekRules) :
+    m_weekRules(weekRules)
 {
     initLayout();
     refreshLabels();
@@ -39,5 +40,5 @@ void CalendarHeader::refreshLabels()
     const auto& loc = LocaleManager::instance();
 
     for (int i = 0; i < COLUMNS; i++)
-        m_labels[i].set_text(loc.translate(DAY_KEYS[i]));
+        m_labels[i].set_text(loc.translate(DAY_KEYS[m_weekRules.weekdayInColumn(i).c_encoding()]));
 }

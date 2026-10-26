@@ -2,6 +2,7 @@
 
 #include "CalendarCell.hpp"
 #include "../../application/CalendarController.hpp"
+#include "../../core/util/WeekRules.hpp"
 
 #include <gtkmm/grid.h>
 #include <sigc++/connection.h>
@@ -15,7 +16,7 @@ class CalendarEntryDialog;
 class CalendarGrid : public Gtk::Grid
 {
 public:
-    explicit CalendarGrid(CalendarController& controller);
+    CalendarGrid(CalendarController& controller, const WeekRules& weekRules);
     ~CalendarGrid() override;
 
     void displayMonth(std::chrono::year_month yearMonth);
@@ -23,13 +24,13 @@ private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;
     static constexpr int TOTAL_CELLS = ROWS * COLUMNS;
-    static constexpr int FIRST_WEEKEND_COLUMN = 5; // weeks start on Monday: Saturday = 5, Sunday = 6
     static constexpr unsigned DAY_CHANGE_CHECK_SECONDS = 30;
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
     std::chrono::year_month_day m_today {};
     CalendarController& m_controller;
+    const WeekRules& m_weekRules;
     sigc::connection m_documentConnection;
     sigc::connection m_dayChangeConnection;
 

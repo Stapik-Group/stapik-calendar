@@ -6,7 +6,7 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 
 ## Features
 
-- **Monthly view** - calendar grid with month and year navigation, and a month picker to jump to any month
+- **Monthly view** - calendar grid with month and year navigation, and a month picker to jump to any month; the week starts on the day set in the regional settings of the system and the weekend is always Saturday and Sunday
 - **Calendar entries** - add, edit and delete entries with a name, optional link, location, time and color; entries with a time are listed first, in the order of the clock
 - **Entry links** - an entry that has a link shows a small link symbol; clicking it opens the link in the default browser (only `http` and `https` links; a link without a scheme is opened as `https://`), while a single click on the entry name opens the entry for editing
 - **Entry colors** - assign one of ten shared category colors to an entry, either from the entry dialog or via a quick right-click popover on an existing entry

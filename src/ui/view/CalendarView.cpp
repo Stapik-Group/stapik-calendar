@@ -1,12 +1,15 @@
 #include "CalendarView.hpp"
 
 #include "../../core/util/DateUtils.hpp"
+#include "../../infrastructure/system/RegionalSettings.hpp"
 
 CalendarView::CalendarView(CalendarController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_controller(controller),
     m_currentYearMonth(DateUtils::todayYearMonth()),
-    m_grid(controller)
+    m_weekRules(RegionalSettings::firstDayOfWeek()),
+    m_header(m_weekRules),
+    m_grid(controller, m_weekRules)
 {
     initLayout();
     initNavigation();

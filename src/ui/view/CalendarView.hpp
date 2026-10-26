@@ -6,6 +6,7 @@
 #include "CalendarNavBar.hpp"
 #include "CalendarHeader.hpp"
 #include "CalendarGrid.hpp"
+#include "../../core/util/WeekRules.hpp"
 
 class CalendarView : public Gtk::Box
 {
@@ -14,6 +15,7 @@ public:
 private:
     CalendarController& m_controller;
     std::chrono::year_month m_currentYearMonth;
+    WeekRules m_weekRules;
 
     CalendarNavBar m_navBar;
     CalendarHeader m_header;

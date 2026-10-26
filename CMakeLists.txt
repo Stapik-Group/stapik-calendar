@@ -55,8 +55,10 @@ stapik_add_application(
                 src/core/util/EntryTime.cpp
                 src/core/util/ClipboardUrlDetector.cpp
                 src/core/util/DateUtils.cpp
+                src/core/util/WeekRules.cpp
                 src/core/util/EntryDragPayload.cpp
                 src/infrastructure/storage/CalendarDocumentStore.cpp
+                src/infrastructure/system/RegionalSettings.cpp
                 src/ui/SelfTest.cpp
                 src/ui/window/MainWindow.cpp
                 src/ui/action/MenuActionHandler.cpp

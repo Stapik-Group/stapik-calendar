@@ -10,8 +10,9 @@
 
 #include "../../core/util/DateUtils.hpp"
 
-CalendarGrid::CalendarGrid(CalendarController& controller) :
-    m_controller(controller)
+CalendarGrid::CalendarGrid(CalendarController& controller, const WeekRules& weekRules) :
+    m_controller(controller),
+    m_weekRules(weekRules)
 {
     m_currentYearMonth = DateUtils::todayYearMonth();
 
@@ -47,7 +48,7 @@ void CalendarGrid::initLayout()
         {
             const int index = row * COLUMNS + col;
             m_cells[index].setCellIndex(index);
-            m_cells[index].setWeekend(col >= FIRST_WEEKEND_COLUMN);
+            m_cells[index].setWeekend(WeekRules::isWeekend(m_weekRules.weekdayInColumn(col)));
             attach(m_cells[index], col, row);
         }
 }
@@ -254,9 +255,8 @@ int CalendarGrid::firstWeekdayOffset() const
     using namespace std::chrono;
 
     const year_month_day firstDay{m_currentYearMonth / 1};
-    const weekday wd{sys_days{firstDay}};
 
-    return static_cast<int>(wd.iso_encoding()) - 1;
+    return m_weekRules.columnOf(weekday{sys_days{firstDay}});
 }
 
 int CalendarGrid::daysInMonth() const
