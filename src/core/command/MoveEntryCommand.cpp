@@ -12,22 +12,22 @@ MoveEntryCommand::MoveEntryCommand(CalendarEntries& entries,
 
 void MoveEntryCommand::execute()
 {
-    auto& sourceEntries = m_entries.at(m_date);
+    auto& sourceEntries = calendarEntries().at(entryDate());
     sourceEntries.erase(sourceEntries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_sourceIndex));
     if (sourceEntries.empty())
-        m_entries.erase(m_date);
+        calendarEntries().erase(entryDate());
 
-    m_entries[m_destDate].push_back(m_movedEntry);
+    calendarEntries()[m_destDate].push_back(m_movedEntry);
 }
 
 void MoveEntryCommand::undo()
 {
-    auto& destEntries = m_entries.at(m_destDate);
+    auto& destEntries = calendarEntries().at(m_destDate);
     destEntries.pop_back();
     if (destEntries.empty())
-        m_entries.erase(m_destDate);
+        calendarEntries().erase(m_destDate);
 
-    auto& sourceEntries = m_entries[m_date];
+    auto& sourceEntries = calendarEntries()[entryDate()];
     sourceEntries.insert(sourceEntries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_sourceIndex), m_movedEntry);
 }
 

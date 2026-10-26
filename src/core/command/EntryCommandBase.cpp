@@ -26,3 +26,13 @@ std::string EntryCommandBase::describe(const std::string& key, const std::string
 {
     return LocaleManager::instance().translate(key, { { "name", shorten(entryName) } });
 }
+
+CalendarEntries& EntryCommandBase::calendarEntries() const
+{
+    return m_entries;
+}
+
+std::chrono::year_month_day EntryCommandBase::entryDate() const
+{
+    return m_date;
+}

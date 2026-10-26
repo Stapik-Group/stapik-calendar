@@ -4,7 +4,7 @@
 
 Kliknij dwukrotnie puste miejsce w komórce dnia. Otworzy się okno **Nowy wpis**:
 
-- **Nazwa** — wymagana. Bez nazwy wpis nie zostanie utworzony.
+- **Nazwa** — wymagana. Pusta nazwa podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie wpiszesz.
 - **Link (opcjonalny)** — adres strony internetowej, który później otworzysz jednym kliknięciem.
 - **Godzina (opcjonalna)** — godzina wydarzenia, na przykład `14:30`. Zrozumiałe są też `9:30`, `9.30` i `930`. Nieprawidłowa godzina podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie poprawisz lub nie wyczyścisz.
 - **Miejsce (opcjonalne)** — adres lub miejsce, wyświetlane pod nazwą wpisu.
@@ -16,7 +16,7 @@ Zatwierdź przyciskiem **OK** albo wybierz **Anuluj**, aby odrzucić.
 
 ## Szybkie dodawanie ze schowka
 
-Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Od razu otworzy się okno **Nowy wpis** z adresem w polu **Link**, a aplikacja pobierze tytuł strony i wstawi go w pole **Nazwa**. Wymaga to połączenia z internetem; jeśli nie uda się odczytać tytułu, wpisz nazwę samodzielnie. Zatwierdź przyciskiem **OK**. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
+Jeśli skopiujesz adres strony (zaczynający się od `http://` lub `https://`), kliknij dzień **prawym przyciskiem myszy**. Od razu otworzy się okno **Nowy wpis** z adresem w polu **Link**. Wpisz nazwę i zatwierdź przyciskiem **OK**. Gdy w schowku nie ma adresu strony, nic się nie dzieje.
 
 ## Otwieranie linku
 

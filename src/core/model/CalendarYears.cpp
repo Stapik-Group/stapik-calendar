@@ -1,5 +1,7 @@
 #include "CalendarYears.hpp"
 
+#include <algorithm>
+
 namespace calendar_years
 {
     int yearOf(const std::chrono::year_month_day date)
@@ -14,7 +16,7 @@ namespace calendar_years
         for (const auto& [date, dayEntries] : entries)
         {
             if (!dayEntries.empty())
-                years[yearOf(date)].emplace(date, dayEntries);
+                years[yearOf(date)].try_emplace(date, dayEntries);
         }
 
         return years;
@@ -30,10 +32,22 @@ namespace calendar_years
         for (auto it = first; it != last; ++it)
         {
             if (!it->second.empty())
-                result.emplace(it->first, it->second);
+                result.try_emplace(it->first, it->second);
         }
 
         return result;
+    }
+
+    bool haveSameContent(const CalendarEntries& left, const CalendarEntries& right)
+    {
+        return std::ranges::equal(left, right, [](const auto& leftDay, const auto& rightDay)
+        {
+            return leftDay.first == rightDay.first
+                && std::ranges::equal(leftDay.second, rightDay.second, [](const CalendarEntry& leftEntry, const CalendarEntry& rightEntry)
+                {
+                    return leftEntry.hasSameContentAs(rightEntry);
+                });
+        });
     }
 
     void replaceYear(CalendarEntries& entries, const int year, const CalendarEntries& replacement)
@@ -45,7 +59,7 @@ namespace calendar_years
         for (const auto& [date, dayEntries] : replacement)
         {
             if (yearOf(date) == year && !dayEntries.empty())
-                entries.emplace(date, dayEntries);
+                entries.try_emplace(date, dayEntries);
         }
     }
 }

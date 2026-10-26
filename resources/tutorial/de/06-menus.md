@@ -4,6 +4,7 @@
 
 - Mit Cloud verbinden — Öffnet das Fenster zum Verbinden mit Stapik Cloud.
 - Synchronisieren — Synchronisiert sofort mit der Cloud.
+- Von der Cloud trennen — Beendet die Synchronisierung und entfernt die gespeicherte Adresse, den API-Schlüssel und die Passphrase von diesem Computer. Nur verfügbar, wenn eine Verbindung besteht.
 - Aus Sicherung wiederherstellen… — Zeigt die gespeicherten Kopien des Kalenders nach Datum und Uhrzeit und kehrt zu der gewählten zurück. Der bisherige Stand wird zur neuesten Kopie, die Wiederherstellung lässt sich also auf demselben Weg zurücknehmen. Der Rückgängig-Verlauf wird geleert, und bei bestehender Verbindung wird der wiederhergestellte Kalender in die Cloud gesendet.
 - Beenden `Strg`+`Q` — Schließt die Anwendung. Ausstehende Änderungen werden zuvor an die Cloud gesendet.
 
@@ -11,6 +12,11 @@
 
 - Rückgängig `Strg`+`Z` — Macht die letzte Aktion rückgängig.
 - Wiederholen `Strg`+`Umschalt`+`Z` — Wiederholt eine rückgängig gemachte Aktion.
+
+**Ansicht**
+
+- Monat, Woche, Tag `Strg`+`1`, `Strg`+`2`, `Strg`+`3` — Legt fest, ob der Kalender den ganzen Monat, eine Woche oder einen Tag zeigt.
+- Heute — Springt zum aktuellen Tag.
 
 **Einstellungen**
 

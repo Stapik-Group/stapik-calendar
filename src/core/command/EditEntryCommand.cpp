@@ -10,12 +10,12 @@ EditEntryCommand::EditEntryCommand(CalendarEntries& entries,
 
 void EditEntryCommand::execute()
 {
-    dayEntries().at(m_entryIndex) = m_newEntry;
+    dayEntries().at(entryIndex()) = m_newEntry;
 }
 
 void EditEntryCommand::undo()
 {
-    dayEntries().at(m_entryIndex) = m_oldEntry;
+    dayEntries().at(entryIndex()) = m_oldEntry;
 }
 
 std::string EditEntryCommand::description() const

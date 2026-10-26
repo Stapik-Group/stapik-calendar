@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    uses: Stapik-Group/stapik-common/.github/workflows/build.yml@v1.5.5
+    uses: Stapik-Group/stapik-common/.github/workflows/build.yml@v1.6.0
     with:
       application-name: stapikcalendar
       images: '["ubuntu:24.04", "debian:13"]'
@@ -25,4 +25,4 @@ jobs:
     needs: build
     permissions:
       contents: write
-    uses: Stapik-Group/stapik-common/.github/workflows/publish.yml@v1.5.5
+    uses: Stapik-Group/stapik-common/.github/workflows/publish.yml@v1.6.0

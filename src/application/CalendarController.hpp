@@ -26,6 +26,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <concepts>
 
 struct ConnectionResult
 {
@@ -35,6 +36,20 @@ struct ConnectionResult
 
 // Owns the calendar document, its undo history, local persistence and the cloud session.
 // It knows nothing about widgets: views read from it and report user intents to it.
+enum class SyncProblem
+{
+    AuthRejected,
+    DecryptionFailed,
+    DocumentTooLarge,
+    LocalChangeDiscarded
+};
+
+struct SyncProblemReport
+{
+    SyncProblem problem = SyncProblem::AuthRejected;
+    int year = 0;
+};
+
 class CalendarController
 {
 public:
@@ -46,15 +61,15 @@ public:
     CalendarController& operator=(const CalendarController&) = delete;
 
     [[nodiscard]] const std::vector<CalendarEntry>* entriesOn(Date date) const;
-    [[nodiscard]] const CalendarEntry* findEntry(Date date, std::size_t index) const;
+    [[nodiscard]] const CalendarEntry* findEntry(Date date, const EntryId& id) const;
     [[nodiscard]] stapik::command::UndoStack& undoStack();
 
     void addEntry(Date date, CalendarEntry entry);
-    void editEntry(Date date, std::size_t index, CalendarEntry entry);
-    void deleteEntry(Date date, std::size_t index);
-    void moveEntry(Date sourceDate, std::size_t index, Date destDate);
-    void copyEntry(Date sourceDate, std::size_t index, Date destDate);
-    void changeEntryColor(Date date, std::size_t index, EntryColor color);
+    void saveEditedEntry(Date date, const EntryId& id, CalendarEntry entry);
+    void deleteEntry(Date date, const EntryId& id);
+    void moveEntry(Date sourceDate, const EntryId& id, Date destDate);
+    void copyEntry(Date sourceDate, const EntryId& id, Date destDate);
+    void changeEntryColor(Date date, const EntryId& id, EntryColor color);
 
     // The year the user is looking at. Backups are kept and restored per year, for this year.
     void setDisplayedYear(int year);
@@ -70,15 +85,20 @@ public:
     // single calendar document of older versions (which stays untouched). Years are loaded from the cloud when
     // they are shown: the displayed year at once, the others as the user moves to them.
     void connect(const CloudStorageConfig& config);
+    void disconnect();
     void syncNow();
-    void flush();
+    void flushAndWait();
     [[nodiscard]] bool isConnected() const;
     [[nodiscard]] std::optional<CloudStorageConfig> savedCloudConfig() const;
+    [[nodiscard]] bool cloudSecretsUnreadable() const;
+    [[nodiscard]] static bool secretsKeptInPlainText();
     [[nodiscard]] stapik::sync::SyncStatus syncStatus() const;
 
     sigc::signal<void()>& signalDocumentChanged();
     sigc::signal<void(stapik::sync::SyncStatus)>& signalSyncStatusChanged();
     sigc::signal<void(const ConnectionResult&)>& signalConnectionResult();
+    sigc::signal<void()>& signalConnectionChanged();
+    sigc::signal<void(const SyncProblemReport&)>& signalSyncProblem();
     // Emitted with the reason when saving to disk starts to fail; not repeated until a save succeeds again.
     sigc::signal<void(const std::string&)>& signalSaveFailed();
     // Emitted with the expiry time when the cloud reports that the API key is about to expire; once per reported time.
@@ -96,19 +116,25 @@ private:
         std::optional<TimePoint> baseline;
     };
 
-    struct LegacyRead
+    struct CloudProbe
     {
         bool ok = false;
-        std::optional<CloudDocument> document;
+        std::vector<int> years;
+        bool legacyRead = false;
+        std::optional<CloudDocument> legacyDocument;
         std::string message;
     };
+
+    [[nodiscard]] std::optional<std::size_t> indexOf(Date date, const EntryId& id) const;
+    void replaceEntryAt(Date date, std::size_t index, CalendarEntry entry);
 
     void onHistoryChanged();
     void onPartitionReplaced(const std::string& partition, const CalendarDocument& replacement);
     void onPartitionBaselineChanged(const std::string& partition, TimePoint baseline);
     void onPartitionStatusChanged(const std::string& partition, stapik::sync::SyncStatus status);
     void onAvailableYears(const std::optional<std::vector<int>>& years);
-    void onLegacyRead(const std::optional<LegacyRead>& result, bool migrate);
+    void onPartitionOutcome(const std::string& partition, const stapik::sync::SyncOutcome<CalendarDocument>& outcome);
+    void onCloudProbed(const std::optional<CloudProbe>& result, bool migrate);
     void clearHistorySilently();
     CalendarDocument loadFromStore();
 
@@ -116,20 +142,25 @@ private:
     // Returns the years that changed.
     std::vector<int> persist(TimePoint stamp);
     void persistBaselines();
+    void discardBaselinesOfPreviousCloud();
     void reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure);
 
     void startCloud();
+    template<std::invocable<const CloudStorageConfig&> StorageFactory>
+    [[nodiscard]] static CloudProbe probeCloud(const StorageFactory& createStorage, const CloudStorageConfig& config, bool readLegacyDocument);
     void importLegacy(const std::optional<CloudDocument>& legacy);
     void ensureYearLoaded(int year);
     void ensureYearsLoaded();
     void pushYears(const std::vector<int>& years);
     void setStatus(const std::string& source, std::optional<stapik::sync::SyncStatus> status);
+    void clearStatuses();
+    void updateCombinedStatus();
     [[nodiscard]] CalendarDocument yearDocument(int year) const;
 
     CalendarDocumentStore m_store;
     std::map<int, YearState> m_years;    // filled by loadFromStore(), so it has to be declared before m_document
     CalendarDocument m_document;
-    int m_displayedYear = static_cast<int>(std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) }.year());
+    int m_displayedYear;
     std::set<int> m_visitedYears;
     std::function<std::optional<CloudStorageConfig>()> m_loadCloudConfig;
     std::function<std::unique_ptr<ICloudStorage>(const CloudStorageConfig&)> m_createStorage;
@@ -137,16 +168,19 @@ private:
     stapik::command::UndoStack m_history;
     sigc::connection m_historyConnection;
     Session m_session;
-    std::unique_ptr<stapik::task::BackgroundTaskRunner> m_legacyRunner;
+    std::unique_ptr<stapik::task::BackgroundTaskRunner> m_probeRunner;
     std::set<int> m_availableYears;
     std::map<std::string, stapik::sync::SyncStatus> m_statuses;
     stapik::sync::SyncStatus m_combinedStatus = stapik::sync::SyncStatus::Idle;
     bool m_cloudReady = false;
     bool m_awaitingConnectionResult = false;
     bool m_saveFailed = false;
+    std::optional<SyncProblem> m_reportedProblem;
 
     sigc::signal<void(stapik::sync::SyncStatus)> m_signalSyncStatusChanged;
     sigc::signal<void()> m_signalDocumentChanged;
     sigc::signal<void(const ConnectionResult&)> m_signalConnectionResult;
+    sigc::signal<void()> m_signalConnectionChanged;
+    sigc::signal<void(const SyncProblemReport&)> m_signalSyncProblem;
     sigc::signal<void(const std::string&)> m_signalSaveFailed;
 };

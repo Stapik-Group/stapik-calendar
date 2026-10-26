@@ -2,6 +2,13 @@
 
 ## Keyboard
 
+- `←` `→` — previous / next day
+- `↑` `↓` — same weekday in the previous / next week
+- `Page Up` `Page Down` — previous / next month
+- `Ctrl`+`Page Up` `Ctrl`+`Page Down` — previous / next year
+- `Home` or `Ctrl`+`T` — go to today
+- `Enter` or `Ctrl`+`N` — new entry on the selected day
+- `Ctrl`+`1` `Ctrl`+`2` `Ctrl`+`3` — month / week / day view
 - `Ctrl`+`Z` — Undo
 - `Ctrl`+`Shift`+`Z` — Redo
 - `Ctrl`+`Q` — Exit

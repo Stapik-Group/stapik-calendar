@@ -9,16 +9,16 @@ DeleteEntryCommand::DeleteEntryCommand(CalendarEntries& entries,
 void DeleteEntryCommand::execute()
 {
     auto& entries = dayEntries();
-    entries.erase(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_entryIndex));
+    entries.erase(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(entryIndex()));
 
     if (entries.empty())
-        m_entries.erase(m_date);
+        calendarEntries().erase(entryDate());
 }
 
 void DeleteEntryCommand::undo()
 {
-    auto& entries = m_entries[m_date];
-    entries.insert(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(m_entryIndex), m_deletedEntry);
+    auto& entries = calendarEntries()[entryDate()];
+    entries.insert(entries.begin() + static_cast<std::vector<CalendarEntry>::difference_type>(entryIndex()), m_deletedEntry);
 }
 
 std::string DeleteEntryCommand::description() const

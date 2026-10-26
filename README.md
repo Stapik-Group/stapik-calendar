@@ -6,12 +6,16 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 
 ## Features
 
-- **Monthly view** - calendar grid with month and year navigation, and a month picker to jump to any month
+- **Monthly view** - calendar grid with month and year navigation, and a month picker to jump to any month; the week starts on the day set in the regional settings of the system and the weekend is always Saturday and Sunday
+- **Week and day views** - switch between the month, a single week and a single day from the *View* menu (or `Ctrl+1`, `Ctrl+2`, `Ctrl+3`); the arrows then move by a month, a week or a day
+- **Today button and selected day** - one click returns to the current day; the selected day is highlighted and stays the anchor while you move between months
+- **Keyboard navigation** - arrow keys move the selected day, Page Up/Down change the month (with Ctrl the year), Home or Ctrl+T jumps to today, Enter or Ctrl+N adds an entry
+- **Week numbers** - the number of each week next to the rows of the month (ISO 8601 for weeks starting on Monday, otherwise the week with 1 January is week 1); can be switched off in **Settings → Show week numbers**
 - **Calendar entries** - add, edit and delete entries with a name, optional link, location, time and color; entries with a time are listed first, in the order of the clock
 - **Entry links** - an entry that has a link shows a small link symbol; clicking it opens the link in the default browser (only `http` and `https` links; a link without a scheme is opened as `https://`), while a single click on the entry name opens the entry for editing
 - **Entry colors** - assign one of ten shared category colors to an entry, either from the entry dialog or via a quick right-click popover on an existing entry
 - **Drag and drop** - drag an entry to another day to move it; hold **Ctrl** while dragging to copy it instead
-- **Quick add from clipboard** - right-clicking a day while a URL is in the clipboard opens the new entry window with the link filled in; the page title is fetched in the background and put into the name
+- **Quick add from clipboard** - right-clicking a day while a URL is in the clipboard opens the new entry window with the link filled in
 - **Undo/Redo** - operation history for adding, editing, deleting, moving and copying entries (up to 100 steps), with the operation named in the menu and `Ctrl+Z` / `Ctrl+Shift+Z` shortcuts
 - **Cloud sync** - background synchronization with an external API (compatible with a self-hosted server), one cloud partition per year loaded as you navigate, automatic retries when offline, conflict resolution based on timestamps and a sync status indicator
 - **Tutorial** - **Help → Tutorial** (or `F1`) opens an illustrated tutorial in its own window, with a table of contents, in Polish, English or German
@@ -29,11 +33,10 @@ A desktop calendar application, written in C++20 using GTK4/gtkmm. Supports mult
 ## Dependencies
 
 - `gtkmm-4.0` and `sigc++-3.0`
-- `libcurl`
-- `libsodium` and `zlib` (required by `stapik-common`)
+- `libcurl`, `libsodium` and `zlib` (required by `stapik-common`)
 - `libsecret` and `libx11` (Linux, optional: the cloud API key is kept in the system keyring and the window position is remembered)
 - CMake 4.2 or newer
-- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.5.5 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
+- [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.6.0 (fetched automatically via CMake FetchContent) - it provides the application framework: settings, localization, themes, menu, undo stack, document storage and cloud sync
 - `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
@@ -96,7 +99,7 @@ cmake --build cmake-build-release --target stapikcalendar_flatpak     # needs fl
 cmake --build cmake-build-release --target stapikcalendar_appimage    # needs linuxdeploy and its GTK plugin on PATH
 ```
 
-The Flatpak is created in `cmake-build-release/stapikcalendar-flatpak/`, the AppImage in `cmake-build-release/stapikcalendar-appimage/`. Both are described in the [stapik-common documentation](https://github.com/Stapik-Group/stapik-common/blob/v1.5.5/docs/linux.md).
+The Flatpak is created in `cmake-build-release/stapikcalendar-flatpak/`, the AppImage in `cmake-build-release/stapikcalendar-appimage/`. Both are described in the [stapik-common documentation](https://github.com/Stapik-Group/stapik-common/blob/v1.6.0/docs/linux.md).
 
 ## Uninstalling
 
@@ -119,7 +122,7 @@ Either way, your calendar data and settings remain in `~/.local/share/stapikcale
 
 ## Cloud Sync
 
-The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). The server must be Stapik Cloud **1.2.0 or newer**; older servers are not supported. Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable).
+The app supports synchronization via a self-hosted [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) server (or any other with compatible api [Stapik Cloud API](https://github.com/Stapik-Group/stapik-cloud/blob/master/backend/src/main/resources/openapi/app-api.yaml)). The server must be Stapik Cloud **1.2.0 or newer**; older servers are not supported. Go to **File → Connect**, enter the server URL and the API key issued for this specific device (generated per-device from the Stapik Cloud admin panel — there is no shared or global key, and each device gets its own, independently revocable). To stop synchronizing, use **File → Disconnect from cloud**: it removes the saved address, key and passphrase from this device and leaves the calendar untouched.
 
 Once connected, the app compares the local document and the cloud copy using a timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. Each year of the calendar is its own cloud partition (`2026`, `2027`, ...), so the comparison happens per year; the displayed year is loaded at once and the others when you navigate to them. There is no field-level or entry-level merging — if both copies changed since the last sync, the write that's based on the older cloud state loses.
 
@@ -186,7 +189,7 @@ Next to it:
 
 Language, theme and font preferences are stored in `~/.config/stapikcalendar/settings.json`; the `locale.txt` and `theme.txt` files of earlier versions are imported on the first start. The window state and the update check (`update.checkEnabled`, `update.lastCheck`) are kept in the same file.
 
-The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
+The cloud configuration is in `~/.config/stapikcalendar/config.json` (server URL). The API key is kept in the system keyring (Secret Service on Linux, Credential Manager on Windows) and only stays in `config.json` (permissions 0600) when no keyring is available, which the app points out after connecting. When the keyring exists but cannot be read (for example when it is locked), the app says so at startup instead of connecting silently. Earlier versions kept `config.json` in the data directory; it is moved to the configuration directory on the first start.
 
 ## Architecture
 
@@ -202,7 +205,7 @@ Shared building blocks (settings, localization, themes, menu, dialogs, undo stac
 
 ## Continuous integration
 
-GitHub Actions call the reusable workflows of [stapik-common](https://github.com/Stapik-Group/stapik-common/blob/v1.5.5/docs/ci.md) (pinned to `v1.5.5`, like the dependency):
+GitHub Actions call the reusable workflows of [stapik-common](https://github.com/Stapik-Group/stapik-common/blob/v1.6.0/docs/ci.md) (pinned to `v1.6.0`, like the dependency):
 
 - a pull request from `develop` into `master` builds the application on Linux (in a Docker image) and on Windows (`.github/workflows/pull-request.yml`),
 - nothing runs on pushes to a branch or on a merge into `master`,

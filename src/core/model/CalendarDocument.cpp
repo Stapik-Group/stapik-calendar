@@ -1,18 +1,31 @@
 #include "CalendarDocument.hpp"
 
 #include "stapik/domain/CategoryColor.hpp"
+#include "stapik/domain/IdGenerator.hpp"
+#include "stapik/log/Log.hpp"
 #include "stapik/sync/Timestamp.hpp"
 
+#include <algorithm>
+#include <array>
 #include <charconv>
 #include <utility>
 #include <format>
+#include <set>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace
 {
     constexpr std::size_t DATE_LENGTH = 10;
     constexpr auto DEFAULT_COLOR_ID = "default";
+    constexpr std::array<std::string_view, 7> KNOWN_ENTRY_FIELDS = { "date", "name", "link", "color", "location", "time", "id" };
+
+    struct ParsedEntries
+    {
+        CalendarEntries entries;
+        std::size_t skipped = 0;
+    };
 
     template<typename Number>
     bool parseNumber(const std::string& text, const std::size_t offset, const std::size_t length, Number& value)
@@ -64,44 +77,93 @@ namespace
         return color.has_value() ? std::string(stapik::domain::categoryColorId(*color)) : DEFAULT_COLOR_ID;
     }
 
+    EntryId claimUniqueId(EntryId candidate, std::set<EntryId>& usedIds)
+    {
+        if (candidate.empty() || usedIds.contains(candidate))
+            candidate = stapik::domain::generateId();
+
+        usedIds.insert(candidate);
+        return candidate;
+    }
+
     nlohmann::json entriesToJson(const CalendarEntries& entries)
     {
         auto json = nlohmann::json::array();
 
         for (const auto& [date, dayEntries] : entries)
         {
-            for (const auto& entry : dayEntries)
+            for (const auto&[name, link, color, location, time, id, unknownFields] : dayEntries)
             {
-                json.push_back({
+                nlohmann::json item{
                     { "date", serializeDate(date) },
-                    { "name", entry.name },
-                    { "link", entry.link },
-                    { "color", serializeColor(entry.color) },
-                    { "location", entry.location },
-                    { "time", entry.time }
-                });
+                    { "name", name },
+                    { "link", link },
+                    { "color", serializeColor(color) },
+                    { "location", location },
+                    { "time", time },
+                    { "id", id }
+                };
+
+                if (!unknownFields.empty())
+                    item.update(unknownFields);
+
+                json.push_back(std::move(item));
             }
         }
 
         return json;
     }
 
-    CalendarEntries entriesFromJson(const nlohmann::json& json)
+    nlohmann::json unknownFieldsOf(const nlohmann::json& item)
     {
-        CalendarEntries entries;
+        auto unknown = nlohmann::json::object();
+
+        for (const auto& [key, value] : item.items())
+        {
+            if (std::ranges::find(KNOWN_ENTRY_FIELDS, std::string_view(key)) == KNOWN_ENTRY_FIELDS.end())
+                unknown[key] = value;
+        }
+
+        return unknown;
+    }
+
+    CalendarEntry entryFromJson(const nlohmann::json& item, std::set<EntryId>& usedIds)
+    {
+        return CalendarEntry{
+            .name = item.at("name").get<std::string>(),
+            .link = item.at("link").get<std::string>(),
+            .color = stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
+            .location = item.value("location", std::string{}),
+            .time = item.value("time", std::string{}),
+            .id = claimUniqueId(item.value("id", EntryId{}), usedIds),
+            .unknownFields = unknownFieldsOf(item)
+        };
+    }
+
+    ParsedEntries entriesFromJson(const nlohmann::json& json)
+    {
+        if (!json.is_array())
+            throw std::invalid_argument("The entries are not a list");
+
+        ParsedEntries parsed;
+        std::set<EntryId> usedIds;
 
         for (const auto& item : json)
         {
-            entries[deserializeDate(item.at("date").get<std::string>())].push_back(CalendarEntry{
-                item.at("name").get<std::string>(),
-                item.at("link").get<std::string>(),
-                stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
-                item.value("location", std::string{}),
-                item.value("time", std::string{})
-            });
+            try
+            {
+                const auto date = deserializeDate(item.at("date").get<std::string>());
+                auto entry = entryFromJson(item, usedIds);
+                parsed.entries[date].push_back(std::move(entry));
+            }
+            catch (const std::exception& error)
+            {
+                ++parsed.skipped;
+                stapik::log::warning("A calendar entry cannot be read and is left out: {}", error.what());
+            }
         }
 
-        return entries;
+        return parsed;
     }
 }
 
@@ -128,6 +190,11 @@ CalendarDocument::TimePoint CalendarDocument::lastUpdate() const
 std::optional<CalendarDocument::TimePoint> CalendarDocument::lastKnownCloudUpdate() const
 {
     return m_lastKnownCloudUpdate;
+}
+
+std::size_t CalendarDocument::skippedEntryCount() const
+{
+    return m_skippedEntryCount;
 }
 
 void CalendarDocument::markUpdated(const TimePoint when)
@@ -158,10 +225,12 @@ nlohmann::json CalendarDocument::toJson() const
 CalendarDocument CalendarDocument::fromJson(const nlohmann::json& json)
 {
     // Legacy bare array (pre-sync file or old cloud payload): the timestamp is not part of it.
-    if (json.is_array())
-        return CalendarDocument(entriesFromJson(json), TimePoint{});
+    const bool isLegacyArray = json.is_array();
 
-    return CalendarDocument(
-        entriesFromJson(json.at("entries")),
-        parseTimestamp(json.at("lastUpdate").get<std::string>()));
+    auto [entries, skipped] = entriesFromJson(isLegacyArray ? json : json.at("entries"));
+    const auto lastUpdate = isLegacyArray ? TimePoint{} : parseTimestamp(json.at("lastUpdate").get<std::string>());
+
+    CalendarDocument document(std::move(entries), lastUpdate);
+    document.m_skippedEntryCount = skipped;
+    return document;
 }

@@ -7,6 +7,7 @@
 #include <gtkmm/adjustment.h>
 
 #include <algorithm>
+#include <format>
 #include <numeric>
 #include <string>
 
@@ -17,7 +18,7 @@ namespace
         indicator.set_visible(count > 0);
 
         if (count > 0)
-            indicator.set_text(arrow + " " + std::to_string(count));
+            indicator.set_text(std::format("{} {}", arrow, count));
     }
 }
 
@@ -130,7 +131,11 @@ void CalendarCell::initGesture()
     m_gestureClick->set_button(LEFT_MOUSE_BUTTON);
     m_gestureClick->signal_pressed().connect(
         [this](const int nPress, const double x, const double y) {
-            if (nPress == DOUBLE_CLICK_COUNT && !isOverEntry(x, y)) m_signalDoubleClicked.emit();
+            if (nPress == SINGLE_CLICK_COUNT)
+                m_signalClicked.emit();
+
+            if (nPress == DOUBLE_CLICK_COUNT && !isOverEntry(x, y))
+                m_signalDoubleClicked.emit();
         });
 
     add_controller(m_gestureClick);
@@ -167,6 +172,7 @@ void CalendarCell::setAdjacentMonthDay(const int day)
     m_dayLabel.set_text(std::to_string(day));
     add_css_class("other-month");
     remove_css_class("today");
+    remove_css_class("selected");
     refreshEntries({});
 }
 
@@ -191,6 +197,14 @@ void CalendarCell::markAsToday(const bool isToday)
         remove_css_class("today");
 }
 
+void CalendarCell::markAsSelected(const bool isSelected)
+{
+    if (isSelected)
+        add_css_class("selected");
+    else
+        remove_css_class("selected");
+}
+
 void CalendarCell::setEntries(const std::vector<CalendarEntry>& entries)
 {
     refreshEntries(entries);
@@ -213,10 +227,9 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
         m_entriesBox.remove(*child);
 
     // Entries with a time come first, in the order of the clock; the others follow in the order of adding.
-    // Only the display order changes, the entry keeps its real index in the day (for editing, deleting, dragging).
-    std::vector<int> displayOrder(entries.size());
-    std::iota(displayOrder.begin(), displayOrder.end(), 0);
-    std::ranges::stable_sort(displayOrder, [&entries](const int left, const int right)
+    std::vector<std::size_t> displayOrder(entries.size());
+    std::iota(displayOrder.begin(), displayOrder.end(), std::size_t{0});
+    std::ranges::stable_sort(displayOrder, [&entries](const std::size_t left, const std::size_t right)
     {
         const auto& leftTime = entries[left].time;
         const auto& rightTime = entries[right].time;
@@ -227,15 +240,16 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
         return leftTime < rightTime;
     });
 
-    for (const int i : displayOrder)
+    for (const std::size_t i : displayOrder)
     {
+        const EntryId entryId = entries[i].id;
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
 
-        widget->signalLinkClicked().connect([this, i] { m_signalEntryLinkClicked.emit(i); });
-        widget->signalEditRequested().connect([this, i] { m_signalEditRequested.emit(i); });
-        widget->signalDeleteRequested().connect([this, i] { m_signalDeleteRequested.emit(i); });
-        widget->signalColorChangeRequested().connect([this, i](const EntryColor color) { m_signalColorChangeRequested.emit(i, color); });
-        widget->setSourceLocator(m_cellIndex, i);
+        widget->signalLinkClicked().connect([this, entryId] { m_signalEntryLinkClicked.emit(entryId); });
+        widget->signalEditRequested().connect([this, entryId] { m_signalEditRequested.emit(entryId); });
+        widget->signalDeleteRequested().connect([this, entryId] { m_signalDeleteRequested.emit(entryId); });
+        widget->signalColorChangeRequested().connect([this, entryId](const EntryColor color) { m_signalColorChangeRequested.emit(entryId, color); });
+        widget->setCellIndex(m_cellIndex);
 
         m_entriesBox.append(*widget);
     }
@@ -248,14 +262,22 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
     if (G_VALUE_TYPE(value.gobj()) != G_TYPE_STRING)
         return false;
 
-    const auto& stringValue = static_cast<const Glib::Value<Glib::ustring>&>(value);
-    const auto parsed = EntryDragPayload::deserialize(stringValue.get());
+    const gchar* text = g_value_get_string(value.gobj());
+    if (text == nullptr)
+        return false;
+
+    const auto parsed = EntryDragPayload::deserialize(Glib::ustring(text));
     if (!parsed.has_value())
         return false;
 
-    const auto [sourceCellIndex, sourceEntryIndex, isCopy] = parsed.value();
-    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryIndex, isCopy);
+    const auto& [sourceCellIndex, sourceEntryId, isCopy] = parsed.value();
+    m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryId, isCopy);
     return true;
+}
+
+sigc::signal<void()>& CalendarCell::signalClicked()
+{
+    return m_signalClicked;
 }
 
 sigc::signal<void()>& CalendarCell::signalDoubleClicked()
@@ -263,17 +285,17 @@ sigc::signal<void()>& CalendarCell::signalDoubleClicked()
     return m_signalDoubleClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEntryLinkClicked()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalEntryLinkClicked()
 {
     return m_signalEntryLinkClicked;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalEditRequested()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalEditRequested()
 {
     return m_signalEditRequested;
 }
 
-sigc::signal<void(int)>& CalendarCell::signalDeleteRequested()
+sigc::signal<void(const EntryId&)>& CalendarCell::signalDeleteRequested()
 {
     return m_signalDeleteRequested;
 }
@@ -283,12 +305,12 @@ sigc::signal<void()> &CalendarCell::signalRightClicked()
     return m_signalRightClicked;
 }
 
-sigc::signal<void(int, EntryColor)>& CalendarCell::signalColorChangeRequested()
+sigc::signal<void(const EntryId&, EntryColor)>& CalendarCell::signalColorChangeRequested()
 {
     return m_signalColorChangeRequested;
 }
 
-sigc::signal<void(int, int, bool)>& CalendarCell::signalEntryMoveRequested()
+sigc::signal<void(int, const EntryId&, bool)>& CalendarCell::signalEntryMoveRequested()
 {
     return m_signalEntryMoveRequested;
 }

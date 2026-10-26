@@ -37,7 +37,7 @@ Ist eine Cloud eingerichtet, zeigt der untere Fensterrand den aktuellen Zustand:
 - Synchronisiere… — Eine Synchronisierung läuft.
 - Offline — Der Server ist nicht erreichbar. Ihre Änderungen sind auf diesem Computer sicher, und die Anwendung versucht es selbstständig erneut (zuerst nach 2 Sekunden, dann immer seltener, höchstens alle 5 Minuten).
 - Konflikt: Serverversion beibehalten — In der Cloud lag eine neuere Version, die Ihre lokale ersetzt hat (siehe *Konflikte*).
-- Synchronisierungsfehler — Die Synchronisierung ist aus einem anderen Grund fehlgeschlagen, zum Beispiel weil der Server die Anfrage abgelehnt hat. Lokale Daten bleiben unberührt.
+- Synchronisierungsfehler — Die Synchronisierung ist fehlgeschlagen. Oft würde ein erneuter Versuch nichts nützen, etwa weil der Server den API-Schlüssel abgelehnt hat, die Verschlüsselungs-Passphrase nicht passt oder ein Jahr für den Server zu groß ist; eine Meldung erklärt dann, was zu tun ist. Lokale Daten bleiben unberührt.
 
 ![Die Statusleiste am unteren Fensterrand mit dem Synchronisierungsstatus](images/sync-status.png)
 
@@ -54,10 +54,14 @@ Jedes Jahr wird einzeln als ein Dokument verglichen, und die neuere Version gewi
 
 Gewinnt die Serverversion, ersetzt sie den Kalender auf Ihrem Computer, und der Rückgängig-Verlauf wird geleert. Standardmäßig bewahrt Stapik Cloud die ersetzte Version im Dokumentverlauf auf, sodass sie im Admin-Panel wiederhergestellt werden kann; stellen Sie sie dort wieder her und synchronisieren Sie erneut.
 
+Wenn Sie ein Jahr während seiner Synchronisierung ändern und es durch eine neuere Version aus der Cloud ersetzt wird, teilt Ihnen eine Meldung dies mit. Die frühere Version befindet sich unter den Sicherungen (**Datei → Aus Sicherung wiederherstellen…**).
+
 > Tipp für mehrere Geräte: Warten Sie nach dem Bearbeiten auf *Aktuell* (oder verwenden Sie *Synchronisieren*), bevor Sie zu einem anderen Computer wechseln.
 
 ## Server wechseln oder Synchronisierung beenden
 
-Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie **Datei → Mit Cloud verbinden** erneut und geben Sie die neuen Werte ein. Es gibt keine Schaltfläche zum Trennen: Um die Cloud nicht mehr zu nutzen, schließen Sie die Anwendung und löschen Sie die Datei `~/.config/stapikcalendar/config.json`. Ihr lokaler Kalender bleibt unberührt.
+Um einen anderen Server oder Schlüssel zu verwenden, öffnen Sie **Datei → Mit Cloud verbinden** erneut und geben Sie die neuen Werte ein. Um die Cloud nicht mehr zu nutzen, wählen Sie **Datei → Von der Cloud trennen** und bestätigen Sie. Adresse, API-Schlüssel und Verschlüsselungs-Passphrase werden von diesem Computer entfernt, und die Statusleiste verschwindet. Noch ausstehende Änderungen werden zuvor gesendet, was bis zu 3 Sekunden dauern kann. Ihr lokaler Kalender und der Kalender in der Cloud bleiben unberührt, und Sie können sich jederzeit erneut verbinden.
 
-Der API-Schlüssel steht in dieser Datei im Klartext und ist nur für Sie lesbar; schützen Sie daher Ihr Home-Verzeichnis.
+Der API-Schlüssel und die Verschlüsselungs-Passphrase liegen im System-Schlüsselbund. Nur wenn kein Schlüsselbund verfügbar ist, stehen sie im Klartext in `~/.config/stapikcalendar/config.json` und sind nur für Sie lesbar; die Anwendung weist Sie nach dem Verbinden darauf hin, schützen Sie daher Ihr Home-Verzeichnis.
+
+Kann der Schlüsselbund beim Start der Anwendung nicht gelesen werden (zum Beispiel weil er gesperrt ist), meldet die Anwendung das und verbindet sich nicht. Entsperren Sie den Schlüsselbund und starten Sie die Anwendung neu, oder geben Sie den Schlüssel unter **Datei → Mit Cloud verbinden** erneut ein.

@@ -23,12 +23,16 @@ namespace
 
     bool takeSelfTestOption(int& argumentCount, char* arguments[])
     {
+        if (argumentCount < 2)
+            return false;
+
         const auto end = arguments + argumentCount;
+        const auto afterTerminator = end + 1;
         const auto option = std::find_if(arguments + 1, end, [](const char* argument) { return std::strcmp(argument, SELF_TEST_OPTION) == 0; });
         if (option == end)
             return false;
 
-        std::copy(option + 1, end, option);
+        std::copy(option + 1, afterTerminator, option);
         --argumentCount;
         return true;
     }
@@ -71,7 +75,7 @@ int main(int argumentCount, char *argv[])
 
     int selfTestFailures = 0;
 
-    app->signal_activate().connect([&]
+    app->signal_activate().connect([&app, selfTest, &selfTestFailures]
     {
         // Starting the program again activates the running one, which must not open a second window.
         if (const auto windows = app->get_windows(); !windows.empty())

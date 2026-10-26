@@ -65,24 +65,48 @@ MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, CalendarCon
 MenuActionHandler::~MenuActionHandler()
 {
     m_connectionResult.disconnect();
+    m_connectionChanged.disconnect();
 }
 
 void MenuActionHandler::registerActions()
 {
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
+    m_disconnectAction = m_window.add_action("disconnect", sigc::mem_fun(*this, &MenuActionHandler::onActionDisconnect));
     m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
     m_window.add_action("restoreBackup", sigc::mem_fun(*this, &MenuActionHandler::onActionRestoreBackup));
     m_window.add_action("exportArchive", sigc::mem_fun(*this, &MenuActionHandler::onActionExportArchive));
     m_window.add_action("importArchive", sigc::mem_fun(*this, &MenuActionHandler::onActionImportArchive));
+
+    m_connectionChanged = m_controller.signalConnectionChanged().connect(
+        sigc::mem_fun(*this, &MenuActionHandler::updateDisconnectAvailability));
+    updateDisconnectAvailability();
 }
 
 void MenuActionHandler::onActionConnect() const
 {
-    showConnectDialog(
-        m_window,
-        m_controller.savedCloudConfig(),
-        [this](const CloudStorageConfig& config) { m_controller.connect(config); });
+    const auto saved = m_controller.savedCloudConfig();
+    const bool secretsUnreadable = saved && saved->secretsUnreadable;
+
+    showConnectDialog(m_window, saved, [this, secretsUnreadable](const CloudStorageConfig& chosen)
+    {
+        auto config = chosen;
+        config.secretsUnreadable = secretsUnreadable;
+        m_controller.connect(config);
+    });
+}
+
+void MenuActionHandler::onActionDisconnect() const
+{
+    const auto& loc = LocaleManager::instance();
+
+    const ConfirmDialogOptions confirmation{
+        .title = loc.translate("dialog.disconnect.title"),
+        .message = loc.translate("dialog.disconnect.message"),
+        .confirmLabel = loc.translate("dialog.disconnect.button"),
+        .destructive = true };
+
+    showConfirmDialog(m_window, confirmation, [this] { m_controller.disconnect(); });
 }
 
 void MenuActionHandler::onActionQuit() const
@@ -126,6 +150,7 @@ void MenuActionHandler::onActionImportArchive() const
 
     const FileDialogOptions options{
         .title = loc.translate("archive.import.title"),
+        .initialName = {},
         .lastDirectoryKey = ARCHIVE_DIRECTORY_KEY };
 
     showOpenFileDialog(m_window, options, [this](const std::filesystem::path& source)
@@ -175,12 +200,24 @@ void MenuActionHandler::importArchiveFrom(const std::filesystem::path& source) c
     showMessageDialog(m_window, loc.translate("archive.import.done.title"), loc.translate("archive.import.done.text"));
 }
 
+void MenuActionHandler::updateDisconnectAvailability() const
+{
+    m_disconnectAction->set_enabled(m_controller.isConnected());
+}
+
 void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
 {
     const auto& loc = LocaleManager::instance();
 
-    if (result.connected)
-        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
-    else
+    if (!result.connected)
+    {
         showMessageDialog(m_window, loc.translate("cloud.failed.header"), result.message);
+        return;
+    }
+
+    std::string text = loc.translate("cloud.connected.secondary");
+    if (CalendarController::secretsKeptInPlainText())
+        text += "\n\n" + loc.translate("cloud.secretsInConfigFile");
+
+    showMessageDialog(m_window, loc.translate("cloud.connected"), text);
 }

@@ -4,10 +4,13 @@
 #include "../core/command/DeleteEntryCommand.hpp"
 #include "../core/command/EditEntryCommand.hpp"
 #include "../core/command/MoveEntryCommand.hpp"
+#include "../core/util/DateUtils.hpp"
 
 #include "stapik/app/AppContext.hpp"
 #include "stapik/cloud/CloudStorageException.hpp"
+#include "stapik/domain/IdGenerator.hpp"
 #include "stapik/log/Log.hpp"
+#include "stapik/storage/CloudStorageConfigStorage.hpp"
 #include "stapik/sync/PartitionKey.hpp"
 #include "stapik/sync/SyncEnvelope.hpp"
 
@@ -21,7 +24,7 @@ static_assert(stapik::sync::SyncableDocument<CalendarDocument>);
 namespace
 {
     constexpr auto LEGACY_MIGRATED_KEY = "cloud.legacyMigratedFor";
-    constexpr auto LEGACY_STATUS_SOURCE = "legacy";
+    constexpr auto CONNECTION_STATUS_SOURCE = "connection";
 
     // Which status wins when the partitions report different ones: the worst news first.
     int statusSeverity(const stapik::sync::SyncStatus status)
@@ -39,6 +42,38 @@ namespace
         return 0;
     }
 
+    std::optional<SyncProblem> permanentProblemOf(const stapik::sync::SyncState state)
+    {
+        using enum stapik::sync::SyncState;
+        switch (state)
+        {
+            case AuthRejected: return SyncProblem::AuthRejected;
+            case DecryptionFailed: return SyncProblem::DecryptionFailed;
+            case DocumentTooLarge: return SyncProblem::DocumentTooLarge;
+            case Synchronized:
+            case OfflineKeptLocal:
+            case ServerWon:
+            case LostRaceAcceptedServer:
+            case RemoteUnreadable:
+            case LostRaceKeptLocal:
+            default: return std::nullopt;
+        }
+    }
+
+    std::vector<int> yearsOf(const std::vector<CloudPartitionInfo>& partitions)
+    {
+        std::vector<int> years;
+
+        for (const auto& info : partitions)
+        {
+            if (const auto year = stapik::sync::yearFromPartitionKey(info.partition))
+                years.push_back(*year);
+        }
+
+        std::ranges::sort(years);
+        return years;
+    }
+
     // Adds the entries of `source` that `target` does not have yet. Returns whether anything was added.
     bool addMissingEntries(CalendarEntries& target, const CalendarEntries& source)
     {
@@ -50,7 +85,7 @@ namespace
 
             for (const auto& entry : dayEntries)
             {
-                if (std::ranges::find(existing, entry) == existing.end())
+                if (const auto isKnown = [&entry](const CalendarEntry& known) { return known.hasSameContentAs(entry); }; std::ranges::none_of(existing, isKnown))
                 {
                     existing.push_back(entry);
                     added = true;
@@ -68,6 +103,7 @@ namespace
 CalendarController::CalendarController(CalendarDocumentStore store, stapik::sync::CloudSessionHooks hooks) :
     m_store(std::move(store)),
     m_document(loadFromStore()),
+    m_displayedYear(static_cast<int>(DateUtils::today().year())),
     m_loadCloudConfig(hooks.loadConfig),
     m_createStorage(hooks.createStorage),
     m_legacyMigratedFor(stapik::app::AppContext::instance().settings(), LEGACY_MIGRATED_KEY, std::string{}),
@@ -80,6 +116,7 @@ CalendarController::CalendarController(CalendarDocumentStore store, stapik::sync
     m_session.signalPartitionBaselineChanged().connect(sigc::mem_fun(*this, &CalendarController::onPartitionBaselineChanged));
     m_session.signalPartitionStatusChanged().connect(sigc::mem_fun(*this, &CalendarController::onPartitionStatusChanged));
     m_session.signalAvailableYears().connect(sigc::mem_fun(*this, &CalendarController::onAvailableYears));
+    m_session.signalPartitionOutcome().connect(sigc::mem_fun(*this, &CalendarController::onPartitionOutcome));
 
     if (m_session.isConnected())
         startCloud();
@@ -92,13 +129,23 @@ const std::vector<CalendarEntry>* CalendarController::entriesOn(const Date date)
     return day == entries.end() ? nullptr : &day->second;
 }
 
-const CalendarEntry* CalendarController::findEntry(const Date date, const std::size_t index) const
+std::optional<std::size_t> CalendarController::indexOf(const Date date, const EntryId& id) const
 {
     const auto* day = entriesOn(date);
-    if (day == nullptr || index >= day->size())
-        return nullptr;
+    if (day == nullptr)
+        return std::nullopt;
 
-    return &(*day)[index];
+    const auto found = std::ranges::find(*day, id, &CalendarEntry::id);
+    if (found == day->end())
+        return std::nullopt;
+
+    return static_cast<std::size_t>(found - day->begin());
+}
+
+const CalendarEntry* CalendarController::findEntry(const Date date, const EntryId& id) const
+{
+    const auto index = indexOf(date, id);
+    return index.has_value() ? &(*entriesOn(date))[*index] : nullptr;
 }
 
 stapik::command::UndoStack& CalendarController::undoStack()
@@ -108,51 +155,54 @@ stapik::command::UndoStack& CalendarController::undoStack()
 
 void CalendarController::addEntry(const Date date, CalendarEntry entry)
 {
+    entry.id = stapik::domain::generateId();
     m_history.execute(std::make_unique<AddEntryCommand>(m_document.entries(), date, std::move(entry)));
 }
 
-void CalendarController::editEntry(const Date date, const std::size_t index, CalendarEntry entry)
+void CalendarController::saveEditedEntry(const Date date, const EntryId& id, CalendarEntry entry)
 {
-    if (findEntry(date, index) == nullptr)
+    const auto index = indexOf(date, id);
+    if (!index.has_value())
+    {
+        addEntry(date, std::move(entry));
         return;
+    }
 
-    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, index, std::move(entry)));
+    entry.id = id;
+    entry.unknownFields = (*entriesOn(date))[*index].unknownFields;
+    replaceEntryAt(date, *index, std::move(entry));
 }
 
-void CalendarController::deleteEntry(const Date date, const std::size_t index)
+void CalendarController::deleteEntry(const Date date, const EntryId& id)
 {
-    if (findEntry(date, index) == nullptr)
-        return;
-
-    m_history.execute(std::make_unique<DeleteEntryCommand>(m_document.entries(), date, index));
+    if (const auto index = indexOf(date, id); index.has_value())
+        m_history.execute(std::make_unique<DeleteEntryCommand>(m_document.entries(), date, *index));
 }
 
-void CalendarController::moveEntry(const Date sourceDate, const std::size_t index, const Date destDate)
+void CalendarController::moveEntry(const Date sourceDate, const EntryId& id, const Date destDate)
 {
-    if (sourceDate == destDate || findEntry(sourceDate, index) == nullptr)
+    if (sourceDate == destDate)
         return;
 
-    m_history.execute(std::make_unique<MoveEntryCommand>(m_document.entries(), sourceDate, index, destDate));
+    if (const auto index = indexOf(sourceDate, id); index.has_value())
+        m_history.execute(std::make_unique<MoveEntryCommand>(m_document.entries(), sourceDate, *index, destDate));
 }
 
-void CalendarController::copyEntry(const Date sourceDate, const std::size_t index, const Date destDate)
+void CalendarController::copyEntry(const Date sourceDate, const EntryId& id, const Date destDate)
 {
-    const auto* entry = findEntry(sourceDate, index);
-    if (entry == nullptr)
-        return;
-
-    addEntry(destDate, *entry);
+    if (const auto* entry = findEntry(sourceDate, id); entry != nullptr)
+        addEntry(destDate, *entry);
 }
 
-void CalendarController::changeEntryColor(const Date date, const std::size_t index, const EntryColor color)
+void CalendarController::changeEntryColor(const Date date, const EntryId& id, const EntryColor color)
 {
-    const auto* entry = findEntry(date, index);
-    if (entry == nullptr)
+    const auto index = indexOf(date, id);
+    if (!index.has_value())
         return;
 
-    auto updated = *entry;
+    auto updated = (*entriesOn(date))[*index];
     updated.color = color;
-    editEntry(date, index, std::move(updated));
+    replaceEntryAt(date, *index, std::move(updated));
 }
 
 void CalendarController::setDisplayedYear(const int year)
@@ -211,21 +261,34 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController:
 void CalendarController::connect(const CloudStorageConfig& config)
 {
     m_awaitingConnectionResult = true;
+    m_reportedProblem.reset();
     m_statuses.clear();
-
-    // The baselines belong to the cloud they came from; with a new connection every year is resolved afresh.
-    for (auto& [year, state] : m_years)
-        state.baseline.reset();
-    persistBaselines();
+    discardBaselinesOfPreviousCloud();
 
     if (m_session.connectPartitionsOnly(config))
     {
         startCloud();
+        m_signalConnectionChanged.emit();
         return;
     }
 
     m_awaitingConnectionResult = false;
-    m_signalConnectionResult.emit(ConnectionResult{ false, {} });
+    m_signalConnectionResult.emit(ConnectionResult{ .connected = false, .message = {}});
+    m_signalConnectionChanged.emit();
+}
+
+void CalendarController::disconnect()
+{
+    m_probeRunner.reset();
+    m_awaitingConnectionResult = false;
+    m_reportedProblem.reset();
+    m_session.disconnect();
+
+    m_cloudReady = false;
+    m_availableYears.clear();
+    discardBaselinesOfPreviousCloud();
+    clearStatuses();
+    m_signalConnectionChanged.emit();
 }
 
 void CalendarController::syncNow()
@@ -241,9 +304,9 @@ void CalendarController::syncNow()
     m_session.fetchAvailableYears();
 }
 
-void CalendarController::flush()
+void CalendarController::flushAndWait()
 {
-    m_session.flush();
+    m_session.flushAndWait();
 }
 
 bool CalendarController::isConnected() const
@@ -254,6 +317,17 @@ bool CalendarController::isConnected() const
 std::optional<CloudStorageConfig> CalendarController::savedCloudConfig() const
 {
     return m_loadCloudConfig ? m_loadCloudConfig() : std::nullopt;
+}
+
+bool CalendarController::cloudSecretsUnreadable() const
+{
+    const auto config = savedCloudConfig();
+    return config && config->secretsUnreadable;
+}
+
+bool CalendarController::secretsKeptInPlainText()
+{
+    return CloudStorageConfigStorage::secretsKeptInConfigFile(stapik::app::AppContext::instance().info().internalName).any();
 }
 
 stapik::sync::SyncStatus CalendarController::syncStatus() const
@@ -276,6 +350,16 @@ sigc::signal<void(const ConnectionResult&)>& CalendarController::signalConnectio
     return m_signalConnectionResult;
 }
 
+sigc::signal<void()>& CalendarController::signalConnectionChanged()
+{
+    return m_signalConnectionChanged;
+}
+
+sigc::signal<void(const SyncProblemReport&)>& CalendarController::signalSyncProblem()
+{
+    return m_signalSyncProblem;
+}
+
 sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
 {
     return m_signalSaveFailed;
@@ -284,6 +368,11 @@ sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
 sigc::signal<void(std::chrono::system_clock::time_point)>& CalendarController::signalApiKeyExpiring()
 {
     return m_session.signalApiKeyExpiring();
+}
+
+void CalendarController::replaceEntryAt(const Date date, const std::size_t index, CalendarEntry entry)
+{
+    m_history.execute(std::make_unique<EditEntryCommand>(m_document.entries(), date, index, std::move(entry)));
 }
 
 void CalendarController::onHistoryChanged()
@@ -305,7 +394,7 @@ void CalendarController::onPartitionReplaced(const std::string& partition, const
     auto& state = m_years[*year];
     state.baseline = replacement.lastKnownCloudUpdate();
 
-    if (calendar_years::entriesOfYear(m_document.entries(), *year) != entries)
+    if (!calendar_years::haveSameContent(calendar_years::entriesOfYear(m_document.entries(), *year), entries))
     {
         // Commands hold indices into the old entries, so they must not outlive the replacement.
         clearHistorySilently();
@@ -339,37 +428,58 @@ void CalendarController::onAvailableYears(const std::optional<std::vector<int>>&
 
     if (years)
     {
-        m_availableYears = std::set<int>(years->begin(), years->end());
-        setStatus(LEGACY_STATUS_SOURCE, std::nullopt);
+        m_availableYears = std::set(years->begin(), years->end());
+        setStatus(CONNECTION_STATUS_SOURCE, std::nullopt);
     }
 
     ensureYearsLoaded();
 }
 
-void CalendarController::onLegacyRead(const std::optional<LegacyRead>& result, const bool migrate)
+void CalendarController::onPartitionOutcome(const std::string& partition, const stapik::sync::SyncOutcome<CalendarDocument>& outcome)
+{
+    const auto year = stapik::sync::yearFromPartitionKey(partition);
+    if (!year)
+        return;
+
+    if (outcome.discardedLocalChange)
+        m_signalSyncProblem.emit(SyncProblemReport{ .problem = SyncProblem::LocalChangeDiscarded, .year = *year });
+
+    if (const auto problem = permanentProblemOf(outcome.state))
+    {
+        if (std::exchange(m_reportedProblem, problem) != problem)
+            m_signalSyncProblem.emit(SyncProblemReport{ .problem = *problem, .year = *year });
+
+        return;
+    }
+
+    if (outcome.state == stapik::sync::SyncState::Synchronized)
+        m_reportedProblem.reset();
+}
+
+void CalendarController::onCloudProbed(const std::optional<CloudProbe>& result, const bool migrate)
 {
     const bool ok = result && result->ok;
 
     if (m_awaitingConnectionResult)
     {
+        const auto result_message = result ? result->message : std::string{};
         m_awaitingConnectionResult = false;
-        m_signalConnectionResult.emit(ConnectionResult{ ok, ok ? std::string{} : (result ? result->message : std::string{}) });
+        m_signalConnectionResult.emit(ConnectionResult{ .connected = ok, .message = ok ? std::string{} : result_message });
     }
 
-    if (ok)
+    if (!ok)
     {
-        setStatus(LEGACY_STATUS_SOURCE, std::nullopt);
-
-        if (migrate)
-            importLegacy(result->document);
-    }
-    else
-    {
-        setStatus(LEGACY_STATUS_SOURCE, stapik::sync::SyncStatus::Offline);
+        setStatus(CONNECTION_STATUS_SOURCE, stapik::sync::SyncStatus::Offline);
+        m_session.fetchAvailableYears();
+        return;
     }
 
-    // The years follow in any case; when the cloud is out of reach they are sent as soon as it is back.
-    m_session.fetchAvailableYears();
+    setStatus(CONNECTION_STATUS_SOURCE, std::nullopt);
+
+    if (migrate && result->legacyRead)
+        importLegacy(result->legacyDocument);
+
+    onAvailableYears(result->years);
 }
 
 void CalendarController::clearHistorySilently()
@@ -391,7 +501,7 @@ CalendarDocument CalendarController::loadFromStore()
 
         entries.insert(yearEntries.begin(), yearEntries.end());
         lastUpdate = std::max(lastUpdate, document.lastUpdate());
-        m_years[year] = YearState{ document.lastUpdate(), std::move(yearEntries), std::nullopt };
+        m_years[year] = YearState{ .lastUpdate = document.lastUpdate(), .saved = std::move(yearEntries), .baseline = std::nullopt };
     }
 
     for (const auto& [year, baseline] : m_store.loadBaselines())
@@ -400,7 +510,7 @@ CalendarDocument CalendarController::loadFromStore()
             state->second.baseline = baseline;
     }
 
-    return CalendarDocument(std::move(entries), lastUpdate);
+    return {std::move(entries), lastUpdate};
 }
 
 std::vector<int> CalendarController::persist(const TimePoint stamp)
@@ -408,23 +518,23 @@ std::vector<int> CalendarController::persist(const TimePoint stamp)
     const auto current = calendar_years::splitByYear(m_document.entries());
 
     std::set<int> years;
-    for (const auto& [year, entries] : current)
+    for (const auto &year: current | std::views::keys)
         years.insert(year);
-    for (const auto& [year, state] : m_years)
+    for (const auto &year: m_years | std::views::keys)
         years.insert(year);
 
-    const CalendarEntries none;
     std::vector<int> changed;
     std::optional<stapik::storage::FileError> failure;
 
     for (const int year : years)
     {
+        const CalendarEntries none;
         const auto currentIt = current.find(year);
         const auto& entries = currentIt == current.end() ? none : currentIt->second;
 
         auto stateIt = m_years.find(year);
         if (stateIt == m_years.end())
-            stateIt = m_years.emplace(year, YearState{}).first;
+            stateIt = m_years.try_emplace(year).first;
         else if (stateIt->second.saved == entries)
             continue;
 
@@ -451,7 +561,15 @@ void CalendarController::persistBaselines()
     }
 
     const auto saved = m_store.saveBaselines(baselines);
-    reportSaveResult(saved ? std::nullopt : std::optional<stapik::storage::FileError>(saved.error()));
+    reportSaveResult(saved ? std::nullopt : std::optional(saved.error()));
+}
+
+void CalendarController::discardBaselinesOfPreviousCloud()
+{
+    for (auto &state: m_years | std::views::values)
+        state.baseline.reset();
+
+    persistBaselines();
 }
 
 void CalendarController::reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure)
@@ -475,32 +593,56 @@ void CalendarController::startCloud()
 
     m_cloudReady = false;
     m_availableYears.clear();
-    setStatus(LEGACY_STATUS_SOURCE, stapik::sync::SyncStatus::Syncing);
+    setStatus(CONNECTION_STATUS_SOURCE, stapik::sync::SyncStatus::Syncing);
 
     const bool migrate = m_legacyMigratedFor.get() != config->normalizedApiUrl();
 
-    if (!m_legacyRunner)
-        m_legacyRunner = std::make_unique<stapik::task::BackgroundTaskRunner>();
+    if (!m_probeRunner)
+        m_probeRunner = std::make_unique<stapik::task::BackgroundTaskRunner>();
 
-    // Reading the old single document is also what shows whether the address and the key work.
-    // It is only read, never written: the old document stays as it is for older versions of the application.
-    m_legacyRunner->submit(
-        [create = m_createStorage, config = *config]() -> LegacyRead
+    m_probeRunner->submit(
+        [create = m_createStorage, config = *config, migrate] { return probeCloud(create, config, migrate); },
+        [this, migrate](const std::optional<CloudProbe>& result) { onCloudProbed(result, migrate); });
+}
+
+template<std::invocable<const CloudStorageConfig&> StorageFactory>
+CalendarController::CloudProbe CalendarController::probeCloud(const StorageFactory& createStorage, const CloudStorageConfig& config, const bool readLegacyDocument)
+{
+    CloudProbe probe;
+    std::unique_ptr<ICloudStorage> storage;
+
+    try
+    {
+        storage = createStorage(config);
+        if (!storage)
         {
-            try
-            {
-                const auto storage = create(config);
-                if (!storage)
-                    return LegacyRead{ .ok = false, .document = std::nullopt, .message = "Cannot create the cloud client" };
+            probe.message = "Cannot create the cloud client";
+            return probe;
+        }
 
-                return LegacyRead{ .ok = true, .document = storage->loadDocument(), .message = {} };
-            }
-            catch (const CloudStorageException& exception)
-            {
-                return LegacyRead{ .ok = false, .document = std::nullopt, .message = exception.what() };
-            }
-        },
-        [this, migrate](const std::optional<LegacyRead> result) { onLegacyRead(result, migrate); });
+        probe.years = yearsOf(storage->listPartitions());
+        probe.ok = true;
+    }
+    catch (const CloudStorageException& exception)
+    {
+        probe.message = exception.what();
+        return probe;
+    }
+
+    if (!readLegacyDocument)
+        return probe;
+
+    try
+    {
+        probe.legacyDocument = storage->loadDocument();
+        probe.legacyRead = true;
+    }
+    catch (const CloudStorageException& exception)
+    {
+        stapik::log::warning("Cannot read the calendar document of older versions from the cloud; it is tried again at the next connection: {}", exception.what());
+    }
+
+    return probe;
 }
 
 void CalendarController::importLegacy(const std::optional<CloudDocument>& legacy)
@@ -519,9 +661,9 @@ void CalendarController::importLegacy(const std::optional<CloudDocument>& legacy
 
     try
     {
-        const auto envelope = stapik::sync::SyncEnvelope::fromJson(legacy->content);
-        document = CalendarDocument::fromJson(envelope.payload);
-        stamp = envelope.lastUpdate;
+        const auto [lastUpdate, payload] = stapik::sync::SyncEnvelope::fromJson(legacy->content);
+        document = CalendarDocument::fromJson(payload);
+        stamp = lastUpdate;
     }
     catch (const std::exception& exception)
     {
@@ -532,10 +674,8 @@ void CalendarController::importLegacy(const std::optional<CloudDocument>& legacy
     bool imported = false;
     for (const auto& [year, entries] : calendar_years::splitByYear(document->entries()))
     {
-        auto yearEntries = calendar_years::entriesOfYear(m_document.entries(), year);
-
         // What is here stays; what the old document has beyond it is added.
-        if (addMissingEntries(yearEntries, entries))
+        if (auto yearEntries = calendar_years::entriesOfYear(m_document.entries(), year); addMissingEntries(yearEntries, entries))
         {
             calendar_years::replaceYear(m_document.entries(), year, yearEntries);
             imported = true;
@@ -558,10 +698,11 @@ CalendarDocument CalendarController::yearDocument(const int year) const
 {
     const auto state = m_years.find(year);
 
-    return CalendarDocument(
+    return {
         calendar_years::entriesOfYear(m_document.entries(), year),
         state == m_years.end() ? TimePoint{} : state->second.lastUpdate,
-        state == m_years.end() ? std::nullopt : state->second.baseline);
+        state == m_years.end() ? std::nullopt : state->second.baseline
+    };
 }
 
 void CalendarController::ensureYearLoaded(const int year)
@@ -574,10 +715,9 @@ void CalendarController::ensureYearLoaded(const int year)
         return;
 
     const auto state = m_years.find(year);
-    const bool hasLocalEntries = state != m_years.end() && !state->second.saved.empty();
 
     // A year nobody has written anywhere is not created in the cloud just because it was looked at.
-    if (hasLocalEntries || m_availableYears.contains(year))
+    if (const bool hasLocalEntries = state != m_years.end() && !state->second.saved.empty(); hasLocalEntries || m_availableYears.contains(year))
         m_session.loadPartition(partition, yearDocument(year));
 }
 
@@ -604,11 +744,10 @@ void CalendarController::pushYears(const std::vector<int>& years)
         const auto partition = stapik::sync::partitionKeyForYear(year);
 
         const auto state = m_years.find(year);
-        const bool synchronizedBefore = state != m_years.end() && state->second.baseline.has_value();
 
         // A year this device never synchronized may exist in the cloud with entries it has not seen yet,
         // so it is resolved against the cloud first instead of being written over it.
-        if (m_session.isPartitionLoaded(partition) || synchronizedBefore)
+        if (const bool synchronizedBefore = state != m_years.end() && state->second.baseline.has_value(); m_session.isPartitionLoaded(partition) || synchronizedBefore)
             m_session.pushPartitionChange(partition, yearDocument(year));
         else if (m_cloudReady)
             m_session.loadPartition(partition, yearDocument(year));
@@ -622,8 +761,19 @@ void CalendarController::setStatus(const std::string& source, const std::optiona
     else
         m_statuses.erase(source);
 
+    updateCombinedStatus();
+}
+
+void CalendarController::clearStatuses()
+{
+    m_statuses.clear();
+    updateCombinedStatus();
+}
+
+void CalendarController::updateCombinedStatus()
+{
     auto combined = stapik::sync::SyncStatus::Idle;
-    for (const auto& [name, value] : m_statuses)
+    for (const auto &value: m_statuses | std::views::values)
     {
         if (statusSeverity(value) > statusSeverity(combined))
             combined = value;

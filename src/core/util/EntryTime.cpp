@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdio>
+#include <format>
 
 namespace
 {
@@ -72,7 +72,5 @@ std::optional<std::string> entry_time::normalize(std::string_view text)
     if (hour > MAX_HOUR || minute > MAX_MINUTE)
         return std::nullopt;
 
-    char buffer[8];
-    std::snprintf(buffer, sizeof(buffer), "%02d:%02d", hour, minute);
-    return std::string(buffer);
+    return std::format("{:02}:{:02}", hour, minute);
 }

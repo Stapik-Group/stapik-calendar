@@ -2,6 +2,13 @@
 
 ## Tastatur
 
+- `←` `→` — voriger / nächster Tag
+- `↑` `↓` — gleicher Wochentag in der vorigen / nächsten Woche
+- `Bild auf` `Bild ab` — voriger / nächster Monat
+- `Strg`+`Bild auf` `Strg`+`Bild ab` — voriges / nächstes Jahr
+- `Pos1` oder `Strg`+`T` — zu heute springen
+- `Eingabe` oder `Strg`+`N` — neuer Eintrag am ausgewählten Tag
+- `Strg`+`1` `Strg`+`2` `Strg`+`3` — Monats- / Wochen- / Tagesansicht
 - `Strg`+`Z` — Rückgängig
 - `Strg`+`Umschalt`+`Z` — Wiederholen
 - `Strg`+`Q` — Beenden

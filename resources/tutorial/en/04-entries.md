@@ -4,7 +4,7 @@
 
 Double-click an empty area of a day cell. The **New entry** window opens:
 
-- **Name** — required. Without a name the entry is not created.
+- **Name** — required. An empty name highlights the field in red, and **OK** stays inactive until you enter one.
 - **Link (optional)** — a web address that you can open later with one click.
 - **Time (optional)** — the hour of the event, for example `14:30`. `9:30`, `9.30` and `930` are understood too. A time that is not valid turns the field red and **OK** stays disabled until you fix or clear it.
 - **Location (optional)** — an address or a place, shown under the name of the entry.
@@ -16,7 +16,7 @@ Confirm with **OK**, or choose **Cancel** to discard.
 
 ## Quick add from the clipboard
 
-If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The **New entry** window opens at once with the address in the **Link** field, and the application fetches the title of the web page and puts it in the **Name** field. This needs an internet connection; if the title cannot be read, type the name yourself. Confirm with **OK**. When the clipboard does not contain a web address, nothing happens.
+If you copied a web address (starting with `http://` or `https://`), **right-click** a day. The **New entry** window opens at once with the address in the **Link** field. Type the name and confirm with **OK**. When the clipboard does not contain a web address, nothing happens.
 
 ## Opening a link
 

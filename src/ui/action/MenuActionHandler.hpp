@@ -1,4 +1,5 @@
 #pragma once
+#include <giomm/simpleaction.h>
 #include <gtkmm/applicationwindow.h>
 #include <sigc++/connection.h>
 
@@ -24,8 +25,11 @@ private:
     CalendarController& m_controller;
     std::function<void()> m_onSettingsRestored;
     sigc::connection m_connectionResult;
+    sigc::connection m_connectionChanged;
+    Glib::RefPtr<Gio::SimpleAction> m_disconnectAction;
 
     void onActionConnect() const;
+    void onActionDisconnect() const;
     void onActionQuit() const;
     void onActionSync() const;
     void onActionRestoreBackup() const;
@@ -34,4 +38,5 @@ private:
     void exportArchiveTo(const std::filesystem::path& target) const;
     void importArchiveFrom(const std::filesystem::path& source) const;
     void onConnectionResult(const ConnectionResult& result) const;
+    void updateDisconnectAvailability() const;
 };

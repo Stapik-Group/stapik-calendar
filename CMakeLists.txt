@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(stapikcalendar VERSION 1.3.3 LANGUAGES CXX)
+project(stapikcalendar VERSION 1.4.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,9 +14,9 @@ include(FetchContent)
 FetchContent_Declare(
         stapikcommon
         GIT_REPOSITORY https://github.com/Stapik-Group/stapik-common.git
-        GIT_TAG v1.5.6
+        GIT_TAG v1.6.0
         # Lets an installed stapik-common be used instead of a download; the Flatpak build has no network.
-        FIND_PACKAGE_ARGS 1.5.6
+        FIND_PACKAGE_ARGS 1.6.0
 )
 FetchContent_MakeAvailable(stapikcommon)
 
@@ -53,11 +53,12 @@ stapik_add_application(
                 src/core/command/MoveEntryCommand.cpp
                 src/core/util/UrlOpener.cpp
                 src/core/util/EntryTime.cpp
-                src/core/util/UrlTitleFetcher.cpp
                 src/core/util/ClipboardUrlDetector.cpp
                 src/core/util/DateUtils.cpp
+                src/core/util/WeekRules.cpp
                 src/core/util/EntryDragPayload.cpp
                 src/infrastructure/storage/CalendarDocumentStore.cpp
+                src/infrastructure/system/RegionalSettings.cpp
                 src/ui/SelfTest.cpp
                 src/ui/window/MainWindow.cpp
                 src/ui/action/MenuActionHandler.cpp
@@ -66,6 +67,8 @@ stapik_add_application(
                 src/ui/view/CalendarGrid.cpp
                 src/ui/view/CalendarHeader.cpp
                 src/ui/view/CalendarView.cpp
+                src/ui/view/CalendarWeekNumbers.cpp
+                src/ui/view/CalendarDatePicker.cpp
                 src/ui/view/CalendarNavBar.cpp
                 src/ui/widget/CalendarEntryWidget.cpp
                 src/ui/widget/EntryColorPickerWidget.cpp

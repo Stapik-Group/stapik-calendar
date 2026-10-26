@@ -37,7 +37,7 @@ When a cloud is configured, the bottom of the window shows the current state:
 - Syncing… — A synchronization is in progress.
 - Offline — The server cannot be reached. Your changes are safe on this computer, and the application retries by itself (first after 2 seconds, then less and less often, at most every 5 minutes).
 - Conflict: server version kept — The cloud held a newer version, and it replaced your local one (see *Conflicts*).
-- Sync error — The synchronization failed for another reason, for example the server rejected the request. Local data is not affected.
+- Sync error — The synchronization failed. Often retrying would not help, for example because the server rejected the API key, the encryption passphrase does not match or a year is too large for the server; a message then explains what to do. Local data is not affected.
 
 ![The status bar at the bottom of the window showing the synchronization state](images/sync-status.png)
 
@@ -54,10 +54,14 @@ Each year is compared separately as one document, and the newer version wins. En
 
 When the server version wins, it replaces the calendar on your computer and the undo history is cleared. By default Stapik Cloud keeps the replaced version in the document history, so it can be restored from the admin panel; restore it there and synchronize again.
 
+If you change a year while it is being synchronized, a message tells you if your change was replaced by a newer version from the cloud. The version from before is among the backups (**File → Restore from backup…**).
+
 > Tip for several devices: after you finish editing, wait for *Up to date* (or use *Sync*) before you switch to another computer.
 
 ## Changing the server or stopping synchronization
 
-To use another server or key, open **File → Connect to cloud** again and enter the new values. There is no disconnect button: to stop using the cloud, close the application and delete the file `~/.config/stapikcalendar/config.json`. Your local calendar is not affected.
+To use another server or key, open **File → Connect to cloud** again and enter the new values. To stop using the cloud, choose **File → Disconnect from cloud** and confirm. The address, the API key and the encryption passphrase are removed from this computer and the status bar disappears. Changes that are still waiting are sent first, which can take up to 3 seconds. Your local calendar and the calendar in the cloud are not affected, and you can connect again at any time.
 
-The API key is stored in that file in plain text, readable only by you, so keep your home directory protected.
+The API key and the encryption passphrase are kept in the system keyring. Only when no keyring is available are they stored in `~/.config/stapikcalendar/config.json` in plain text, readable only by you; the application tells you so after connecting, so keep your home directory protected.
+
+If the keyring cannot be read when the application starts (for example because it is locked), the application says so and does not connect. Unlock the keyring and restart the application, or enter the key again in **File → Connect to cloud**.

@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <format>
+#include <optional>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -15,7 +17,10 @@
 
 namespace
 {
-    constexpr std::string_view SCHEME_SEPARATOR = "://";
+    constexpr std::string_view AUTHORITY_MARKER = "//";
+    constexpr std::string_view PORT_TERMINATORS = "/?#";
+    constexpr std::string_view DIGITS = "0123456789";
+    constexpr std::size_t MAX_PORT_DIGITS = 5;
     constexpr std::string_view HTTP_SCHEME = "http";
     constexpr std::string_view HTTPS_SCHEME = "https";
     constexpr std::string_view DEFAULT_SCHEME_PREFIX = "https://";
@@ -55,6 +60,38 @@ namespace
             return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
         });
     }
+
+    bool isSchemeCharacter(const char character)
+    {
+        return std::isalnum(static_cast<unsigned char>(character)) != 0 || character == '+' || character == '-' || character == '.';
+    }
+
+    std::optional<std::size_t> schemeLength(const std::string_view link)
+    {
+        if (link.empty() || std::isalpha(static_cast<unsigned char>(link.front())) == 0)
+            return std::nullopt;
+
+        const auto end = std::ranges::find_if_not(link, isSchemeCharacter);
+        if (end == link.end() || *end != ':')
+            return std::nullopt;
+
+        return static_cast<std::size_t>(end - link.begin());
+    }
+
+    bool startsWithPort(const std::string_view text)
+    {
+        const auto digits = text.substr(0, text.find_first_not_of(DIGITS));
+        if (digits.empty() || digits.size() > MAX_PORT_DIGITS)
+            return false;
+
+        const auto following = text.substr(digits.size());
+        return following.empty() || PORT_TERMINATORS.find(following.front()) != std::string_view::npos;
+    }
+
+    bool isWebScheme(const std::string_view scheme)
+    {
+        return equalsIgnoreCase(scheme, HTTP_SCHEME) || equalsIgnoreCase(scheme, HTTPS_SCHEME);
+    }
 }
 
 std::optional<std::string> UrlOpener::normalize(std::string_view link)
@@ -67,11 +104,11 @@ std::optional<std::string> UrlOpener::normalize(std::string_view link)
     if (link.empty() || std::ranges::any_of(link, [](const char c) { return isBlank(c) || isControl(c); }))
         return std::nullopt;
 
-    const auto separator = link.find(SCHEME_SEPARATOR);
-    if (separator == std::string_view::npos)
-        return std::string(DEFAULT_SCHEME_PREFIX) + std::string(link);
+    const auto length = schemeLength(link);
+    if (!length.has_value() || startsWithPort(link.substr(*length + 1)))
+        return std::format("{}{}", DEFAULT_SCHEME_PREFIX, link);
 
-    if (const auto scheme = link.substr(0, separator); !equalsIgnoreCase(scheme, HTTP_SCHEME) && !equalsIgnoreCase(scheme, HTTPS_SCHEME))
+    if (const auto afterScheme = link.substr(*length + 1); !isWebScheme(link.substr(0, *length)) || !afterScheme.starts_with(AUTHORITY_MARKER) || afterScheme.size() == AUTHORITY_MARKER.size())
         return std::nullopt;
 
     return std::string(link);

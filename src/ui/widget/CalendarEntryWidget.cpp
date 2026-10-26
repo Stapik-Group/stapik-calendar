@@ -1,5 +1,7 @@
 #include "CalendarEntryWidget.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <gtkmm/gestureclick.h>
 #include <gdkmm/contentprovider.h>
 
@@ -8,6 +10,7 @@
 
 CalendarEntryWidget::CalendarEntryWidget(const CalendarEntry &entry) :
     Box(Gtk::Orientation::HORIZONTAL, 4),
+    m_entryId(entry.id),
     m_textBox(Gtk::Orientation::VERTICAL, 0),
     m_titleRow(Gtk::Orientation::HORIZONTAL, 4)
 {
@@ -58,6 +61,11 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
 
     m_deleteButton.set_label("✕");
     m_deleteButton.set_has_frame(false);
+
+    const auto deleteLabel = LocaleManager::instance().translate("entry.delete.label", { { "name", entry.name } });
+    m_deleteButton.set_tooltip_text(deleteLabel);
+    gtk_accessible_update_property(GTK_ACCESSIBLE(m_deleteButton.gobj()), GTK_ACCESSIBLE_PROPERTY_LABEL, deleteLabel.c_str(), -1);
+
     m_deleteButton.add_css_class("calendar-entry-delete");
     m_deleteButton.signal_clicked().connect([this] { m_signalDeleteRequested.emit(); });
 
@@ -137,21 +145,20 @@ void CalendarEntryWidget::initDragSource()
     m_dragSource = Gtk::DragSource::create();
     m_dragSource->set_actions(Gdk::DragAction::MOVE | Gdk::DragAction::COPY);
     m_dragSource->signal_prepare().connect(
-        [this](double, double) -> Glib::RefPtr<Gdk::ContentProvider>
+        [this](double, double)
         {
             const bool isCopy = (m_dragSource->get_current_event_state() & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
             Glib::Value<Glib::ustring> value;
             value.init(Glib::Value<Glib::ustring>::value_type());
-            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryIndex, isCopy));
+            value.set(EntryDragPayload::serialize(m_cellIndex, m_entryId, isCopy));
             return Gdk::ContentProvider::create(value);
         }, false);
     add_controller(m_dragSource);
 }
 
-void CalendarEntryWidget::setSourceLocator(const int cellIndex, const int entryIndex)
+void CalendarEntryWidget::setCellIndex(const int cellIndex)
 {
     m_cellIndex = cellIndex;
-    m_entryIndex = entryIndex;
 }
 
 sigc::signal<void()>& CalendarEntryWidget::signalLinkClicked()

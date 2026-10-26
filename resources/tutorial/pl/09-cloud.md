@@ -37,7 +37,7 @@ Gdy chmura jest skonfigurowana, u dołu okna widać bieżący stan:
 - Synchronizacja… — Trwa synchronizacja.
 - Offline — Nie można połączyć się z serwerem. Twoje zmiany są bezpieczne na tym komputerze, a aplikacja ponawia próby sama (pierwszą po 2 sekundach, potem coraz rzadziej, najwyżej co 5 minut).
 - Konflikt: zachowano wersję z serwera — W chmurze była nowsza wersja i zastąpiła Twoją lokalną (zobacz *Konflikty*).
-- Błąd synchronizacji — Synchronizacja nie powiodła się z innego powodu, na przykład serwer odrzucił żądanie. Dane lokalne pozostają nienaruszone.
+- Błąd synchronizacji — Synchronizacja nie powiodła się. Często ponawianie nic by nie dało, na przykład gdy serwer odrzucił klucz API, hasło szyfrowania się nie zgadza albo rok jest dla serwera za duży; wtedy komunikat podpowiada, co zrobić. Dane lokalne pozostają nienaruszone.
 
 ![Pasek stanu u dołu okna pokazujący stan synchronizacji](images/sync-status.png)
 
@@ -54,10 +54,14 @@ Każdy rok jest porównywany osobno jako jeden dokument i wygrywa nowsza wersja.
 
 Gdy wygrywa wersja z serwera, zastępuje dany rok na Twoim komputerze, a historia cofania jest czyszczona. Domyślnie Stapik Cloud zachowuje zastąpioną wersję w historii dokumentu, więc można ją przywrócić z panelu administracyjnego; przywróć ją tam i zsynchronizuj ponownie.
 
+Jeśli zmienisz rok w trakcie jego synchronizacji i zostanie on zastąpiony nowszą wersją z chmury, komunikat poinformuje Cię o tym. Poprzednia wersja jest wśród kopii zapasowych (**Plik → Przywróć z kopii zapasowej…**).
+
 > Wskazówka dla kilku urządzeń: po zakończeniu edycji poczekaj na stan *Aktualne* (albo użyj *Synchronizuj*), zanim przejdziesz na inny komputer.
 
 ## Zmiana serwera lub zakończenie synchronizacji
 
-Aby użyć innego serwera lub klucza, otwórz ponownie **Plik → Połącz z chmurą** i wpisz nowe wartości. Nie ma przycisku rozłączania: aby przestać korzystać z chmury, zamknij aplikację i usuń plik `~/.config/stapikcalendar/config.json`. Twój lokalny kalendarz nie zostanie naruszony.
+Aby użyć innego serwera lub klucza, otwórz ponownie **Plik → Połącz z chmurą** i wpisz nowe wartości. Aby przestać korzystać z chmury, wybierz **Plik → Odłącz od chmury** i potwierdź. Adres, klucz API i hasło szyfrowania zostaną usunięte z tego komputera, a pasek stanu zniknie. Zmiany, które jeszcze czekają, są najpierw wysyłane, co może potrwać do 3 sekund. Twój lokalny kalendarz i kalendarz w chmurze nie zostaną naruszone, a ponowne połączenie jest możliwe w każdej chwili.
 
-Klucz API jest zapisany w tym pliku jawnym tekstem i odczytać go możesz tylko Ty, więc dbaj o ochronę swojego katalogu domowego.
+Klucz API i hasło szyfrowania są przechowywane w systemowym schowku kluczy. Tylko gdy schowek nie jest dostępny, zapisywane są jawnym tekstem w `~/.config/stapikcalendar/config.json` i odczytać je możesz tylko Ty; aplikacja informuje o tym po połączeniu, więc dbaj o ochronę swojego katalogu domowego.
+
+Jeśli schowka kluczy nie da się odczytać przy uruchamianiu aplikacji (na przykład jest zablokowany), aplikacja informuje o tym i nie łączy się z chmurą. Odblokuj schowek i uruchom aplikację ponownie albo wpisz klucz jeszcze raz w **Plik → Połącz z chmurą**.
