@@ -92,20 +92,20 @@ namespace
 
         for (const auto& [date, dayEntries] : entries)
         {
-            for (const auto& entry : dayEntries)
+            for (const auto&[name, link, color, location, time, id, unknownFields] : dayEntries)
             {
                 nlohmann::json item{
                     { "date", serializeDate(date) },
-                    { "name", entry.name },
-                    { "link", entry.link },
-                    { "color", serializeColor(entry.color) },
-                    { "location", entry.location },
-                    { "time", entry.time },
-                    { "id", entry.id }
+                    { "name", name },
+                    { "link", link },
+                    { "color", serializeColor(color) },
+                    { "location", location },
+                    { "time", time },
+                    { "id", id }
                 };
 
-                if (!entry.unknownFields.empty())
-                    item.update(entry.unknownFields);
+                if (!unknownFields.empty())
+                    item.update(unknownFields);
 
                 json.push_back(std::move(item));
             }
@@ -130,13 +130,13 @@ namespace
     CalendarEntry entryFromJson(const nlohmann::json& item, std::set<EntryId>& usedIds)
     {
         return CalendarEntry{
-            item.at("name").get<std::string>(),
-            item.at("link").get<std::string>(),
-            stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
-            item.value("location", std::string{}),
-            item.value("time", std::string{}),
-            claimUniqueId(item.value("id", EntryId{}), usedIds),
-            unknownFieldsOf(item)
+            .name = item.at("name").get<std::string>(),
+            .link = item.at("link").get<std::string>(),
+            .color = stapik::domain::categoryColorFromId(item.value("color", std::string{DEFAULT_COLOR_ID})),
+            .location = item.value("location", std::string{}),
+            .time = item.value("time", std::string{}),
+            .id = claimUniqueId(item.value("id", EntryId{}), usedIds),
+            .unknownFields = unknownFieldsOf(item)
         };
     }
 
@@ -227,10 +227,10 @@ CalendarDocument CalendarDocument::fromJson(const nlohmann::json& json)
     // Legacy bare array (pre-sync file or old cloud payload): the timestamp is not part of it.
     const bool isLegacyArray = json.is_array();
 
-    auto parsed = entriesFromJson(isLegacyArray ? json : json.at("entries"));
+    auto [entries, skipped] = entriesFromJson(isLegacyArray ? json : json.at("entries"));
     const auto lastUpdate = isLegacyArray ? TimePoint{} : parseTimestamp(json.at("lastUpdate").get<std::string>());
 
-    CalendarDocument document(std::move(parsed.entries), lastUpdate);
-    document.m_skippedEntryCount = parsed.skipped;
+    CalendarDocument document(std::move(entries), lastUpdate);
+    document.m_skippedEntryCount = skipped;
     return document;
 }

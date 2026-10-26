@@ -7,6 +7,7 @@
 #include <gtkmm/adjustment.h>
 
 #include <algorithm>
+#include <format>
 #include <numeric>
 #include <string>
 
@@ -17,7 +18,7 @@ namespace
         indicator.set_visible(count > 0);
 
         if (count > 0)
-            indicator.set_text(arrow + " " + std::to_string(count));
+            indicator.set_text(std::format("{} {}", arrow, count));
     }
 }
 
@@ -226,9 +227,9 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
         m_entriesBox.remove(*child);
 
     // Entries with a time come first, in the order of the clock; the others follow in the order of adding.
-    std::vector<int> displayOrder(entries.size());
-    std::iota(displayOrder.begin(), displayOrder.end(), 0);
-    std::ranges::stable_sort(displayOrder, [&entries](const int left, const int right)
+    std::vector<std::size_t> displayOrder(entries.size());
+    std::iota(displayOrder.begin(), displayOrder.end(), std::size_t{0});
+    std::ranges::stable_sort(displayOrder, [&entries](const std::size_t left, const std::size_t right)
     {
         const auto& leftTime = entries[left].time;
         const auto& rightTime = entries[right].time;
@@ -239,7 +240,7 @@ void CalendarCell::refreshEntries(const std::vector<CalendarEntry>& entries)
         return leftTime < rightTime;
     });
 
-    for (const int i : displayOrder)
+    for (const std::size_t i : displayOrder)
     {
         const EntryId entryId = entries[i].id;
         auto* widget = Gtk::make_managed<CalendarEntryWidget>(entries[i]);
@@ -261,8 +262,11 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
     if (G_VALUE_TYPE(value.gobj()) != G_TYPE_STRING)
         return false;
 
-    const auto& stringValue = static_cast<const Glib::Value<Glib::ustring>&>(value);
-    const auto parsed = EntryDragPayload::deserialize(stringValue.get());
+    const gchar* text = g_value_get_string(value.gobj());
+    if (text == nullptr)
+        return false;
+
+    const auto parsed = EntryDragPayload::deserialize(Glib::ustring(text));
     if (!parsed.has_value())
         return false;
 

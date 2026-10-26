@@ -75,9 +75,10 @@ std::vector<int> CalendarView::weekNumbersOfView() const
 
     switch (m_viewMode)
     {
-    case ViewMode::Month: return weekNumbersOfMonth(year_month{m_selectedDate.year(), m_selectedDate.month()});
-    case ViewMode::Week:  return { m_weekRules.weekNumber(m_weekRules.startOfWeek(m_selectedDate)) };
-    case ViewMode::Day:   return {};
+        using enum ViewMode;
+        case Month: return weekNumbersOfMonth(year_month{m_selectedDate.year(), m_selectedDate.month()});
+        case Week:  return { m_weekRules.weekNumber(m_weekRules.startOfWeek(m_selectedDate)) };
+        case Day:   return {};
     }
 
     return {};
@@ -110,22 +111,21 @@ void CalendarView::initNavigation()
 
 bool CalendarView::handleKeyPress(const guint keyval, const Gdk::ModifierType state)
 {
-    const bool ctrl = (state & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
-
-    if (ctrl)
+    if ((state & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK)
     {
         switch (gdk_keyval_to_lower(keyval))
         {
-        case GDK_KEY_Page_Up:
-        case GDK_KEY_KP_Page_Up:   markDate(DateUtils::addYears(m_selectedDate, -1)); return true;
-        case GDK_KEY_Page_Down:
-        case GDK_KEY_KP_Page_Down: markDate(DateUtils::addYears(m_selectedDate, 1));  return true;
-        case GDK_KEY_t:         markDate(DateUtils::today());                      return true;
-        case GDK_KEY_1:         setViewMode(ViewMode::Month);                      return true;
-        case GDK_KEY_2:         setViewMode(ViewMode::Week);                       return true;
-        case GDK_KEY_3:         setViewMode(ViewMode::Day);                        return true;
-        case GDK_KEY_n:         m_grid.addEntryOn(m_selectedDate);                 return true;
-        default:                return false;
+            using enum ViewMode;
+            case GDK_KEY_Page_Up:
+            case GDK_KEY_KP_Page_Up:   markDate(DateUtils::addYears(m_selectedDate, -1)); return true;
+            case GDK_KEY_Page_Down:
+            case GDK_KEY_KP_Page_Down: markDate(DateUtils::addYears(m_selectedDate, 1));  return true;
+            case GDK_KEY_t:         markDate(DateUtils::today());                      return true;
+            case GDK_KEY_1:         setViewMode(Month);                      return true;
+            case GDK_KEY_2:         setViewMode(Week);                       return true;
+            case GDK_KEY_3:         setViewMode(Day);                        return true;
+            case GDK_KEY_n:         m_grid.addEntryOn(m_selectedDate);                 return true;
+            default:                return false;
         }
     }
 
@@ -170,10 +170,11 @@ std::chrono::year_month_day CalendarView::stepped(const int direction) const
 {
     switch (m_viewMode)
     {
-    case ViewMode::Week: return DateUtils::addDays(m_selectedDate, direction * WeekRules::DAYS_IN_WEEK);
-    case ViewMode::Day:  return DateUtils::addDays(m_selectedDate, direction);
-    case ViewMode::Month:
-        break;
+        using enum ViewMode;
+        case Week: return DateUtils::addDays(m_selectedDate, direction * WeekRules::DAYS_IN_WEEK);
+        case Day:  return DateUtils::addDays(m_selectedDate, direction);
+        case Month:
+            break;
     }
 
     return DateUtils::addMonths(m_selectedDate, direction);

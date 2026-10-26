@@ -30,8 +30,8 @@ private:
     int m_cellIndex = -1;
     EntryId m_entryId;
 
-    Gtk::Box m_textBox;
-    Gtk::Box m_titleRow;
+    Box m_textBox;
+    Box m_titleRow;
     Gtk::Label m_timeLabel;
     Gtk::Label m_nameLabel;
     Gtk::Label m_locationLabel;

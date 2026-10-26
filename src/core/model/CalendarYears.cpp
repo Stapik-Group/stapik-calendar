@@ -16,7 +16,7 @@ namespace calendar_years
         for (const auto& [date, dayEntries] : entries)
         {
             if (!dayEntries.empty())
-                years[yearOf(date)].emplace(date, dayEntries);
+                years[yearOf(date)].try_emplace(date, dayEntries);
         }
 
         return years;
@@ -32,7 +32,7 @@ namespace calendar_years
         for (auto it = first; it != last; ++it)
         {
             if (!it->second.empty())
-                result.emplace(it->first, it->second);
+                result.try_emplace(it->first, it->second);
         }
 
         return result;
@@ -59,7 +59,7 @@ namespace calendar_years
         for (const auto& [date, dayEntries] : replacement)
         {
             if (yearOf(date) == year && !dayEntries.empty())
-                entries.emplace(date, dayEntries);
+                entries.try_emplace(date, dayEntries);
         }
     }
 }

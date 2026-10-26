@@ -37,10 +37,10 @@ private:
     stapik::settings::ObservableSetting<bool>& m_showWeekNumbers;
 
     CalendarNavBar m_navBar;
-    Gtk::Box m_headerRow;
+    Box m_headerRow;
     Gtk::Label m_weekNumberTitle;
     CalendarHeader m_header;
-    Gtk::Box m_bodyRow;
+    Box m_bodyRow;
     CalendarWeekNumbers m_weekNumbers;
     CalendarGrid m_grid;
     sigc::connection m_showWeekNumbersConnection;

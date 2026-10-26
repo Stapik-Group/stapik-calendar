@@ -7,7 +7,6 @@
 #include <glibmm/main.h>
 #include <gtkmm/window.h>
 
-
 #include "../../core/util/DateUtils.hpp"
 
 CalendarGrid::CalendarGrid(CalendarController& controller, const WeekRules& weekRules) :
@@ -46,7 +45,7 @@ void CalendarGrid::initLayout()
     set_vexpand(true);
 
     for (int index = 0; index < TOTAL_CELLS; ++index)
-        m_cells[index].setCellIndex(index);
+        cellAt(index).setCellIndex(index);
 
     layoutCells();
 }
@@ -59,16 +58,17 @@ void CalendarGrid::layoutCells()
 
     switch (m_viewMode)
     {
-    case ViewMode::Month:
-        for (int index = 0; index < TOTAL_CELLS; ++index)
-            attach(m_cells[index], index % COLUMNS, index / COLUMNS);
-        break;
-    case ViewMode::Week:
-        for (int column = 0; column < COLUMNS; ++column)
-            attach(m_cells[column], column, 0);
-        break;
-    case ViewMode::Day:
-        attach(m_cells[0], 0, 0, COLUMNS, 1);
+        using enum ViewMode;
+        case Month:
+            for (int index = 0; index < TOTAL_CELLS; ++index)
+                attach(cellAt(index), index % COLUMNS, index / COLUMNS);
+            break;
+        case Week:
+            for (int column = 0; column < COLUMNS; ++column)
+                attach(cellAt(column), column, 0);
+            break;
+        case Day:
+            attach(m_cells[0], 0, 0, COLUMNS, 1);
         break;
     }
 }
@@ -77,14 +77,14 @@ void CalendarGrid::connectCellSignals()
 {
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
-        m_cells[i].signalClicked().connect([this, i] { onCellClicked(i); });
-        m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
-        m_cells[i].signalEntryLinkClicked().connect([this, i](const EntryId& entryId) { onEntryLinkClicked(i, entryId); });
-        m_cells[i].signalEditRequested().connect([this, i](const EntryId& entryId) { onEntryEditRequested(i, entryId); });
-        m_cells[i].signalDeleteRequested().connect([this, i](const EntryId& entryId) { onEntryDeleteRequested(i, entryId); });
-        m_cells[i].signalRightClicked().connect([this, i] { onCellRightClicked(i); });
-        m_cells[i].signalColorChangeRequested().connect([this, i](const EntryId& entryId, const EntryColor color) { onEntryColorChangeRequested(i, entryId, color); });
-        m_cells[i].signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const EntryId& entryId, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, entryId, i, isCopy); });
+        cellAt(i).signalClicked().connect([this, i] { onCellClicked(i); });
+        cellAt(i).signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
+        cellAt(i).signalEntryLinkClicked().connect([this, i](const EntryId& entryId) { onEntryLinkClicked(i, entryId); });
+        cellAt(i).signalEditRequested().connect([this, i](const EntryId& entryId) { onEntryEditRequested(i, entryId); });
+        cellAt(i).signalDeleteRequested().connect([this, i](const EntryId& entryId) { onEntryDeleteRequested(i, entryId); });
+        cellAt(i).signalRightClicked().connect([this, i] { onCellRightClicked(i); });
+        cellAt(i).signalColorChangeRequested().connect([this, i](const EntryId& entryId, const EntryColor color) { onEntryColorChangeRequested(i, entryId, color); });
+        cellAt(i).signalEntryMoveRequested().connect([this, i](const int sourceCellIndex, const EntryId& entryId, const bool isCopy) { onEntryMoveRequested(sourceCellIndex, entryId, i, isCopy); });
     }
 }
 
@@ -123,21 +123,21 @@ void CalendarGrid::updateCellDates()
 
     switch (m_viewMode)
     {
-    case ViewMode::Month:
-        for (int index = 0; index < TOTAL_CELLS; ++index)
-        {
-            const int day = index - firstWeekdayOffset() + 1;
-            if (day >= 1 && day <= daysInMonth())
-                m_cellDates[index] = m_currentYearMonth / day;
-        }
-        break;
-    case ViewMode::Week:
-        for (int column = 0; column < COLUMNS; ++column)
-            m_cellDates[column] = DateUtils::addDays(m_weekRules.startOfWeek(m_anchorDate), column);
-        break;
-    case ViewMode::Day:
-        m_cellDates[0] = m_anchorDate;
-        break;
+        using enum ViewMode;
+        case Month:
+            for (int index = 0; index < TOTAL_CELLS; ++index)
+            {
+                if (const int day = index - firstWeekdayOffset() + 1; day >= 1 && day <= daysInMonth())
+                    dateAt(index) = m_currentYearMonth / day;
+            }
+            break;
+        case Week:
+            for (int column = 0; column < COLUMNS; ++column)
+                dateAt(column) = DateUtils::addDays(m_weekRules.startOfWeek(m_anchorDate), column);
+            break;
+        case Day:
+            m_cellDates[0] = m_anchorDate;
+            break;
     }
 }
 
@@ -151,8 +151,8 @@ void CalendarGrid::populateCells()
 
 void CalendarGrid::populateCell(const int cellIndex)
 {
-    auto& cell = m_cells[cellIndex];
-    const auto& date = m_cellDates[cellIndex];
+    auto& cell = cellAt(cellIndex);
+    const auto& date = dateAt(cellIndex);
 
     cell.setWeekend(WeekRules::isWeekend(weekdayOfCell(cellIndex)));
 
@@ -175,7 +175,7 @@ void CalendarGrid::populateCell(const int cellIndex)
 
 Gtk::Window* CalendarGrid::windowForCell(const int cellIndex)
 {
-    if (!m_cellDates[cellIndex].has_value())
+    if (!dateAt(cellIndex).has_value())
         return nullptr;
 
     return dynamic_cast<Gtk::Window*>(get_root());
@@ -189,14 +189,14 @@ void CalendarGrid::addEntryOn(const std::chrono::year_month_day date)
 
 void CalendarGrid::onCellClicked(const int cellIndex)
 {
-    if (const auto& date = m_cellDates[cellIndex]; date.has_value())
+    if (const auto& date = dateAt(cellIndex); date.has_value())
         m_signalDaySelected.emit(*date);
 }
 
 void CalendarGrid::onCellDoubleClicked(const int cellIndex)
 {
     if (auto* window = windowForCell(cellIndex); window != nullptr)
-        showEntryDialog(*window, *m_cellDates[cellIndex], std::nullopt);
+        showEntryDialog(*window, *dateAt(cellIndex), std::nullopt);
 }
 
 void CalendarGrid::onEntryLinkClicked(const int cellIndex, const EntryId& entryId)
@@ -204,7 +204,7 @@ void CalendarGrid::onEntryLinkClicked(const int cellIndex, const EntryId& entryI
     if (windowForCell(cellIndex) == nullptr)
         return;
 
-    const auto* entry = m_controller.findEntry(*m_cellDates[cellIndex], entryId);
+    const auto* entry = m_controller.findEntry(*dateAt(cellIndex), entryId);
     if (entry == nullptr || entry->link.empty())
         return;
 
@@ -217,7 +217,7 @@ void CalendarGrid::onEntryEditRequested(const int cellIndex, const EntryId& entr
     if (window == nullptr)
         return;
 
-    const auto date = *m_cellDates[cellIndex];
+    const auto date = *dateAt(cellIndex);
     if (m_controller.findEntry(date, entryId) == nullptr)
         return;
 
@@ -226,7 +226,7 @@ void CalendarGrid::onEntryEditRequested(const int cellIndex, const EntryId& entr
 
 void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const EntryId& entryId)
 {
-    const auto& date = m_cellDates[cellIndex];
+    const auto& date = dateAt(cellIndex);
     if (!date.has_value())
         return;
 
@@ -240,8 +240,8 @@ void CalendarGrid::onEntryDeleteRequested(const int cellIndex, const EntryId& en
 
 void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const EntryId& entryId, const int destCellIndex, const bool isCopy)
 {
-    const auto& sourceDate = m_cellDates[sourceCellIndex];
-    const auto& destDate = m_cellDates[destCellIndex];
+    const auto& sourceDate = dateAt(sourceCellIndex);
+    const auto& destDate = dateAt(destCellIndex);
     if (!sourceDate.has_value() || !destDate.has_value())
         return;
 
@@ -257,8 +257,8 @@ void CalendarGrid::onEntryMoveRequested(const int sourceCellIndex, const EntryId
 }
 
 void CalendarGrid::showEntryDialog(Gtk::Window& window,
-                                   std::chrono::year_month_day date,
-                                   const std::optional<EntryId>& editId)
+                                   const std::chrono::year_month_day date,
+                                   const std::optional<EntryId>& editId) const
 {
     const auto* existing = editId.has_value() ? m_controller.findEntry(date, *editId) : nullptr;
 
@@ -282,7 +282,7 @@ void CalendarGrid::showEntryDialogForLink(const std::chrono::year_month_day date
 
 void CalendarGrid::presentEntryDialog(CalendarEntryDialog& entryDialog,
                                       const std::chrono::year_month_day date,
-                                      const std::optional<EntryId>& editId)
+                                      const std::optional<EntryId>& editId) const
 {
     auto* dialog = &entryDialog;
 
@@ -344,7 +344,7 @@ std::chrono::weekday CalendarGrid::weekdayOfCell(const int cellIndex) const
 
 void CalendarGrid::onCellRightClicked(const int cellIndex)
 {
-    const auto& date = m_cellDates[cellIndex];
+    const auto& date = dateAt(cellIndex);
     if (!date.has_value())
         return;
 
@@ -358,7 +358,7 @@ void CalendarGrid::onCellRightClicked(const int cellIndex)
 
 void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const EntryId& entryId, const EntryColor color)
 {
-    const auto& date = m_cellDates[cellIndex];
+    const auto& date = dateAt(cellIndex);
     if (!date.has_value())
         return;
 
@@ -367,4 +367,19 @@ void CalendarGrid::onEntryColorChangeRequested(const int cellIndex, const EntryI
     {
         m_controller.changeEntryColor(date, entryId, color);
     });
+}
+
+CalendarCell& CalendarGrid::cellAt(const int index)
+{
+    return m_cells[static_cast<std::size_t>(index)];
+}
+
+CalendarGrid::CellDate& CalendarGrid::dateAt(const int index)
+{
+    return m_cellDates[static_cast<std::size_t>(index)];
+}
+
+const CalendarGrid::CellDate& CalendarGrid::dateAt(const int index) const
+{
+    return m_cellDates[static_cast<std::size_t>(index)];
 }

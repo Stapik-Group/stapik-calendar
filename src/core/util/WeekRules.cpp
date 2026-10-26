@@ -31,9 +31,9 @@ int WeekRules::weekNumber(const std::chrono::year_month_day date) const
     const int referenceOffset = m_firstDay == Monday ? ISO_REFERENCE_OFFSET : LAST_DAY_OFFSET;
     const sys_days referenceDay = sys_days{startOfWeek(date)} + days{referenceOffset};
     const year referenceYear = year_month_day{referenceDay}.year();
-    const int dayOfYear = (referenceDay - sys_days{referenceYear / January / 1}).count() + 1;
+    const auto daysSinceYearStart = static_cast<int>((referenceDay - sys_days{referenceYear / January / 1}).count());
 
-    return (dayOfYear - 1) / DAYS_IN_WEEK + 1;
+    return daysSinceYearStart / DAYS_IN_WEEK + 1;
 }
 
 bool WeekRules::isWeekend(const std::chrono::weekday weekday)

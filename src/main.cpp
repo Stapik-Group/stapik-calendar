@@ -75,7 +75,7 @@ int main(int argumentCount, char *argv[])
 
     int selfTestFailures = 0;
 
-    app->signal_activate().connect([&]
+    app->signal_activate().connect([&app, selfTest, &selfTestFailures]
     {
         // Starting the program again activates the running one, which must not open a second window.
         if (const auto windows = app->get_windows(); !windows.empty())

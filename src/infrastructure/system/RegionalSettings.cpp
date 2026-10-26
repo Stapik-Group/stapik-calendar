@@ -1,7 +1,6 @@
 #include "RegionalSettings.hpp"
 
 #include <clocale>
-#include <cstdint>
 #include <optional>
 #include <string_view>
 
@@ -38,20 +37,19 @@ namespace
 
     std::optional<std::chrono::weekday> detectFirstDay()
     {
-        constexpr std::uintptr_t SUNDAY_ORIGIN = 19971130;
         constexpr std::uintptr_t MONDAY_ORIGIN = 19971201;
 
         if (isNeutralLocale())
             return std::nullopt;
 
         const auto origin = reinterpret_cast<std::uintptr_t>(nl_langinfo(_NL_TIME_WEEK_1STDAY));
-        const int firstWeekday = nl_langinfo(_NL_TIME_FIRST_WEEKDAY)[0];
+        const unsigned firstWeekday = static_cast<unsigned char>(nl_langinfo(_NL_TIME_FIRST_WEEKDAY)[0]);
 
-        if (origin != SUNDAY_ORIGIN && origin != MONDAY_ORIGIN)
+        if (constexpr std::uintptr_t SUNDAY_ORIGIN = 19971130; origin != SUNDAY_ORIGIN && origin != MONDAY_ORIGIN)
             return std::nullopt;
 
         const unsigned originWeekday = origin == MONDAY_ORIGIN ? 1 : 0;
-        return std::chrono::weekday{(originWeekday + static_cast<unsigned>(firstWeekday) - 1) % 7};
+        return std::chrono::weekday{(originWeekday + firstWeekday - 1) % 7};
     }
 #else
     std::optional<std::chrono::weekday> detectFirstDay()

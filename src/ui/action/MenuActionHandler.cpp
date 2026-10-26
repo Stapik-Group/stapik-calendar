@@ -216,7 +216,7 @@ void MenuActionHandler::onConnectionResult(const ConnectionResult& result) const
     }
 
     std::string text = loc.translate("cloud.connected.secondary");
-    if (m_controller.secretsKeptInPlainText())
+    if (CalendarController::secretsKeptInPlainText())
         text += "\n\n" + loc.translate("cloud.secretsInConfigFile");
 
     showMessageDialog(m_window, loc.translate("cloud.connected"), text);

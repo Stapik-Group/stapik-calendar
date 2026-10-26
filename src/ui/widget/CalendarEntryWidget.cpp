@@ -145,7 +145,7 @@ void CalendarEntryWidget::initDragSource()
     m_dragSource = Gtk::DragSource::create();
     m_dragSource->set_actions(Gdk::DragAction::MOVE | Gdk::DragAction::COPY);
     m_dragSource->signal_prepare().connect(
-        [this](double, double) -> Glib::RefPtr<Gdk::ContentProvider>
+        [this](double, double)
         {
             const bool isCopy = (m_dragSource->get_current_event_state() & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
             Glib::Value<Glib::ustring> value;

@@ -16,7 +16,7 @@ void CalendarHeader::initLayout()
     set_column_homogeneous(true);
     set_hexpand(true);
 
-    for (int i = 0; i < COLUMNS; i++)
+    for (std::size_t i = 0; i < COLUMNS; i++)
     {
         using enum Gtk::Align;
 
@@ -47,8 +47,8 @@ void CalendarHeader::layoutCells()
         return;
     }
 
-    for (int i = 0; i < COLUMNS; i++)
-        attach(m_cells[i], i, 0);
+    for (std::size_t i = 0; i < COLUMNS; i++)
+        attach(m_cells[i], static_cast<int>(i), 0);
 }
 
 void CalendarHeader::display(const ViewMode viewMode, const std::chrono::year_month_day selectedDate)
@@ -75,6 +75,6 @@ void CalendarHeader::refreshLabels()
         return;
     }
 
-    for (int i = 0; i < COLUMNS; i++)
-        m_labels[i].set_text(loc.translate(DAY_KEYS[m_weekRules.weekdayInColumn(i).c_encoding()]));
+    for (std::size_t i = 0; i < COLUMNS; i++)
+        m_labels[i].set_text(loc.translate(DAY_KEYS[m_weekRules.weekdayInColumn(static_cast<int>(i)).c_encoding()]));
 }

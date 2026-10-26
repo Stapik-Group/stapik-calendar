@@ -89,17 +89,16 @@ std::map<int, CalendarDocument> CalendarDocumentStore::loadYears() const
 
     for (const auto& [year, path] : findYearFiles())
     {
-        const auto result = createFile(path).load();
-
-        if (result.status == LoadStatus::Loaded && result.document.has_value())
+        using enum LoadStatus;
+        if (const auto result = createFile(path).load(); result.status == Loaded && result.document.has_value())
         {
             if (result.document->skippedEntryCount() > 0)
                 setAsideUnreadableEntries(year, path, *result.document);
 
-            years.emplace(year, *result.document);
+            years.try_emplace(year, *result.document);
         }
-        else if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
-            preserveUnreadableFile(path);
+        else if (result.status == NewerVersion || result.status == MigrationFailed)
+            static_cast<void>(preserveUnreadableFile(path));
     }
 
     return years;
@@ -138,9 +137,8 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentSto
     return stapik::archive::exportAppArchive(m_legacyFile, document, archiveContext(), target);
 }
 
-stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentStore::importArchive(
-    const std::filesystem::path& source,
-    const std::function<stapik::storage::FileResult(const CalendarDocument&)>& apply) const
+stapik::archive::ArchiveResult<CalendarDocumentStore::OpenedArchive> CalendarDocumentStore::openArchiveForImport(
+    const std::filesystem::path& source) const
 {
     const auto context = archiveContext();
 
@@ -155,8 +153,8 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentSto
         case Loaded:
             break;
         case NewerVersion:
-            return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Unsupported,
-                "The archive was made by a newer version of the application");
+        return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Unsupported,
+            "The archive was made by a newer version of the application");
         case Missing:
         case Corrupted:
         case MigrationFailed:
@@ -165,14 +163,14 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarDocumentSto
                 "The document in the archive cannot be read");
     }
 
-    if (const auto applied = apply(*loaded.document); !applied)
-        return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Io, applied.error().message());
+    return OpenedArchive{ .archive = std::move(*archive), .document = std::move(*loaded.document) };
+}
 
+void CalendarDocumentStore::restoreArchivedSettings(const stapik::archive::AppArchive& archive)
+{
     // The calendar is already stored here, so a failure to restore the settings is not an error of the import.
-    if (context.settings != nullptr)
-        static_cast<void>(archive->restoreSettings(*context.settings));
-
-    return archive->info();
+    if (const auto context = archiveContext(); context.settings != nullptr)
+        static_cast<void>(archive.restoreSettings(*context.settings));
 }
 
 std::filesystem::path CalendarDocumentStore::yearPath(const int year) const
@@ -192,7 +190,7 @@ std::map<int, std::filesystem::path> CalendarDocumentStore::findYearFiles() cons
         const auto name = it->path().filename().string();
 
         if (std::smatch match; std::regex_match(name, match, pattern))
-            files.emplace(std::stoi(match[1].str()), it->path());
+            files.try_emplace(std::stoi(match[1].str()));
     }
 
     return files;
@@ -211,7 +209,7 @@ void CalendarDocumentStore::migrateLegacyFile() const
     if (result.status != LoadStatus::Loaded || !result.document.has_value())
     {
         if (result.status == LoadStatus::NewerVersion || result.status == LoadStatus::MigrationFailed)
-            preserveUnreadableFile(legacyPath);
+            static_cast<void>(preserveUnreadableFile(legacyPath));
 
         // A corrupted file was already moved aside by the load. A file from a newer version stays where it is.
         return;
@@ -294,7 +292,7 @@ void CalendarDocumentStore::setAsideUnreadableEntries(const int year, const std:
         static_cast<void>(saveYear(year, document));
 }
 
-bool CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& path) const
+bool CalendarDocumentStore::preserveUnreadableFile(const std::filesystem::path& path)
 {
     const auto stamp = std::format("{:%Y%m%d-%H%M%S}", std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
     const auto target = std::filesystem::path(std::format("{}.unreadable-{}", path.string(), stamp));

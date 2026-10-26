@@ -9,7 +9,6 @@
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
-#include <gdk/gdk.h>
 #include <gtkmm/button.h>
 #include <gtkmm/editable.h>
 
@@ -27,11 +26,11 @@ namespace
     {
         switch (problem)
         {
-            case SyncProblem::AuthRejected: return { "sync.problem.title", "sync.problem.authRejected" };
-            case SyncProblem::DecryptionFailed: return { "sync.problem.title", "sync.problem.decryptionFailed" };
-            case SyncProblem::DocumentTooLarge: return { "sync.problem.title", "sync.problem.documentTooLarge" };
+            case SyncProblem::AuthRejected: return { .title = "sync.problem.title", .text = "sync.problem.authRejected" };
+            case SyncProblem::DecryptionFailed: return { .title = "sync.problem.title", .text = "sync.problem.decryptionFailed" };
+            case SyncProblem::DocumentTooLarge: return { .title = "sync.problem.title", .text = "sync.problem.documentTooLarge" };
             case SyncProblem::LocalChangeDiscarded:
-            default: return { "sync.discarded.title", "sync.discarded.text" };
+            default: return { .title = "sync.discarded.title", .text = "sync.discarded.text" };
         }
     }
 }
@@ -78,7 +77,7 @@ void MainWindow::init()
 
     signal_close_request().connect(sigc::mem_fun(*this, &MainWindow::onCloseRequest), false);
 
-    auto keyController = Gtk::EventControllerKey::create();
+    const auto keyController = Gtk::EventControllerKey::create();
     keyController->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
     keyController->signal_key_pressed().connect(
         [this](const guint keyval, const guint, const Gdk::ModifierType state) { return onKeyPressed(keyval, state); }, false);
@@ -92,8 +91,7 @@ bool MainWindow::onKeyPressed(const guint keyval, const Gdk::ModifierType state)
     if (dynamic_cast<const Gtk::Editable*>(focused) != nullptr)
         return false;
 
-    const bool activationKey = keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter;
-    if (activationKey && dynamic_cast<const Gtk::Button*>(focused) != nullptr)
+    if (const bool activationKey = keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter; activationKey && dynamic_cast<const Gtk::Button*>(focused) != nullptr)
         return false;
 
     return m_calendarView.handleKeyPress(keyval, state);
@@ -150,12 +148,13 @@ void MainWindow::initViewMenu()
 
     m_menu.addMenu("menu.view", [this](Gio::Menu& menu)
     {
+        using enum ViewMode;
         const auto& loc = LocaleManager::instance();
 
         const auto modeSection = Gio::Menu::create();
-        modeSection->append(loc.translate("menu.view.month"), m_viewModeAction->detailedAction(ViewMode::Month));
-        modeSection->append(loc.translate("menu.view.week"), m_viewModeAction->detailedAction(ViewMode::Week));
-        modeSection->append(loc.translate("menu.view.day"), m_viewModeAction->detailedAction(ViewMode::Day));
+        modeSection->append(loc.translate("menu.view.month"), m_viewModeAction->detailedAction(Month));
+        modeSection->append(loc.translate("menu.view.week"), m_viewModeAction->detailedAction(Week));
+        modeSection->append(loc.translate("menu.view.day"), m_viewModeAction->detailedAction(Day));
         menu.append_section(modeSection);
 
         const auto todaySection = Gio::Menu::create();
@@ -195,8 +194,8 @@ void MainWindow::initSyncProblems()
     m_syncProblemConnection = m_controller.signalSyncProblem().connect([this](const SyncProblemReport& report)
     {
         const auto& loc = LocaleManager::instance();
-        const auto texts = problemTexts(report.problem);
-        showMessageDialog(*this, loc.translate(texts.title), loc.translate(texts.text, { { "year", std::to_string(report.year) } }));
+        const auto [title, text] = problemTexts(report.problem);
+        showMessageDialog(*this, loc.translate(title), loc.translate(text, { { "year", std::to_string(report.year) } }));
     });
 }
 

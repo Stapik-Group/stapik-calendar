@@ -8,7 +8,6 @@
 #include "stapik/storage/FileError.hpp"
 
 #include <filesystem>
-#include <functional>
 #include <map>
 #include <optional>
 #include <vector>
@@ -38,16 +37,37 @@ public:
         const CalendarDocument& document, const std::filesystem::path& target) const;
     // Reads an archive made by exportArchive. `apply` stores the calendar from the archive; only when it succeeds
     // the settings are replaced in the settings store. Nothing is changed when reading the archive fails.
+    template<std::invocable<const CalendarDocument&> ApplyDocument>
     [[nodiscard]] stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> importArchive(
         const std::filesystem::path& source,
-        const std::function<stapik::storage::FileResult(const CalendarDocument&)>& apply) const;
+        const ApplyDocument& apply) const
+    {
+        auto imported = openArchiveForImport(source);
+        if (!imported)
+            return stapik::Failure(std::move(imported).error());
+
+        if (const auto applied = apply(imported->document); !applied)
+            return stapik::archive::archiveFailure(stapik::archive::ArchiveErrorKind::Io, applied.error().message());
+
+        restoreArchivedSettings(imported->archive);
+
+        return imported->archive.info();
+    }
 
 private:
+    struct OpenedArchive
+    {
+        stapik::archive::AppArchive archive;
+        CalendarDocument document;
+    };
+
     [[nodiscard]] std::filesystem::path yearPath(int year) const;
     [[nodiscard]] std::map<int, std::filesystem::path> findYearFiles() const;
     void migrateLegacyFile() const;
-    bool preserveUnreadableFile(const std::filesystem::path& path) const;
+    static bool preserveUnreadableFile(const std::filesystem::path& path) ;
     void setAsideUnreadableEntries(int year, const std::filesystem::path& path, const CalendarDocument& document) const;
+    [[nodiscard]] stapik::archive::ArchiveResult<OpenedArchive> openArchiveForImport(const std::filesystem::path& source) const;
+    static void restoreArchivedSettings(const stapik::archive::AppArchive& archive) ;
 
     std::filesystem::path m_directory;
     // Only used to read and write the single-document formats: the legacy file, backups and archives.

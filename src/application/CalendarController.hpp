@@ -26,6 +26,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <concepts>
 
 struct ConnectionResult
 {
@@ -90,7 +91,7 @@ public:
     [[nodiscard]] bool isConnected() const;
     [[nodiscard]] std::optional<CloudStorageConfig> savedCloudConfig() const;
     [[nodiscard]] bool cloudSecretsUnreadable() const;
-    [[nodiscard]] bool secretsKeptInPlainText() const;
+    [[nodiscard]] static bool secretsKeptInPlainText();
     [[nodiscard]] stapik::sync::SyncStatus syncStatus() const;
 
     sigc::signal<void()>& signalDocumentChanged();
@@ -145,7 +146,8 @@ private:
     void reportSaveResult(const std::optional<stapik::storage::FileError>& calendarFailure);
 
     void startCloud();
-    [[nodiscard]] static CloudProbe probeCloud(const std::function<std::unique_ptr<ICloudStorage>(const CloudStorageConfig&)>& createStorage, const CloudStorageConfig& config, bool readLegacyDocument);
+    template<std::invocable<const CloudStorageConfig&> StorageFactory>
+    [[nodiscard]] static CloudProbe probeCloud(const StorageFactory& createStorage, const CloudStorageConfig& config, bool readLegacyDocument);
     void importLegacy(const std::optional<CloudDocument>& legacy);
     void ensureYearLoaded(int year);
     void ensureYearsLoaded();

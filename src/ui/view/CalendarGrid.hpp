@@ -43,6 +43,12 @@ private:
     sigc::connection m_dayChangeConnection;
     sigc::signal<void(std::chrono::year_month_day)> m_signalDaySelected;
 
+        using CellDate = std::optional<std::chrono::year_month_day>;
+
+    [[nodiscard]] CalendarCell& cellAt(int index);
+    [[nodiscard]] CellDate& dateAt(int index);
+    [[nodiscard]] const CellDate& dateAt(int index) const;
+
     void initLayout();
     void layoutCells();
     void updateCellDates();
@@ -60,9 +66,9 @@ private:
     void onEntryColorChangeRequested(int cellIndex, const EntryId& entryId, EntryColor color);
     void onEntryMoveRequested(int sourceCellIndex, const EntryId& entryId, int destCellIndex, bool isCopy);
 
-    void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
+    void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, const std::optional<EntryId>& editId) const;
     void showEntryDialogForLink(std::chrono::year_month_day date, const std::string& url);
-    void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
+    void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, const std::optional<EntryId>& editId) const;
     [[nodiscard]] Gtk::Window* windowForCell(int cellIndex);
 
     int firstWeekdayOffset() const;

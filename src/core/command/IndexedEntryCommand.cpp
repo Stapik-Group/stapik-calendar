@@ -8,5 +8,10 @@ IndexedEntryCommand::IndexedEntryCommand(CalendarEntries& entries,
 
 std::vector<CalendarEntry>& IndexedEntryCommand::dayEntries() const
 {
-    return m_entries.at(m_date);
+    return calendarEntries().at(entryDate());
+}
+
+std::size_t IndexedEntryCommand::entryIndex() const
+{
+    return m_entryIndex;
 }

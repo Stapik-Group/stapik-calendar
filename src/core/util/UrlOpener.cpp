@@ -108,8 +108,7 @@ std::optional<std::string> UrlOpener::normalize(std::string_view link)
     if (!length.has_value() || startsWithPort(link.substr(*length + 1)))
         return std::format("{}{}", DEFAULT_SCHEME_PREFIX, link);
 
-    const auto afterScheme = link.substr(*length + 1);
-    if (!isWebScheme(link.substr(0, *length)) || !afterScheme.starts_with(AUTHORITY_MARKER) || afterScheme.size() == AUTHORITY_MARKER.size())
+    if (const auto afterScheme = link.substr(*length + 1); !isWebScheme(link.substr(0, *length)) || !afterScheme.starts_with(AUTHORITY_MARKER) || afterScheme.size() == AUTHORITY_MARKER.size())
         return std::nullopt;
 
     return std::string(link);

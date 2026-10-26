@@ -6,16 +6,16 @@ AddEntryCommand::AddEntryCommand(CalendarEntries& entries, const std::chrono::ye
 
 void AddEntryCommand::execute()
 {
-    m_entries[m_date].push_back(m_entry);
+    calendarEntries()[entryDate()].push_back(m_entry);
 }
 
 void AddEntryCommand::undo()
 {
-    auto& dayEntries = m_entries[m_date];
+    auto& dayEntries = calendarEntries()[entryDate()];
     dayEntries.pop_back();
 
     if (dayEntries.empty())
-        m_entries.erase(m_date);
+        calendarEntries().erase(entryDate());
 }
 
 std::string AddEntryCommand::description() const

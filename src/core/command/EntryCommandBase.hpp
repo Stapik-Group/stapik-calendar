@@ -13,6 +13,10 @@ protected:
 
     [[nodiscard]] static std::string describe(const std::string& key, const std::string& entryName);
 
+    [[nodiscard]] CalendarEntries& calendarEntries() const;
+    [[nodiscard]] std::chrono::year_month_day entryDate() const;
+
+private:
     CalendarEntries& m_entries;
     std::chrono::year_month_day m_date;
 };
