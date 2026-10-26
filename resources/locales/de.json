@@ -27,6 +27,7 @@
   "menu.settings.checkForUpdates": "Beim Start nach Updates suchen",
   "menu.settings.showWeekNumbers": "Kalenderwochen anzeigen",
   "calendar.weekNumber.title": "KW",
+  "nav.today": "Heute",
   "save.failed.title": "Der Kalender konnte nicht gespeichert werden",
   "save.failed.text": "Die letzten Änderungen sind noch nicht auf der Festplatte: {reason}. Der gesamte Kalender wird nach der nächsten Änderung erneut gespeichert. Besteht das Problem weiter, gehen diese Änderungen beim Schließen des Programms verloren.",
   "backup.restore.failed.title": "Die Sicherung konnte nicht wiederhergestellt werden",

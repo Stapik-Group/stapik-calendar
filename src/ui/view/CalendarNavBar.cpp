@@ -2,6 +2,7 @@
 #include "../../core/util/DateUtils.hpp"
 
 #include "stapik/domain/YearMonth.hpp"
+#include "stapik/locale/LocaleManager.hpp"
 
 CalendarNavBar::CalendarNavBar() :
     Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING),
@@ -9,6 +10,11 @@ CalendarNavBar::CalendarNavBar() :
 {
     initButtons();
     initLayout();
+}
+
+CalendarNavBar::~CalendarNavBar()
+{
+    m_localeConnection.disconnect();
 }
 
 void CalendarNavBar::initButtons()
@@ -22,6 +28,10 @@ void CalendarNavBar::initButtons()
     m_btnPrevMonth.signal_clicked().connect([this] { m_signalPrevMonth.emit(); });
     m_btnNextMonth.signal_clicked().connect([this] { m_signalNextMonth.emit(); });
     m_btnNextYear.signal_clicked().connect([this] { m_signalNextYear.emit(); });
+    m_btnToday.signal_clicked().connect([this] { m_signalToday.emit(); });
+
+    refreshTodayLabel();
+    m_localeConnection = LocaleManager::instance().signalLocaleChanged().connect(sigc::mem_fun(*this, &CalendarNavBar::refreshTodayLabel));
 
     m_monthPicker.signalMonthChanged().connect(sigc::mem_fun(*this, &CalendarNavBar::onMonthPicked));
 }
@@ -37,6 +47,14 @@ void CalendarNavBar::initLayout()
     append(m_monthPicker);
     append(m_btnNextMonth);
     append(m_btnNextYear);
+
+    m_btnToday.set_margin_start(TODAY_BUTTON_MARGIN);
+    append(m_btnToday);
+}
+
+void CalendarNavBar::refreshTodayLabel()
+{
+    m_btnToday.set_label(LocaleManager::instance().translate("nav.today"));
 }
 
 void CalendarNavBar::updateDisplay(const std::chrono::year_month yearMonth)
@@ -64,4 +82,5 @@ sigc::signal<void()>& CalendarNavBar::signalPrevYear()  { return m_signalPrevYea
 sigc::signal<void()>& CalendarNavBar::signalPrevMonth() { return m_signalPrevMonth; }
 sigc::signal<void()>& CalendarNavBar::signalNextMonth() { return m_signalNextMonth; }
 sigc::signal<void()>& CalendarNavBar::signalNextYear()  { return m_signalNextYear;  }
+sigc::signal<void()>& CalendarNavBar::signalToday()     { return m_signalToday;     }
 sigc::signal<void(std::chrono::year_month)>& CalendarNavBar::signalMonthSelected() { return m_signalMonthSelected; }

@@ -57,6 +57,7 @@ void CalendarGrid::connectCellSignals()
 {
     for (int i = 0; i < TOTAL_CELLS; ++i)
     {
+        m_cells[i].signalClicked().connect([this, i] { onCellClicked(i); });
         m_cells[i].signalDoubleClicked().connect([this, i] { onCellDoubleClicked(i); });
         m_cells[i].signalEntryLinkClicked().connect([this, i](const EntryId& entryId) { onEntryLinkClicked(i, entryId); });
         m_cells[i].signalEditRequested().connect([this, i](const EntryId& entryId) { onEntryEditRequested(i, entryId); });
@@ -67,10 +68,16 @@ void CalendarGrid::connectCellSignals()
     }
 }
 
-void CalendarGrid::displayMonth(const std::chrono::year_month yearMonth)
+void CalendarGrid::displayMonth(const std::chrono::year_month yearMonth, const std::optional<std::chrono::year_month_day> markedDate)
 {
     m_currentYearMonth = yearMonth;
+    m_markedDate = markedDate;
     populateCells();
+}
+
+sigc::signal<void(std::chrono::year_month_day)>& CalendarGrid::signalDaySelected()
+{
+    return m_signalDaySelected;
 }
 
 void CalendarGrid::refreshIfDayChanged()
@@ -103,6 +110,7 @@ void CalendarGrid::populateCells()
         {
             m_cells[i].setDay(day);
             m_cells[i].markAsToday(isToday(day));
+            m_cells[i].markAsSelected(m_markedDate == cellDate(day));
 
             if (const auto* entries = m_controller.entriesOn(cellDate(day)); entries != nullptr)
                 m_cells[i].setEntries(*entries);
@@ -119,6 +127,15 @@ Gtk::Window* CalendarGrid::validatedWindowForCell(const int cellIndex, int& outD
         return nullptr;
 
     return dynamic_cast<Gtk::Window*>(get_root());
+}
+
+void CalendarGrid::onCellClicked(const int cellIndex)
+{
+    const int day = cellDay(cellIndex);
+    if (day < 1 || day > daysInMonth())
+        return;
+
+    m_signalDaySelected.emit(cellDate(day));
 }
 
 void CalendarGrid::onCellDoubleClicked(const int cellIndex)

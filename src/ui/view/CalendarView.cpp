@@ -8,7 +8,7 @@
 CalendarView::CalendarView(CalendarController& controller, stapik::settings::ObservableSetting<bool>& showWeekNumbers) :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_controller(controller),
-    m_currentYearMonth(DateUtils::todayYearMonth()),
+    m_selectedDate(DateUtils::today()),
     m_weekRules(RegionalSettings::firstDayOfWeek()),
     m_showWeekNumbers(showWeekNumbers),
     m_headerRow(Gtk::Orientation::HORIZONTAL, 0),
@@ -86,43 +86,62 @@ void CalendarView::initNavigation()
     m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &CalendarView::navigatePrevMonth));
     m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &CalendarView::navigateNextMonth));
     m_navBar.signalNextYear().connect( sigc::mem_fun(*this, &CalendarView::navigateNextYear));
+    m_navBar.signalToday().connect(sigc::mem_fun(*this, &CalendarView::navigateToToday));
     m_navBar.signalMonthSelected().connect(sigc::mem_fun(*this, &CalendarView::navigateTo));
+    m_grid.signalDaySelected().connect(sigc::mem_fun(*this, &CalendarView::onDaySelected));
 }
 
 void CalendarView::navigatePrevYear()
 {
-    m_currentYearMonth = (m_currentYearMonth.year() - std::chrono::years{1}) / m_currentYearMonth.month();
-    refreshView();
+    selectDate(DateUtils::addYears(m_selectedDate, -1));
 }
 
 void CalendarView::navigatePrevMonth()
 {
-    m_currentYearMonth = m_currentYearMonth - std::chrono::months{1};
-    refreshView();
+    selectDate(DateUtils::addMonths(m_selectedDate, -1));
 }
 
 void CalendarView::navigateNextMonth()
 {
-    m_currentYearMonth = m_currentYearMonth + std::chrono::months{1};
-    refreshView();
+    selectDate(DateUtils::addMonths(m_selectedDate, 1));
 }
 
 void CalendarView::navigateNextYear()
 {
-    m_currentYearMonth = (m_currentYearMonth.year() + std::chrono::years{1}) / m_currentYearMonth.month();
-    refreshView();
+    selectDate(DateUtils::addYears(m_selectedDate, 1));
 }
 
 void CalendarView::navigateTo(const std::chrono::year_month yearMonth)
 {
-    m_currentYearMonth = yearMonth;
+    selectDate(DateUtils::inMonth(m_selectedDate, yearMonth));
+}
+
+void CalendarView::navigateToToday()
+{
+    selectDate(DateUtils::today());
+}
+
+void CalendarView::selectDate(const std::chrono::year_month_day date)
+{
+    m_selectedDate = date;
+    m_hasMarkedDay = false;
     refreshView();
+}
+
+void CalendarView::onDaySelected(const std::chrono::year_month_day date)
+{
+    m_selectedDate = date;
+    m_hasMarkedDay = true;
+    refreshView();
+    grab_focus();
 }
 
 void CalendarView::refreshView()
 {
-    m_controller.setDisplayedYear(static_cast<int>(m_currentYearMonth.year()));
-    m_navBar.updateDisplay(m_currentYearMonth);
-    m_weekNumbers.setWeekNumbers(weekNumbersOfMonth(m_currentYearMonth));
-    m_grid.displayMonth(m_currentYearMonth);
+    const std::chrono::year_month yearMonth{m_selectedDate.year(), m_selectedDate.month()};
+
+    m_controller.setDisplayedYear(static_cast<int>(m_selectedDate.year()));
+    m_navBar.updateDisplay(yearMonth);
+    m_weekNumbers.setWeekNumbers(weekNumbersOfMonth(yearMonth));
+    m_grid.displayMonth(yearMonth, m_hasMarkedDay ? std::optional{m_selectedDate} : std::nullopt);
 }

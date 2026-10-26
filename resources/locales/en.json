@@ -27,6 +27,7 @@
   "menu.settings.checkForUpdates": "Check for updates on startup",
   "menu.settings.showWeekNumbers": "Show week numbers",
   "calendar.weekNumber.title": "Wk",
+  "nav.today": "Today",
   "save.failed.title": "The calendar could not be saved",
   "save.failed.text": "Your latest changes are not on disk yet: {reason}. The whole calendar is saved again after the next change. If the problem remains, closing the program loses those changes.",
   "backup.restore.failed.title": "The backup could not be restored",

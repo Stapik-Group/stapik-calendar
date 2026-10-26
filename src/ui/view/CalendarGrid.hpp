@@ -6,6 +6,7 @@
 
 #include <gtkmm/grid.h>
 #include <sigc++/connection.h>
+#include <sigc++/signal.h>
 #include <array>
 #include <chrono>
 #include <optional>
@@ -19,7 +20,8 @@ public:
     CalendarGrid(CalendarController& controller, const WeekRules& weekRules);
     ~CalendarGrid() override;
 
-    void displayMonth(std::chrono::year_month yearMonth);
+    void displayMonth(std::chrono::year_month yearMonth, std::optional<std::chrono::year_month_day> markedDate);
+    sigc::signal<void(std::chrono::year_month_day)>& signalDaySelected();
 private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;
@@ -29,16 +31,19 @@ private:
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
     std::chrono::year_month m_currentYearMonth {};
     std::chrono::year_month_day m_today {};
+    std::optional<std::chrono::year_month_day> m_markedDate;
     CalendarController& m_controller;
     const WeekRules& m_weekRules;
     sigc::connection m_documentConnection;
     sigc::connection m_dayChangeConnection;
+    sigc::signal<void(std::chrono::year_month_day)> m_signalDaySelected;
 
     void initLayout();
     void populateCells();
     void refreshIfDayChanged();
     void connectCellSignals();
 
+    void onCellClicked(int cellIndex);
     void onCellDoubleClicked(int cellIndex);
     void onCellRightClicked(int cellIndex);
     void onEntryLinkClicked(int cellIndex, const EntryId& entryId);

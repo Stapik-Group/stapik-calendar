@@ -166,3 +166,8 @@ popover modelbutton * {
 .calendar-week-number {
     opacity: 0.6;
 }
+
+.selected {
+    outline: 2px solid #c55a11;
+    outline-offset: -2px;
+}

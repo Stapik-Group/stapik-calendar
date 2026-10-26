@@ -130,7 +130,11 @@ void CalendarCell::initGesture()
     m_gestureClick->set_button(LEFT_MOUSE_BUTTON);
     m_gestureClick->signal_pressed().connect(
         [this](const int nPress, const double x, const double y) {
-            if (nPress == DOUBLE_CLICK_COUNT && !isOverEntry(x, y)) m_signalDoubleClicked.emit();
+            if (nPress == SINGLE_CLICK_COUNT)
+                m_signalClicked.emit();
+
+            if (nPress == DOUBLE_CLICK_COUNT && !isOverEntry(x, y))
+                m_signalDoubleClicked.emit();
         });
 
     add_controller(m_gestureClick);
@@ -167,6 +171,7 @@ void CalendarCell::setAdjacentMonthDay(const int day)
     m_dayLabel.set_text(std::to_string(day));
     add_css_class("other-month");
     remove_css_class("today");
+    remove_css_class("selected");
     refreshEntries({});
 }
 
@@ -189,6 +194,14 @@ void CalendarCell::markAsToday(const bool isToday)
         add_css_class("today");
     else
         remove_css_class("today");
+}
+
+void CalendarCell::markAsSelected(const bool isSelected)
+{
+    if (isSelected)
+        add_css_class("selected");
+    else
+        remove_css_class("selected");
 }
 
 void CalendarCell::setEntries(const std::vector<CalendarEntry>& entries)
@@ -256,6 +269,11 @@ bool CalendarCell::onDrop(const Glib::ValueBase& value, double, double)
     const auto& [sourceCellIndex, sourceEntryId, isCopy] = parsed.value();
     m_signalEntryMoveRequested.emit(sourceCellIndex, sourceEntryId, isCopy);
     return true;
+}
+
+sigc::signal<void()>& CalendarCell::signalClicked()
+{
+    return m_signalClicked;
 }
 
 sigc::signal<void()>& CalendarCell::signalDoubleClicked()

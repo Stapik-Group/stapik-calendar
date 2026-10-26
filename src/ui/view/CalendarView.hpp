@@ -22,7 +22,8 @@ public:
     ~CalendarView() override;
 private:
     CalendarController& m_controller;
-    std::chrono::year_month m_currentYearMonth;
+    std::chrono::year_month_day m_selectedDate;
+    bool m_hasMarkedDay = false;
     WeekRules m_weekRules;
 
     stapik::settings::ObservableSetting<bool>& m_showWeekNumbers;
@@ -49,6 +50,9 @@ private:
     void navigateNextMonth();
     void navigateNextYear();
     void navigateTo(std::chrono::year_month yearMonth);
+    void navigateToToday();
+    void selectDate(std::chrono::year_month_day date);
+    void onDaySelected(std::chrono::year_month_day date);
 
     void refreshView();
 };
