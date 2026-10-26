@@ -9,6 +9,29 @@
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
+#include <string>
+
+namespace
+{
+    struct ProblemTexts
+    {
+        const char* title;
+        const char* text;
+    };
+
+    ProblemTexts problemTexts(const SyncProblem problem)
+    {
+        switch (problem)
+        {
+            case SyncProblem::AuthRejected: return { "sync.problem.title", "sync.problem.authRejected" };
+            case SyncProblem::DecryptionFailed: return { "sync.problem.title", "sync.problem.decryptionFailed" };
+            case SyncProblem::DocumentTooLarge: return { "sync.problem.title", "sync.problem.documentTooLarge" };
+            case SyncProblem::LocalChangeDiscarded:
+            default: return { "sync.discarded.title", "sync.discarded.text" };
+        }
+    }
+}
+
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
@@ -23,6 +46,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     initSettings();
     initSaveErrors();
     initApiKeyWarning();
+    initSyncProblems();
     init();
     initLayout();
     initSyncStatus();
@@ -34,6 +58,7 @@ MainWindow::~MainWindow()
     m_connectionChangedConnection.disconnect();
     m_saveFailedConnection.disconnect();
     m_apiKeyExpiringConnection.disconnect();
+    m_syncProblemConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -97,6 +122,16 @@ void MainWindow::initApiKeyWarning()
         const auto& loc = LocaleManager::instance();
         const auto date = stapik::locale::formatDate(stapik::locale::toLocalTime(expiresAt), loc.languageCode());
         showMessageDialog(*this, loc.translate("cloud.apiKeyExpiring.title"), loc.translate("cloud.apiKeyExpiring", { { "date", date } }));
+    });
+}
+
+void MainWindow::initSyncProblems()
+{
+    m_syncProblemConnection = m_controller.signalSyncProblem().connect([this](const SyncProblemReport& report)
+    {
+        const auto& loc = LocaleManager::instance();
+        const auto texts = problemTexts(report.problem);
+        showMessageDialog(*this, loc.translate(texts.title), loc.translate(texts.text, { { "year", std::to_string(report.year) } }));
     });
 }
 

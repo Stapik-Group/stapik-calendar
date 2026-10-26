@@ -35,6 +35,20 @@ struct ConnectionResult
 
 // Owns the calendar document, its undo history, local persistence and the cloud session.
 // It knows nothing about widgets: views read from it and report user intents to it.
+enum class SyncProblem
+{
+    AuthRejected,
+    DecryptionFailed,
+    DocumentTooLarge,
+    LocalChangeDiscarded
+};
+
+struct SyncProblemReport
+{
+    SyncProblem problem = SyncProblem::AuthRejected;
+    int year = 0;
+};
+
 class CalendarController
 {
 public:
@@ -81,6 +95,7 @@ public:
     sigc::signal<void(stapik::sync::SyncStatus)>& signalSyncStatusChanged();
     sigc::signal<void(const ConnectionResult&)>& signalConnectionResult();
     sigc::signal<void()>& signalConnectionChanged();
+    sigc::signal<void(const SyncProblemReport&)>& signalSyncProblem();
     // Emitted with the reason when saving to disk starts to fail; not repeated until a save succeeds again.
     sigc::signal<void(const std::string&)>& signalSaveFailed();
     // Emitted with the expiry time when the cloud reports that the API key is about to expire; once per reported time.
@@ -110,6 +125,7 @@ private:
     void onPartitionBaselineChanged(const std::string& partition, TimePoint baseline);
     void onPartitionStatusChanged(const std::string& partition, stapik::sync::SyncStatus status);
     void onAvailableYears(const std::optional<std::vector<int>>& years);
+    void onPartitionOutcome(const std::string& partition, const stapik::sync::SyncOutcome<CalendarDocument>& outcome);
     void onLegacyRead(const std::optional<LegacyRead>& result, bool migrate);
     void clearHistorySilently();
     CalendarDocument loadFromStore();
@@ -149,10 +165,12 @@ private:
     bool m_cloudReady = false;
     bool m_awaitingConnectionResult = false;
     bool m_saveFailed = false;
+    std::optional<SyncProblem> m_reportedProblem;
 
     sigc::signal<void(stapik::sync::SyncStatus)> m_signalSyncStatusChanged;
     sigc::signal<void()> m_signalDocumentChanged;
     sigc::signal<void(const ConnectionResult&)> m_signalConnectionResult;
     sigc::signal<void()> m_signalConnectionChanged;
+    sigc::signal<void(const SyncProblemReport&)> m_signalSyncProblem;
     sigc::signal<void(const std::string&)> m_signalSaveFailed;
 };

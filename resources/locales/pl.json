@@ -46,5 +46,11 @@
   "menu.file.disconnect": "Odłącz od chmury",
   "dialog.disconnect.title": "Odłączenie od chmury",
   "dialog.disconnect.message": "Adres chmury, klucz API i hasło szyfrowania zostaną usunięte z tego komputera, a synchronizacja się zatrzyma. Kalendarz na tym komputerze i w chmurze pozostanie bez zmian.",
-  "dialog.disconnect.button": "Odłącz"
+  "dialog.disconnect.button": "Odłącz",
+  "sync.problem.title": "Nie udało się zsynchronizować z chmurą",
+  "sync.problem.authRejected": "Chmura odrzuciła klucz API, więc Twoje zmiany nie są wysyłane. Kalendarz jest bezpieczny na tym komputerze. Utwórz nowy klucz w panelu chmury i wpisz go w Plik → Połącz z chmurą.",
+  "sync.problem.decryptionFailed": "Kalendarza z chmury nie da się odszyfrować hasłem zapisanym na tym komputerze, więc nie jest on ani odczytywany, ani zmieniany. Wpisz w Plik → Połącz z chmurą hasło używane na pozostałych urządzeniach. Kalendarz na tym komputerze pozostaje bez zmian.",
+  "sync.problem.documentTooLarge": "Kalendarz na rok {year} jest za duży dla serwera chmury i nie można go wysłać. Pozostaje na tym komputerze.",
+  "sync.discarded.title": "Zmiana została zastąpiona",
+  "sync.discarded.text": "Zmiana wprowadzona w roku {year} w trakcie synchronizacji została zastąpiona nowszą wersją z chmury. Wcześniejszą wersję znajdziesz w Plik → Przywróć z kopii zapasowej…"
 }

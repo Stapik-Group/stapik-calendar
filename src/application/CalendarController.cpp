@@ -39,6 +39,24 @@ namespace
         return 0;
     }
 
+    std::optional<SyncProblem> permanentProblemOf(const stapik::sync::SyncState state)
+    {
+        using enum stapik::sync::SyncState;
+        switch (state)
+        {
+            case AuthRejected: return SyncProblem::AuthRejected;
+            case DecryptionFailed: return SyncProblem::DecryptionFailed;
+            case DocumentTooLarge: return SyncProblem::DocumentTooLarge;
+            case Synchronized:
+            case OfflineKeptLocal:
+            case ServerWon:
+            case LostRaceAcceptedServer:
+            case RemoteUnreadable:
+            case LostRaceKeptLocal:
+            default: return std::nullopt;
+        }
+    }
+
     // Adds the entries of `source` that `target` does not have yet. Returns whether anything was added.
     bool addMissingEntries(CalendarEntries& target, const CalendarEntries& source)
     {
@@ -80,6 +98,7 @@ CalendarController::CalendarController(CalendarDocumentStore store, stapik::sync
     m_session.signalPartitionBaselineChanged().connect(sigc::mem_fun(*this, &CalendarController::onPartitionBaselineChanged));
     m_session.signalPartitionStatusChanged().connect(sigc::mem_fun(*this, &CalendarController::onPartitionStatusChanged));
     m_session.signalAvailableYears().connect(sigc::mem_fun(*this, &CalendarController::onAvailableYears));
+    m_session.signalPartitionOutcome().connect(sigc::mem_fun(*this, &CalendarController::onPartitionOutcome));
 
     if (m_session.isConnected())
         startCloud();
@@ -211,6 +230,7 @@ stapik::archive::ArchiveResult<stapik::archive::ArchiveInfo> CalendarController:
 void CalendarController::connect(const CloudStorageConfig& config)
 {
     m_awaitingConnectionResult = true;
+    m_reportedProblem.reset();
     m_statuses.clear();
     discardBaselinesOfPreviousCloud();
 
@@ -230,6 +250,7 @@ void CalendarController::disconnect()
 {
     m_legacyRunner.reset();
     m_awaitingConnectionResult = false;
+    m_reportedProblem.reset();
     m_session.disconnect();
 
     m_cloudReady = false;
@@ -290,6 +311,11 @@ sigc::signal<void(const ConnectionResult&)>& CalendarController::signalConnectio
 sigc::signal<void()>& CalendarController::signalConnectionChanged()
 {
     return m_signalConnectionChanged;
+}
+
+sigc::signal<void(const SyncProblemReport&)>& CalendarController::signalSyncProblem()
+{
+    return m_signalSyncProblem;
 }
 
 sigc::signal<void(const std::string&)>& CalendarController::signalSaveFailed()
@@ -360,6 +386,27 @@ void CalendarController::onAvailableYears(const std::optional<std::vector<int>>&
     }
 
     ensureYearsLoaded();
+}
+
+void CalendarController::onPartitionOutcome(const std::string& partition, const stapik::sync::SyncOutcome<CalendarDocument>& outcome)
+{
+    const auto year = stapik::sync::yearFromPartitionKey(partition);
+    if (!year)
+        return;
+
+    if (outcome.discardedLocalChange)
+        m_signalSyncProblem.emit(SyncProblemReport{ SyncProblem::LocalChangeDiscarded, *year });
+
+    if (const auto problem = permanentProblemOf(outcome.state))
+    {
+        if (std::exchange(m_reportedProblem, problem) != problem)
+            m_signalSyncProblem.emit(SyncProblemReport{ *problem, *year });
+
+        return;
+    }
+
+    if (outcome.state == stapik::sync::SyncState::Synchronized)
+        m_reportedProblem.reset();
 }
 
 void CalendarController::onLegacyRead(const std::optional<LegacyRead>& result, const bool migrate)

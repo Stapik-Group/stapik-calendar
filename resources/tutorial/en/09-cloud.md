@@ -37,7 +37,7 @@ When a cloud is configured, the bottom of the window shows the current state:
 - Syncing… — A synchronization is in progress.
 - Offline — The server cannot be reached. Your changes are safe on this computer, and the application retries by itself (first after 2 seconds, then less and less often, at most every 5 minutes).
 - Conflict: server version kept — The cloud held a newer version, and it replaced your local one (see *Conflicts*).
-- Sync error — The synchronization failed for another reason, for example the server rejected the request. Local data is not affected.
+- Sync error — The synchronization failed. Often retrying would not help, for example because the server rejected the API key, the encryption passphrase does not match or a year is too large for the server; a message then explains what to do. Local data is not affected.
 
 ![The status bar at the bottom of the window showing the synchronization state](images/sync-status.png)
 
@@ -53,6 +53,8 @@ When a cloud is configured, the bottom of the window shows the current state:
 Each year is compared separately as one document, and the newer version wins. Entries are never merged one by one. If you change the calendar on two computers while both are offline, the version that reaches the server later replaces the other.
 
 When the server version wins, it replaces the calendar on your computer and the undo history is cleared. By default Stapik Cloud keeps the replaced version in the document history, so it can be restored from the admin panel; restore it there and synchronize again.
+
+If you change a year while it is being synchronized, a message tells you if your change was replaced by a newer version from the cloud. The version from before is among the backups (**File → Restore from backup…**).
 
 > Tip for several devices: after you finish editing, wait for *Up to date* (or use *Sync*) before you switch to another computer.
 

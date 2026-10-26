@@ -46,5 +46,11 @@
   "menu.file.disconnect": "Von der Cloud trennen",
   "dialog.disconnect.title": "Von der Cloud trennen",
   "dialog.disconnect.message": "Die Cloud-Adresse, der API-Schlüssel und die Verschlüsselungs-Passphrase werden von diesem Computer entfernt und die Synchronisierung wird beendet. Ihr Kalender auf diesem Computer und in der Cloud bleibt unverändert.",
-  "dialog.disconnect.button": "Trennen"
+  "dialog.disconnect.button": "Trennen",
+  "sync.problem.title": "Die Cloud konnte nicht synchronisiert werden",
+  "sync.problem.authRejected": "Die Cloud hat den API-Schlüssel abgelehnt, daher werden Ihre Änderungen nicht gesendet. Ihr Kalender ist auf diesem Computer sicher. Erstellen Sie im Cloud-Panel einen neuen Schlüssel und geben Sie ihn unter Datei → Mit Cloud verbinden ein.",
+  "sync.problem.decryptionFailed": "Der Kalender in der Cloud lässt sich mit der auf diesem Computer gespeicherten Passphrase nicht entschlüsseln und wird daher weder gelesen noch geändert. Geben Sie unter Datei → Mit Cloud verbinden die Passphrase Ihrer anderen Geräte ein. Ihr Kalender auf diesem Computer bleibt unverändert.",
+  "sync.problem.documentTooLarge": "Der Kalender für {year} ist für den Cloud-Server zu groß und kann nicht gesendet werden. Er bleibt auf diesem Computer.",
+  "sync.discarded.title": "Eine Änderung wurde ersetzt",
+  "sync.discarded.text": "Eine Änderung, die Sie in {year} während der Synchronisierung vorgenommen haben, wurde durch eine neuere Version aus der Cloud ersetzt. Die frühere Version finden Sie unter Datei → Aus Sicherung wiederherstellen…"
 }

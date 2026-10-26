@@ -37,7 +37,7 @@ Gdy chmura jest skonfigurowana, u dołu okna widać bieżący stan:
 - Synchronizacja… — Trwa synchronizacja.
 - Offline — Nie można połączyć się z serwerem. Twoje zmiany są bezpieczne na tym komputerze, a aplikacja ponawia próby sama (pierwszą po 2 sekundach, potem coraz rzadziej, najwyżej co 5 minut).
 - Konflikt: zachowano wersję z serwera — W chmurze była nowsza wersja i zastąpiła Twoją lokalną (zobacz *Konflikty*).
-- Błąd synchronizacji — Synchronizacja nie powiodła się z innego powodu, na przykład serwer odrzucił żądanie. Dane lokalne pozostają nienaruszone.
+- Błąd synchronizacji — Synchronizacja nie powiodła się. Często ponawianie nic by nie dało, na przykład gdy serwer odrzucił klucz API, hasło szyfrowania się nie zgadza albo rok jest dla serwera za duży; wtedy komunikat podpowiada, co zrobić. Dane lokalne pozostają nienaruszone.
 
 ![Pasek stanu u dołu okna pokazujący stan synchronizacji](images/sync-status.png)
 
@@ -53,6 +53,8 @@ Gdy chmura jest skonfigurowana, u dołu okna widać bieżący stan:
 Każdy rok jest porównywany osobno jako jeden dokument i wygrywa nowsza wersja. Wpisy nigdy nie są łączone pojedynczo. Jeśli zmienisz kalendarz na dwóch komputerach, gdy oba są offline, wersja, która później dotrze do serwera, zastąpi drugą.
 
 Gdy wygrywa wersja z serwera, zastępuje dany rok na Twoim komputerze, a historia cofania jest czyszczona. Domyślnie Stapik Cloud zachowuje zastąpioną wersję w historii dokumentu, więc można ją przywrócić z panelu administracyjnego; przywróć ją tam i zsynchronizuj ponownie.
+
+Jeśli zmienisz rok w trakcie jego synchronizacji i zostanie on zastąpiony nowszą wersją z chmury, komunikat poinformuje Cię o tym. Poprzednia wersja jest wśród kopii zapasowych (**Plik → Przywróć z kopii zapasowej…**).
 
 > Wskazówka dla kilku urządzeń: po zakończeniu edycji poczekaj na stan *Aktualne* (albo użyj *Synchronizuj*), zanim przejdziesz na inny komputer.
 

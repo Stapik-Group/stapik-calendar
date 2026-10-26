@@ -37,7 +37,7 @@ Ist eine Cloud eingerichtet, zeigt der untere Fensterrand den aktuellen Zustand:
 - Synchronisiere… — Eine Synchronisierung läuft.
 - Offline — Der Server ist nicht erreichbar. Ihre Änderungen sind auf diesem Computer sicher, und die Anwendung versucht es selbstständig erneut (zuerst nach 2 Sekunden, dann immer seltener, höchstens alle 5 Minuten).
 - Konflikt: Serverversion beibehalten — In der Cloud lag eine neuere Version, die Ihre lokale ersetzt hat (siehe *Konflikte*).
-- Synchronisierungsfehler — Die Synchronisierung ist aus einem anderen Grund fehlgeschlagen, zum Beispiel weil der Server die Anfrage abgelehnt hat. Lokale Daten bleiben unberührt.
+- Synchronisierungsfehler — Die Synchronisierung ist fehlgeschlagen. Oft würde ein erneuter Versuch nichts nützen, etwa weil der Server den API-Schlüssel abgelehnt hat, die Verschlüsselungs-Passphrase nicht passt oder ein Jahr für den Server zu groß ist; eine Meldung erklärt dann, was zu tun ist. Lokale Daten bleiben unberührt.
 
 ![Die Statusleiste am unteren Fensterrand mit dem Synchronisierungsstatus](images/sync-status.png)
 
@@ -53,6 +53,8 @@ Ist eine Cloud eingerichtet, zeigt der untere Fensterrand den aktuellen Zustand:
 Jedes Jahr wird einzeln als ein Dokument verglichen, und die neuere Version gewinnt. Einträge werden nie einzeln zusammengeführt. Ändern Sie den Kalender auf zwei Computern, während beide offline sind, ersetzt die Version, die später den Server erreicht, die andere.
 
 Gewinnt die Serverversion, ersetzt sie den Kalender auf Ihrem Computer, und der Rückgängig-Verlauf wird geleert. Standardmäßig bewahrt Stapik Cloud die ersetzte Version im Dokumentverlauf auf, sodass sie im Admin-Panel wiederhergestellt werden kann; stellen Sie sie dort wieder her und synchronisieren Sie erneut.
+
+Wenn Sie ein Jahr während seiner Synchronisierung ändern und es durch eine neuere Version aus der Cloud ersetzt wird, teilt Ihnen eine Meldung dies mit. Die frühere Version befindet sich unter den Sicherungen (**Datei → Aus Sicherung wiederherstellen…**).
 
 > Tipp für mehrere Geräte: Warten Sie nach dem Bearbeiten auf *Aktuell* (oder verwenden Sie *Synchronisieren*), bevor Sie zu einem anderen Computer wechseln.
 

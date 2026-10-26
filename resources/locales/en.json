@@ -46,5 +46,11 @@
   "menu.file.disconnect": "Disconnect from cloud",
   "dialog.disconnect.title": "Disconnect from cloud",
   "dialog.disconnect.message": "The cloud address, the API key and the encryption passphrase will be removed from this computer and synchronization will stop. Your calendar on this computer and in the cloud stays as it is.",
-  "dialog.disconnect.button": "Disconnect"
+  "dialog.disconnect.button": "Disconnect",
+  "sync.problem.title": "The cloud could not be synchronized",
+  "sync.problem.authRejected": "The cloud rejected the API key, so your changes are not being sent. Your calendar is safe on this computer. Create a new key in the cloud panel and enter it in File → Connect to cloud.",
+  "sync.problem.decryptionFailed": "The calendar in the cloud cannot be decrypted with the passphrase saved on this computer, so it is neither read nor changed. Enter the passphrase used on your other devices in File → Connect to cloud. Your calendar on this computer is not affected.",
+  "sync.problem.documentTooLarge": "The calendar for {year} is too large for the cloud server and cannot be sent. It stays on this computer.",
+  "sync.discarded.title": "A change was replaced",
+  "sync.discarded.text": "A change you made in {year} while it was being synchronized was replaced by a newer version from the cloud. The earlier version is available in File → Restore from backup…"
 }
