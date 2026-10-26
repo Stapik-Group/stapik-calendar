@@ -10,6 +10,7 @@
   "dialog.entry.edit.title": "Edit entry",
   "dialog.entry.name.label": "Name:",
   "dialog.entry.name.placeholder": "Enter name...",
+  "dialog.entry.name.required": "The name cannot be empty.",
   "dialog.entry.link.label": "Link (optional):",
   "dialog.entry.link.placeholder": "https://...",
   "dialog.entry.time.label": "Time (optional):",

@@ -223,13 +223,14 @@ void CalendarGrid::presentEntryDialog(CalendarEntryDialog& entryDialog,
     {
         if (responseId == Gtk::ResponseType::OK)
         {
-            if (auto result = dialog->getResult(); result.has_value())
-            {
-                if (editId.has_value())
-                    m_controller.saveEditedEntry(date, *editId, std::move(result.value()));
-                else
-                    m_controller.addEntry(date, std::move(result.value()));
-            }
+            auto result = dialog->getResult();
+            if (!result.has_value())
+                return;
+
+            if (editId.has_value())
+                m_controller.saveEditedEntry(date, *editId, std::move(result.value()));
+            else
+                m_controller.addEntry(date, std::move(result.value()));
         }
         dialog->hide();
     });

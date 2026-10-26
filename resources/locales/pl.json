@@ -10,6 +10,7 @@
   "dialog.entry.edit.title": "Edytuj wpis",
   "dialog.entry.name.label": "Nazwa:",
   "dialog.entry.name.placeholder": "Wpisz nazwę...",
+  "dialog.entry.name.required": "Nazwa nie może być pusta.",
   "dialog.entry.link.label": "Link (opcjonalny):",
   "dialog.entry.link.placeholder": "https://...",
   "dialog.entry.time.label": "Godzina (opcjonalna):",

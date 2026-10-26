@@ -36,7 +36,9 @@ private:
     Gtk::Label m_colorLabel;
     EntryColorPickerWidget m_colorPicker;
     Glib::RefPtr<Gtk::SizeGroup> m_buttonSizeGroup;
+    bool m_nameEdited = false;
 
     void initLayout();
-    void onTimeChanged();
+    void onNameChanged();
+    void refreshValidation();
 };

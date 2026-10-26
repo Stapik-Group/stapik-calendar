@@ -4,7 +4,7 @@
 
 Doppelklicken Sie auf eine leere Stelle einer Tageszelle. Das Fenster **Neuer Eintrag** öffnet sich:
 
-- **Name** — erforderlich. Ohne Namen wird der Eintrag nicht angelegt.
+- **Name** — erforderlich. Ein leerer Name markiert das Feld rot, und **OK** bleibt inaktiv, bis Sie einen eingeben.
 - **Link (optional)** — eine Webadresse, die Sie später mit einem Klick öffnen können.
 - **Uhrzeit (optional)** — die Uhrzeit des Termins, zum Beispiel `14:30`. Auch `9:30`, `9.30` und `930` werden verstanden. Eine ungültige Uhrzeit färbt das Feld rot, und **OK** bleibt deaktiviert, bis Sie sie korrigieren oder löschen.
 - **Ort (optional)** — eine Adresse oder ein Ort, der unter dem Namen des Eintrags angezeigt wird.

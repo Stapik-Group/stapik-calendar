@@ -4,7 +4,7 @@
 
 Kliknij dwukrotnie puste miejsce w komórce dnia. Otworzy się okno **Nowy wpis**:
 
-- **Nazwa** — wymagana. Bez nazwy wpis nie zostanie utworzony.
+- **Nazwa** — wymagana. Pusta nazwa podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie wpiszesz.
 - **Link (opcjonalny)** — adres strony internetowej, który później otworzysz jednym kliknięciem.
 - **Godzina (opcjonalna)** — godzina wydarzenia, na przykład `14:30`. Zrozumiałe są też `9:30`, `9.30` i `930`. Nieprawidłowa godzina podświetla pole na czerwono, a **OK** pozostaje nieaktywne, dopóki jej nie poprawisz lub nie wyczyścisz.
 - **Miejsce (opcjonalne)** — adres lub miejsce, wyświetlane pod nazwą wpisu.
