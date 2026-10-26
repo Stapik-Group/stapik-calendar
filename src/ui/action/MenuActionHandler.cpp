@@ -150,6 +150,7 @@ void MenuActionHandler::onActionImportArchive() const
 
     const FileDialogOptions options{
         .title = loc.translate("archive.import.title"),
+        .initialName = {},
         .lastDirectoryKey = ARCHIVE_DIRECTORY_KEY };
 
     showOpenFileDialog(m_window, options, [this](const std::filesystem::path& source)
