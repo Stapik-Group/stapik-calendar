@@ -23,6 +23,7 @@
   "command.entry.edit": "Eintrag „{name}“ bearbeiten",
   "command.entry.delete": "Eintrag „{name}“ löschen",
   "command.entry.move": "Eintrag „{name}“ verschieben",
+  "entry.delete.label": "Eintrag „{name}“ löschen",
   "menu.settings.checkForUpdates": "Beim Start nach Updates suchen",
   "save.failed.title": "Der Kalender konnte nicht gespeichert werden",
   "save.failed.text": "Die letzten Änderungen sind noch nicht auf der Festplatte: {reason}. Der gesamte Kalender wird nach der nächsten Änderung erneut gespeichert. Besteht das Problem weiter, gehen diese Änderungen beim Schließen des Programms verloren.",

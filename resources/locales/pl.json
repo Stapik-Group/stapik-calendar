@@ -23,6 +23,7 @@
   "command.entry.edit": "edycja wpisu „{name}”",
   "command.entry.delete": "usunięcie wpisu „{name}”",
   "command.entry.move": "przeniesienie wpisu „{name}”",
+  "entry.delete.label": "Usuń wpis „{name}”",
   "menu.settings.checkForUpdates": "Sprawdzaj aktualizacje przy uruchomieniu",
   "save.failed.title": "Nie udało się zapisać kalendarza",
   "save.failed.text": "Ostatnie zmiany nie są jeszcze na dysku: {reason}. Cały kalendarz zostanie zapisany ponownie po kolejnej zmianie. Jeśli problem nie ustąpi, zamknięcie programu spowoduje utratę tych zmian.",

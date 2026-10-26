@@ -1,5 +1,7 @@
 #include "CalendarEntryWidget.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <gtkmm/gestureclick.h>
 #include <gdkmm/contentprovider.h>
 
@@ -59,6 +61,11 @@ void CalendarEntryWidget::initLayout(const CalendarEntry &entry)
 
     m_deleteButton.set_label("✕");
     m_deleteButton.set_has_frame(false);
+
+    const auto deleteLabel = LocaleManager::instance().translate("entry.delete.label", { { "name", entry.name } });
+    m_deleteButton.set_tooltip_text(deleteLabel);
+    gtk_accessible_update_property(GTK_ACCESSIBLE(m_deleteButton.gobj()), GTK_ACCESSIBLE_PROPERTY_LABEL, deleteLabel.c_str(), -1);
+
     m_deleteButton.add_css_class("calendar-entry-delete");
     m_deleteButton.signal_clicked().connect([this] { m_signalDeleteRequested.emit(); });
 
