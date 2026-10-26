@@ -4,6 +4,7 @@
 #include "../core/command/DeleteEntryCommand.hpp"
 #include "../core/command/EditEntryCommand.hpp"
 #include "../core/command/MoveEntryCommand.hpp"
+#include "../core/util/DateUtils.hpp"
 
 #include "stapik/app/AppContext.hpp"
 #include "stapik/cloud/CloudStorageException.hpp"
@@ -87,6 +88,7 @@ namespace
 CalendarController::CalendarController(CalendarDocumentStore store, stapik::sync::CloudSessionHooks hooks) :
     m_store(std::move(store)),
     m_document(loadFromStore()),
+    m_displayedYear(static_cast<int>(DateUtils::today().year())),
     m_loadCloudConfig(hooks.loadConfig),
     m_createStorage(hooks.createStorage),
     m_legacyMigratedFor(stapik::app::AppContext::instance().settings(), LEGACY_MIGRATED_KEY, std::string{}),

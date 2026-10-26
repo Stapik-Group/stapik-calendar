@@ -18,6 +18,13 @@ CalendarGrid::CalendarGrid(CalendarController& controller) :
     m_currentYearMonth = DateUtils::todayYearMonth();
 
     m_documentConnection = m_controller.signalDocumentChanged().connect(sigc::mem_fun(*this, &CalendarGrid::populateCells));
+    m_dayChangeConnection = Glib::signal_timeout().connect_seconds(
+        [this]
+        {
+            refreshIfDayChanged();
+            return true;
+        },
+        DAY_CHANGE_CHECK_SECONDS);
 
     initLayout();
     connectCellSignals();
@@ -27,6 +34,7 @@ CalendarGrid::CalendarGrid(CalendarController& controller) :
 CalendarGrid::~CalendarGrid()
 {
     m_documentConnection.disconnect();
+    m_dayChangeConnection.disconnect();
 }
 
 void CalendarGrid::initLayout()
@@ -66,8 +74,16 @@ void CalendarGrid::displayMonth(const std::chrono::year_month yearMonth)
     populateCells();
 }
 
+void CalendarGrid::refreshIfDayChanged()
+{
+    if (DateUtils::today() != m_today)
+        populateCells();
+}
+
 void CalendarGrid::populateCells()
 {
+    m_today = DateUtils::today();
+
     const int offset  = firstWeekdayOffset();
     const int numDays = daysInMonth();
     const int numDaysPreviousMonth = daysInPreviousMonth();
@@ -295,7 +311,7 @@ int CalendarGrid::daysInPreviousMonth() const
 bool CalendarGrid::isToday(const int day) const
 {
     using namespace std::chrono;
-    return DateUtils::today() == year_month_day{m_currentYearMonth / day};
+    return m_today == year_month_day{m_currentYearMonth / day};
 }
 
 void CalendarGrid::onCellRightClicked(const int cellIndex)

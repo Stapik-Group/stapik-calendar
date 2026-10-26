@@ -152,7 +152,7 @@ private:
     CalendarDocumentStore m_store;
     std::map<int, YearState> m_years;    // filled by loadFromStore(), so it has to be declared before m_document
     CalendarDocument m_document;
-    int m_displayedYear = static_cast<int>(std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) }.year());
+    int m_displayedYear;
     std::set<int> m_visitedYears;
     std::function<std::optional<CloudStorageConfig>()> m_loadCloudConfig;
     std::function<std::unique_ptr<ICloudStorage>(const CloudStorageConfig&)> m_createStorage;
