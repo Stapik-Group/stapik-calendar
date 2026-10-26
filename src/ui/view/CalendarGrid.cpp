@@ -129,6 +129,12 @@ Gtk::Window* CalendarGrid::validatedWindowForCell(const int cellIndex, int& outD
     return dynamic_cast<Gtk::Window*>(get_root());
 }
 
+void CalendarGrid::addEntryOn(const std::chrono::year_month_day date)
+{
+    if (auto* window = dynamic_cast<Gtk::Window*>(get_root()); window != nullptr)
+        showEntryDialog(*window, date, std::nullopt);
+}
+
 void CalendarGrid::onCellClicked(const int cellIndex)
 {
     const int day = cellDay(cellIndex);

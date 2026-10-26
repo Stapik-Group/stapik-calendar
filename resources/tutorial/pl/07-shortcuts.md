@@ -2,6 +2,12 @@
 
 ## Klawiatura
 
+- `←` `→` — poprzedni / następny dzień
+- `↑` `↓` — ten sam dzień tygodnia w poprzednim / następnym tygodniu
+- `Page Up` `Page Down` — poprzedni / następny miesiąc
+- `Ctrl`+`Page Up` `Ctrl`+`Page Down` — poprzedni / następny rok
+- `Home` lub `Ctrl`+`T` — przejdź do dzisiaj
+- `Enter` lub `Ctrl`+`N` — nowy wpis w zaznaczonym dniu
 - `Ctrl`+`Z` — Cofnij
 - `Ctrl`+`Shift`+`Z` — Ponów
 - `Ctrl`+`Q` — Wyjście

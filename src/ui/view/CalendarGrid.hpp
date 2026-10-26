@@ -22,6 +22,7 @@ public:
 
     void displayMonth(std::chrono::year_month yearMonth, std::optional<std::chrono::year_month_day> markedDate);
     sigc::signal<void(std::chrono::year_month_day)>& signalDaySelected();
+    void addEntryOn(std::chrono::year_month_day date);
 private:
     static constexpr int ROWS = 6;
     static constexpr int COLUMNS = 7;

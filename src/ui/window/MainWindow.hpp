@@ -2,6 +2,7 @@
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
+#include <gtkmm/eventcontrollerkey.h>
 #include <sigc++/connection.h>
 
 #include "stapik/settings/ObservableSetting.hpp"
@@ -53,4 +54,5 @@ private:
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();
+    bool onKeyPressed(guint keyval, Gdk::ModifierType state);
 };

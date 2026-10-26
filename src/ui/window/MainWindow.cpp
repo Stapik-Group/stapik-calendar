@@ -9,6 +9,10 @@
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
+#include <gdk/gdk.h>
+#include <gtkmm/button.h>
+#include <gtkmm/editable.h>
+
 #include <string>
 
 namespace
@@ -71,6 +75,26 @@ void MainWindow::init()
     set_child(m_mainBox);
 
     signal_close_request().connect(sigc::mem_fun(*this, &MainWindow::onCloseRequest), false);
+
+    auto keyController = Gtk::EventControllerKey::create();
+    keyController->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
+    keyController->signal_key_pressed().connect(
+        [this](const guint keyval, const guint, const Gdk::ModifierType state) { return onKeyPressed(keyval, state); }, false);
+    add_controller(keyController);
+}
+
+bool MainWindow::onKeyPressed(const guint keyval, const Gdk::ModifierType state)
+{
+    const auto* focused = get_focus();
+
+    if (dynamic_cast<const Gtk::Editable*>(focused) != nullptr)
+        return false;
+
+    const bool activationKey = keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter;
+    if (activationKey && dynamic_cast<const Gtk::Button*>(focused) != nullptr)
+        return false;
+
+    return m_calendarView.handleKeyPress(keyval, state);
 }
 
 void MainWindow::initLayout()

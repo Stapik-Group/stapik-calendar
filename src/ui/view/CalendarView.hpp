@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gdkmm/enums.h>
 #include <gtkmm/box.h>
 #include <gtkmm/label.h>
 #include <sigc++/connection.h>
@@ -20,6 +21,8 @@ class CalendarView : public Gtk::Box
 public:
     CalendarView(CalendarController& controller, stapik::settings::ObservableSetting<bool>& showWeekNumbers);
     ~CalendarView() override;
+
+    bool handleKeyPress(guint keyval, Gdk::ModifierType state);
 private:
     CalendarController& m_controller;
     std::chrono::year_month_day m_selectedDate;
@@ -52,6 +55,7 @@ private:
     void navigateTo(std::chrono::year_month yearMonth);
     void navigateToToday();
     void selectDate(std::chrono::year_month_day date);
+    void markDate(std::chrono::year_month_day date);
     void onDaySelected(std::chrono::year_month_day date);
 
     void refreshView();

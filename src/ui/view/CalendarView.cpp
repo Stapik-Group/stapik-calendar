@@ -5,6 +5,8 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
+#include <gdk/gdk.h>
+
 CalendarView::CalendarView(CalendarController& controller, stapik::settings::ObservableSetting<bool>& showWeekNumbers) :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_controller(controller),
@@ -91,6 +93,46 @@ void CalendarView::initNavigation()
     m_grid.signalDaySelected().connect(sigc::mem_fun(*this, &CalendarView::onDaySelected));
 }
 
+bool CalendarView::handleKeyPress(const guint keyval, const Gdk::ModifierType state)
+{
+    const bool ctrl = (state & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType::CONTROL_MASK;
+
+    if (ctrl)
+    {
+        switch (gdk_keyval_to_lower(keyval))
+        {
+        case GDK_KEY_Page_Up:
+        case GDK_KEY_KP_Page_Up:   markDate(DateUtils::addYears(m_selectedDate, -1)); return true;
+        case GDK_KEY_Page_Down:
+        case GDK_KEY_KP_Page_Down: markDate(DateUtils::addYears(m_selectedDate, 1));  return true;
+        case GDK_KEY_t:         markDate(DateUtils::today());                      return true;
+        case GDK_KEY_n:         m_grid.addEntryOn(m_selectedDate);                 return true;
+        default:                return false;
+        }
+    }
+
+    switch (keyval)
+    {
+    case GDK_KEY_Left:
+    case GDK_KEY_KP_Left:   markDate(DateUtils::addDays(m_selectedDate, -1));                         return true;
+    case GDK_KEY_Right:
+    case GDK_KEY_KP_Right:  markDate(DateUtils::addDays(m_selectedDate, 1));                          return true;
+    case GDK_KEY_Up:
+    case GDK_KEY_KP_Up:     markDate(DateUtils::addDays(m_selectedDate, -WeekRules::DAYS_IN_WEEK));   return true;
+    case GDK_KEY_Down:
+    case GDK_KEY_KP_Down:   markDate(DateUtils::addDays(m_selectedDate, WeekRules::DAYS_IN_WEEK));    return true;
+    case GDK_KEY_Page_Up:
+    case GDK_KEY_KP_Page_Up:   markDate(DateUtils::addMonths(m_selectedDate, -1));                       return true;
+    case GDK_KEY_Page_Down:
+    case GDK_KEY_KP_Page_Down: markDate(DateUtils::addMonths(m_selectedDate, 1));                        return true;
+    case GDK_KEY_Home:
+    case GDK_KEY_KP_Home:   markDate(DateUtils::today());                                             return true;
+    case GDK_KEY_Return:
+    case GDK_KEY_KP_Enter:  m_grid.addEntryOn(m_selectedDate);                                        return true;
+    default:                return false;
+    }
+}
+
 void CalendarView::navigatePrevYear()
 {
     selectDate(DateUtils::addYears(m_selectedDate, -1));
@@ -128,12 +170,16 @@ void CalendarView::selectDate(const std::chrono::year_month_day date)
     refreshView();
 }
 
-void CalendarView::onDaySelected(const std::chrono::year_month_day date)
+void CalendarView::markDate(const std::chrono::year_month_day date)
 {
     m_selectedDate = date;
     m_hasMarkedDay = true;
     refreshView();
-    grab_focus();
+}
+
+void CalendarView::onDaySelected(const std::chrono::year_month_day date)
+{
+    markDate(date);
 }
 
 void CalendarView::refreshView()
