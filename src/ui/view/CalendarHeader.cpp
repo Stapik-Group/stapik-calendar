@@ -30,14 +30,50 @@ void CalendarHeader::initLayout()
         m_cells[i].set_hexpand(true);
         m_cells[i].add_css_class("calendar-header-cell");
         m_cells[i].append(m_labels[i]);
-
-        attach(m_cells[i], i, 0);
     }
+
+    layoutCells();
+}
+
+void CalendarHeader::layoutCells()
+{
+    for (auto& cell : m_cells)
+        if (cell.get_parent() == this)
+            remove(cell);
+
+    if (m_viewMode == ViewMode::Day)
+    {
+        attach(m_cells[0], 0, 0, COLUMNS, 1);
+        return;
+    }
+
+    for (int i = 0; i < COLUMNS; i++)
+        attach(m_cells[i], i, 0);
+}
+
+void CalendarHeader::display(const ViewMode viewMode, const std::chrono::year_month_day selectedDate)
+{
+    const bool modeChanged = viewMode != m_viewMode;
+
+    m_viewMode = viewMode;
+    m_selectedDate = selectedDate;
+
+    if (modeChanged)
+        layoutCells();
+
+    refreshLabels();
 }
 
 void CalendarHeader::refreshLabels()
 {
     const auto& loc = LocaleManager::instance();
+
+    if (m_viewMode == ViewMode::Day)
+    {
+        const std::chrono::weekday weekday{std::chrono::sys_days{m_selectedDate}};
+        m_labels[0].set_text(loc.translate(DAY_KEYS[weekday.c_encoding()]));
+        return;
+    }
 
     for (int i = 0; i < COLUMNS; i++)
         m_labels[i].set_text(loc.translate(DAY_KEYS[m_weekRules.weekdayInColumn(i).c_encoding()]));

@@ -13,6 +13,11 @@
 - Undo `Ctrl`+`Z` — Reverts the last operation.
 - Redo `Ctrl`+`Shift`+`Z` — Repeats an operation that was undone.
 
+**View**
+
+- Month, Week, Day `Ctrl`+`1`, `Ctrl`+`2`, `Ctrl`+`3` — Chooses whether the calendar shows the whole month, one week or one day.
+- Today — Goes to the current day.
+
 **Settings**
 
 - Settings… — Opens the settings window with the language (Polish, English or German), the theme and the font. A change is applied at once.

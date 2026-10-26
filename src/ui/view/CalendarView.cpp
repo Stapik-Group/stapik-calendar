@@ -64,9 +64,23 @@ void CalendarView::refreshWeekNumberTitle()
 
 void CalendarView::applyWeekNumberVisibility()
 {
-    const bool visible = m_showWeekNumbers.get();
+    const bool visible = m_showWeekNumbers.get() && m_viewMode != ViewMode::Day;
     m_weekNumberTitle.set_visible(visible);
     m_weekNumbers.set_visible(visible);
+}
+
+std::vector<int> CalendarView::weekNumbersOfView() const
+{
+    using namespace std::chrono;
+
+    switch (m_viewMode)
+    {
+    case ViewMode::Month: return weekNumbersOfMonth(year_month{m_selectedDate.year(), m_selectedDate.month()});
+    case ViewMode::Week:  return { m_weekRules.weekNumber(m_weekRules.startOfWeek(m_selectedDate)) };
+    case ViewMode::Day:   return {};
+    }
+
+    return {};
 }
 
 std::vector<int> CalendarView::weekNumbersOfMonth(const std::chrono::year_month yearMonth) const
@@ -85,11 +99,12 @@ std::vector<int> CalendarView::weekNumbersOfMonth(const std::chrono::year_month 
 void CalendarView::initNavigation()
 {
     m_navBar.signalPrevYear().connect(sigc::mem_fun(*this, &CalendarView::navigatePrevYear));
-    m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &CalendarView::navigatePrevMonth));
-    m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &CalendarView::navigateNextMonth));
+    m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &CalendarView::navigatePrevPeriod));
+    m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &CalendarView::navigateNextPeriod));
     m_navBar.signalNextYear().connect( sigc::mem_fun(*this, &CalendarView::navigateNextYear));
     m_navBar.signalToday().connect(sigc::mem_fun(*this, &CalendarView::navigateToToday));
     m_navBar.signalMonthSelected().connect(sigc::mem_fun(*this, &CalendarView::navigateTo));
+    m_navBar.signalDaySelected().connect(sigc::mem_fun(*this, &CalendarView::onDaySelected));
     m_grid.signalDaySelected().connect(sigc::mem_fun(*this, &CalendarView::onDaySelected));
 }
 
@@ -106,6 +121,9 @@ bool CalendarView::handleKeyPress(const guint keyval, const Gdk::ModifierType st
         case GDK_KEY_Page_Down:
         case GDK_KEY_KP_Page_Down: markDate(DateUtils::addYears(m_selectedDate, 1));  return true;
         case GDK_KEY_t:         markDate(DateUtils::today());                      return true;
+        case GDK_KEY_1:         setViewMode(ViewMode::Month);                      return true;
+        case GDK_KEY_2:         setViewMode(ViewMode::Week);                       return true;
+        case GDK_KEY_3:         setViewMode(ViewMode::Day);                        return true;
         case GDK_KEY_n:         m_grid.addEntryOn(m_selectedDate);                 return true;
         default:                return false;
         }
@@ -122,9 +140,9 @@ bool CalendarView::handleKeyPress(const guint keyval, const Gdk::ModifierType st
     case GDK_KEY_Down:
     case GDK_KEY_KP_Down:   markDate(DateUtils::addDays(m_selectedDate, WeekRules::DAYS_IN_WEEK));    return true;
     case GDK_KEY_Page_Up:
-    case GDK_KEY_KP_Page_Up:   markDate(DateUtils::addMonths(m_selectedDate, -1));                       return true;
+    case GDK_KEY_KP_Page_Up:   markDate(stepped(-1));                                                    return true;
     case GDK_KEY_Page_Down:
-    case GDK_KEY_KP_Page_Down: markDate(DateUtils::addMonths(m_selectedDate, 1));                        return true;
+    case GDK_KEY_KP_Page_Down: markDate(stepped(1));                                                     return true;
     case GDK_KEY_Home:
     case GDK_KEY_KP_Home:   markDate(DateUtils::today());                                             return true;
     case GDK_KEY_Return:
@@ -138,14 +156,48 @@ void CalendarView::navigatePrevYear()
     selectDate(DateUtils::addYears(m_selectedDate, -1));
 }
 
-void CalendarView::navigatePrevMonth()
+void CalendarView::navigatePrevPeriod()
 {
-    selectDate(DateUtils::addMonths(m_selectedDate, -1));
+    selectDate(stepped(-1));
 }
 
-void CalendarView::navigateNextMonth()
+void CalendarView::navigateNextPeriod()
 {
-    selectDate(DateUtils::addMonths(m_selectedDate, 1));
+    selectDate(stepped(1));
+}
+
+std::chrono::year_month_day CalendarView::stepped(const int direction) const
+{
+    switch (m_viewMode)
+    {
+    case ViewMode::Week: return DateUtils::addDays(m_selectedDate, direction * WeekRules::DAYS_IN_WEEK);
+    case ViewMode::Day:  return DateUtils::addDays(m_selectedDate, direction);
+    case ViewMode::Month:
+        break;
+    }
+
+    return DateUtils::addMonths(m_selectedDate, direction);
+}
+
+void CalendarView::setViewMode(const ViewMode viewMode)
+{
+    if (viewMode == m_viewMode)
+        return;
+
+    m_viewMode = viewMode;
+    applyWeekNumberVisibility();
+    refreshView();
+    m_signalViewModeChanged.emit(viewMode);
+}
+
+void CalendarView::showToday()
+{
+    navigateToToday();
+}
+
+sigc::signal<void(ViewMode)>& CalendarView::signalViewModeChanged()
+{
+    return m_signalViewModeChanged;
 }
 
 void CalendarView::navigateNextYear()
@@ -184,10 +236,9 @@ void CalendarView::onDaySelected(const std::chrono::year_month_day date)
 
 void CalendarView::refreshView()
 {
-    const std::chrono::year_month yearMonth{m_selectedDate.year(), m_selectedDate.month()};
-
     m_controller.setDisplayedYear(static_cast<int>(m_selectedDate.year()));
-    m_navBar.updateDisplay(yearMonth);
-    m_weekNumbers.setWeekNumbers(weekNumbersOfMonth(yearMonth));
-    m_grid.displayMonth(yearMonth, m_hasMarkedDay ? std::optional{m_selectedDate} : std::nullopt);
+    m_navBar.updateDisplay(m_selectedDate);
+    m_weekNumbers.setWeekNumbers(weekNumbersOfView());
+    m_header.display(m_viewMode, m_selectedDate);
+    m_grid.display(m_viewMode, m_selectedDate, m_hasMarkedDay ? std::optional{m_selectedDate} : std::nullopt);
 }

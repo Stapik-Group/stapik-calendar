@@ -48,6 +48,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
 {
     m_actionHandler.registerActions();
     initFileMenu();
+    initViewMenu();
     initSettings();
     initSaveErrors();
     initApiKeyWarning();
@@ -66,6 +67,7 @@ MainWindow::~MainWindow()
     m_apiKeyExpiringConnection.disconnect();
     m_syncProblemConnection.disconnect();
     m_mapConnection.disconnect();
+    m_viewModeConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -124,6 +126,41 @@ void MainWindow::initFileMenu()
         archiveSection->append(LocaleManager::instance().translate("menu.file.exportArchive"), "win.exportArchive");
         archiveSection->append(LocaleManager::instance().translate("menu.file.importArchive"), "win.importArchive");
         menu.append_section(archiveSection);
+    });
+}
+
+void MainWindow::initViewMenu()
+{
+    using ViewModeAction = stapik::ui::RadioAction<ViewMode>;
+
+    m_viewModeAction = std::make_unique<ViewModeAction>(
+        *this,
+        "viewMode",
+        std::vector<ViewModeAction::Option>{
+            { .value = ViewMode::Month, .id = "month" },
+            { .value = ViewMode::Week,  .id = "week" },
+            { .value = ViewMode::Day,   .id = "day" } },
+        ViewMode::Month,
+        [this](const ViewMode viewMode) { m_calendarView.setViewMode(viewMode); });
+
+    m_viewModeConnection = m_calendarView.signalViewModeChanged().connect(
+        [this](const ViewMode viewMode) { m_viewModeAction->setValue(viewMode); });
+
+    add_action("viewToday", [this] { m_calendarView.showToday(); });
+
+    m_menu.addMenu("menu.view", [this](Gio::Menu& menu)
+    {
+        const auto& loc = LocaleManager::instance();
+
+        const auto modeSection = Gio::Menu::create();
+        modeSection->append(loc.translate("menu.view.month"), m_viewModeAction->detailedAction(ViewMode::Month));
+        modeSection->append(loc.translate("menu.view.week"), m_viewModeAction->detailedAction(ViewMode::Week));
+        modeSection->append(loc.translate("menu.view.day"), m_viewModeAction->detailedAction(ViewMode::Day));
+        menu.append_section(modeSection);
+
+        const auto todaySection = Gio::Menu::create();
+        todaySection->append(loc.translate("nav.today"), "win.viewToday");
+        menu.append_section(todaySection);
     });
 }
 

@@ -8,6 +8,7 @@
 - `Ctrl`+`Page Up` `Ctrl`+`Page Down` — poprzedni / następny rok
 - `Home` lub `Ctrl`+`T` — przejdź do dzisiaj
 - `Enter` lub `Ctrl`+`N` — nowy wpis w zaznaczonym dniu
+- `Ctrl`+`1` `Ctrl`+`2` `Ctrl`+`3` — widok miesiąca / tygodnia / dnia
 - `Ctrl`+`Z` — Cofnij
 - `Ctrl`+`Shift`+`Z` — Ponów
 - `Ctrl`+`Q` — Wyjście

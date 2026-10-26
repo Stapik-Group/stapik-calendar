@@ -3,10 +3,10 @@
 Das Fenster besteht von oben nach unten aus:
 
 - **Menüleiste** — *Datei*, *Bearbeiten*, *Einstellungen* und *Hilfe* (siehe [Menüs](#menus)).
-- **Navigationsleiste** — der Name des angezeigten Monats und Jahres mit Schaltflächen zum Wechseln.
+- **Navigationsleiste** — der Name des angezeigten Monats und Jahres mit Schaltflächen zum Wechseln, und die Schaltfläche **Heute**. Die Monats-, Wochen- und Tagesansicht wählen Sie im Menü *Ansicht*.
 - **Wochentagszeile** — die sieben Wochentage. Die Woche beginnt an dem Tag, der in den Regionaleinstellungen Ihres Systems festgelegt ist (in den meisten europäischen Ländern Montag).
 - **Kalenderwochen** — die Nummer jeder Woche in der Spalte links neben den Zellen. Sie lassen sich unter *Einstellungen → Kalenderwochen anzeigen* ausschalten.
-- **Tageszellen** — eine Zelle pro Tag. Die Tagesnummer steht in der Ecke der Zelle, der heutige Tag ist hervorgehoben. Zellen außerhalb des angezeigten Monats bleiben leer.
+- **Tageszellen** — eine Zelle pro Tag. Die Tagesnummer steht in der Ecke der Zelle, der heutige Tag ist hervorgehoben. Zellen außerhalb des angezeigten Monats bleiben leer. Die Wochenansicht zeigt eine Reihe aus sieben Zellen, die Tagesansicht eine einzelne große Zelle.
 - **Statusleiste** — wird nur angezeigt, wenn der Kalender mit einer Cloud verbunden ist; sie zeigt den Synchronisierungsstatus (siehe [Synchronisierung mit Stapik Cloud](#cloud)).
 
 ![Die Menüleiste mit Datei, Bearbeiten, Einstellungen und Hilfe](images/menu-bar.png)

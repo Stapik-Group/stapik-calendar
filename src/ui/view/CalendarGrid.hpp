@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CalendarCell.hpp"
+#include "ViewMode.hpp"
 #include "../../application/CalendarController.hpp"
 #include "../../core/util/WeekRules.hpp"
 
@@ -20,7 +21,7 @@ public:
     CalendarGrid(CalendarController& controller, const WeekRules& weekRules);
     ~CalendarGrid() override;
 
-    void displayMonth(std::chrono::year_month yearMonth, std::optional<std::chrono::year_month_day> markedDate);
+    void display(ViewMode viewMode, std::chrono::year_month_day anchorDate, std::optional<std::chrono::year_month_day> markedDate);
     sigc::signal<void(std::chrono::year_month_day)>& signalDaySelected();
     void addEntryOn(std::chrono::year_month_day date);
 private:
@@ -30,7 +31,10 @@ private:
     static constexpr unsigned DAY_CHANGE_CHECK_SECONDS = 30;
 
     std::array<CalendarCell, TOTAL_CELLS> m_cells;
+    ViewMode m_viewMode = ViewMode::Month;
+    std::chrono::year_month_day m_anchorDate {};
     std::chrono::year_month m_currentYearMonth {};
+    std::array<std::optional<std::chrono::year_month_day>, TOTAL_CELLS> m_cellDates {};
     std::chrono::year_month_day m_today {};
     std::optional<std::chrono::year_month_day> m_markedDate;
     CalendarController& m_controller;
@@ -40,7 +44,10 @@ private:
     sigc::signal<void(std::chrono::year_month_day)> m_signalDaySelected;
 
     void initLayout();
+    void layoutCells();
+    void updateCellDates();
     void populateCells();
+    void populateCell(int cellIndex);
     void refreshIfDayChanged();
     void connectCellSignals();
 
@@ -56,13 +63,10 @@ private:
     void showEntryDialog(Gtk::Window& window, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
     void showEntryDialogForLink(std::chrono::year_month_day date, const std::string& url);
     void presentEntryDialog(CalendarEntryDialog& entryDialog, std::chrono::year_month_day date, const std::optional<EntryId>& editId);
-    [[nodiscard]] Gtk::Window* validatedWindowForCell(int cellIndex, int& outDay);
+    [[nodiscard]] Gtk::Window* windowForCell(int cellIndex);
 
     int firstWeekdayOffset() const;
     int daysInMonth() const;
     int daysInPreviousMonth() const;
-    bool isToday(int day) const;
-
-    std::chrono::year_month_day cellDate(int day) const;
-    int cellDay(int cellIndex) const;
+    [[nodiscard]] std::chrono::weekday weekdayOfCell(int cellIndex) const;
 };
