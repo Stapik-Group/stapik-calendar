@@ -2,10 +2,14 @@
 
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
+#include <gtkmm/eventcontrollerkey.h>
 #include <sigc++/connection.h>
+
+#include <memory>
 
 #include "stapik/settings/ObservableSetting.hpp"
 #include "stapik/theme/ThemeRegistry.hpp"
+#include "stapik/ui/menu/RadioAction.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
 #include "stapik/ui/widget/StatusIndicator.hpp"
 
@@ -24,9 +28,11 @@ private:
     static constexpr int STATUS_BAR_MARGIN = 6;
     static constexpr auto WINDOW_TITLE = "Stapik Calendar";
     static constexpr auto TUTORIAL_DIRECTORY = "tutorial";
+    static constexpr auto SHOW_WEEK_NUMBERS_SETTING = "view.showWeekNumbers";
 
     Gtk::Box m_mainBox;
     CalendarController m_controller;
+    stapik::settings::ObservableSetting<bool> m_showWeekNumbers;
     CalendarView m_calendarView;
     Gtk::Box m_statusBar;
     StatusIndicator m_statusIndicator;
@@ -39,10 +45,13 @@ private:
     sigc::connection m_apiKeyExpiringConnection;
     sigc::connection m_syncProblemConnection;
     sigc::connection m_mapConnection;
+    sigc::connection m_viewModeConnection;
+    std::unique_ptr<stapik::ui::RadioAction<ViewMode>> m_viewModeAction;
 
     void init();
     void initLayout();
     void initFileMenu();
+    void initViewMenu();
     void initSettings();
     void initSaveErrors();
     void initApiKeyWarning();
@@ -51,4 +60,5 @@ private:
     void initSyncStatus();
     void refreshStatusBar();
     bool onCloseRequest();
+    bool onKeyPressed(guint keyval, Gdk::ModifierType state);
 };

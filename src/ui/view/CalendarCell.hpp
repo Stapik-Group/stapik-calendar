@@ -21,9 +21,11 @@ public:
     void setAdjacentMonthDay(int day);
     void setWeekend(bool isWeekend);
     void markAsToday(bool isToday);
+    void markAsSelected(bool isSelected);
     void setEntries(const std::vector<CalendarEntry>& entries);
     void setCellIndex(int cellIndex);
 
+    sigc::signal<void()>& signalClicked();
     sigc::signal<void()>& signalDoubleClicked();
     sigc::signal<void()>& signalRightClicked();
     sigc::signal<void(const EntryId&)>& signalEntryLinkClicked();
@@ -36,6 +38,7 @@ private:
     static constexpr int CELL_MARGIN = 4;
     static constexpr guint LEFT_MOUSE_BUTTON = 1;
     static constexpr guint RIGHT_MOUSE_BUTTON = 3;
+    static constexpr int SINGLE_CLICK_COUNT = 1;
     static constexpr int DOUBLE_CLICK_COUNT = 2;
     static constexpr int OVERFLOW_INDICATOR_MARGIN = 2;
     // Entries cut off by less than this (in pixels) still count as fully visible.
@@ -54,6 +57,7 @@ private:
 
     Glib::RefPtr<Gtk::GestureClick> m_gestureClick;
     Glib::RefPtr<Gtk::GestureClick> m_gestureRightClick;
+    sigc::signal<void()> m_signalClicked;
     sigc::signal<void()> m_signalDoubleClicked;
     sigc::signal<void()> m_signalRightClicked;
     sigc::signal<void(const EntryId&)> m_signalEntryLinkClicked;

@@ -9,6 +9,10 @@
 #include "stapik/ui/dialog/DialogUtils.hpp"
 #include "stapik/update/UpdateChecker.hpp"
 
+#include <gdk/gdk.h>
+#include <gtkmm/button.h>
+#include <gtkmm/editable.h>
+
 #include <string>
 
 namespace
@@ -35,7 +39,8 @@ namespace
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
     m_controller(CalendarDocumentStore::createDefault(), createCalendarCloudHooks()),
-    m_calendarView(m_controller),
+    m_showWeekNumbers(stapik::app::AppContext::instance().settings(), SHOW_WEEK_NUMBERS_SETTING, true),
+    m_calendarView(m_controller, m_showWeekNumbers),
     m_statusBar(Gtk::Orientation::HORIZONTAL, 0),
     m_actionHandler(*this, m_controller, [this] { m_checkForUpdates.reload(); }),
     m_checkForUpdates(stapik::app::AppContext::instance().settings(), stapik::update::CHECK_ENABLED_SETTING, true),
@@ -43,6 +48,7 @@ MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
 {
     m_actionHandler.registerActions();
     initFileMenu();
+    initViewMenu();
     initSettings();
     initSaveErrors();
     initApiKeyWarning();
@@ -61,6 +67,7 @@ MainWindow::~MainWindow()
     m_apiKeyExpiringConnection.disconnect();
     m_syncProblemConnection.disconnect();
     m_mapConnection.disconnect();
+    m_viewModeConnection.disconnect();
 }
 
 void MainWindow::init()
@@ -70,6 +77,26 @@ void MainWindow::init()
     set_child(m_mainBox);
 
     signal_close_request().connect(sigc::mem_fun(*this, &MainWindow::onCloseRequest), false);
+
+    auto keyController = Gtk::EventControllerKey::create();
+    keyController->set_propagation_phase(Gtk::PropagationPhase::CAPTURE);
+    keyController->signal_key_pressed().connect(
+        [this](const guint keyval, const guint, const Gdk::ModifierType state) { return onKeyPressed(keyval, state); }, false);
+    add_controller(keyController);
+}
+
+bool MainWindow::onKeyPressed(const guint keyval, const Gdk::ModifierType state)
+{
+    const auto* focused = get_focus();
+
+    if (dynamic_cast<const Gtk::Editable*>(focused) != nullptr)
+        return false;
+
+    const bool activationKey = keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter;
+    if (activationKey && dynamic_cast<const Gtk::Button*>(focused) != nullptr)
+        return false;
+
+    return m_calendarView.handleKeyPress(keyval, state);
 }
 
 void MainWindow::initLayout()
@@ -102,10 +129,46 @@ void MainWindow::initFileMenu()
     });
 }
 
+void MainWindow::initViewMenu()
+{
+    using ViewModeAction = stapik::ui::RadioAction<ViewMode>;
+
+    m_viewModeAction = std::make_unique<ViewModeAction>(
+        *this,
+        "viewMode",
+        std::vector<ViewModeAction::Option>{
+            { .value = ViewMode::Month, .id = "month" },
+            { .value = ViewMode::Week,  .id = "week" },
+            { .value = ViewMode::Day,   .id = "day" } },
+        ViewMode::Month,
+        [this](const ViewMode viewMode) { m_calendarView.setViewMode(viewMode); });
+
+    m_viewModeConnection = m_calendarView.signalViewModeChanged().connect(
+        [this](const ViewMode viewMode) { m_viewModeAction->setValue(viewMode); });
+
+    add_action("viewToday", [this] { m_calendarView.showToday(); });
+
+    m_menu.addMenu("menu.view", [this](Gio::Menu& menu)
+    {
+        const auto& loc = LocaleManager::instance();
+
+        const auto modeSection = Gio::Menu::create();
+        modeSection->append(loc.translate("menu.view.month"), m_viewModeAction->detailedAction(ViewMode::Month));
+        modeSection->append(loc.translate("menu.view.week"), m_viewModeAction->detailedAction(ViewMode::Week));
+        modeSection->append(loc.translate("menu.view.day"), m_viewModeAction->detailedAction(ViewMode::Day));
+        menu.append_section(modeSection);
+
+        const auto todaySection = Gio::Menu::create();
+        todaySection->append(loc.translate("nav.today"), "win.viewToday");
+        menu.append_section(todaySection);
+    });
+}
+
 void MainWindow::initSettings()
 {
     // The check runs once, at startup, so a change takes effect on the next start.
     m_menu.settings().addBool("menu.settings.checkForUpdates", m_checkForUpdates);
+    m_menu.settings().addBool("menu.settings.showWeekNumbers", m_showWeekNumbers);
 }
 
 void MainWindow::initSaveErrors()

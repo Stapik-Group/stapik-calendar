@@ -13,6 +13,11 @@
 - Rückgängig `Strg`+`Z` — Macht die letzte Aktion rückgängig.
 - Wiederholen `Strg`+`Umschalt`+`Z` — Wiederholt eine rückgängig gemachte Aktion.
 
+**Ansicht**
+
+- Monat, Woche, Tag `Strg`+`1`, `Strg`+`2`, `Strg`+`3` — Legt fest, ob der Kalender den ganzen Monat, eine Woche oder einen Tag zeigt.
+- Heute — Springt zum aktuellen Tag.
+
 **Einstellungen**
 
 - Einstellungen… — Öffnet das Einstellungsfenster mit Sprache (Polnisch, Englisch oder Deutsch), Thema und Schriftart. Eine Änderung wirkt sofort.

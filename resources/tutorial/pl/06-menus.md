@@ -13,6 +13,11 @@
 - Cofnij `Ctrl`+`Z` — Cofa ostatnią operację.
 - Ponów `Ctrl`+`Shift`+`Z` — Powtarza cofniętą operację.
 
+**Widok**
+
+- Miesiąc, Tydzień, Dzień `Ctrl`+`1`, `Ctrl`+`2`, `Ctrl`+`3` — Wybiera, czy kalendarz pokazuje cały miesiąc, jeden tydzień czy jeden dzień.
+- Dziś — Przechodzi do bieżącego dnia.
+
 **Ustawienia**
 
 - Ustawienia… — Otwiera okno ustawień z językiem (polski, angielski lub niemiecki), motywem i czcionką. Zmiana działa od razu.
